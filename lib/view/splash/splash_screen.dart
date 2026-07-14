@@ -3,9 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../res/color_constant.dart';
 import '../../routes/route_name.dart';
 
-/// Shopzo — Splash Screen
-/// Logo entrance animation + "Shop" (primary) / "zo" (orange) RichText
-/// + pulsing loading dots. Fully responsive via MediaQuery.
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

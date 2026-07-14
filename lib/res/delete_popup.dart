@@ -3,9 +3,6 @@ import 'button_context.dart';
 import 'color_constant.dart';
 import 'text_context.dart';
 
-/// Shopzo — reusable delete / confirmation popup.
-/// Used for: remove cart item, delete address, cancel order,
-/// remove product (admin), remove branch manager (admin), logout confirm.
 class DeletePopup {
   DeletePopup._();
 

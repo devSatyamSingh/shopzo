@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'color_constant.dart';
 import 'text_context.dart';
 
-/// Shopzo — reusable Dropdown field.
-/// Useful for: variant selection (size/color as list), sort/filter,
-/// address state/city select, branch select (admin/branch app), etc.
 class CustomDropdownField<T> extends StatelessWidget {
   final String hintText;
   final String? title;
@@ -99,8 +96,7 @@ class CustomDropdownField<T> extends StatelessWidget {
   }
 }
 
-/// Helper to quickly build DropdownMenuItem<String> list from plain strings.
-/// Usage: items: DropdownItems.fromStrings(['S','M','L','XL'])
+
 class DropdownItems {
   static List<DropdownMenuItem<String>> fromStrings(List<String> values) {
     return values

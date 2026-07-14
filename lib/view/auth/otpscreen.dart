@@ -71,7 +71,6 @@ class _OtpScreenState extends State<OtpScreen> {
       _loading = true;
     });
 
-    // 👉 call your verify-OTP API here, then navigate to home
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return;
       setState(() => _loading = false);

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'color_constant.dart';
 
-/// Shopzo — reusable loading dialog/overlay.
-/// Call LoadingContext.show(context) before an API call and
-/// LoadingContext.hide(context) once the response arrives.
+
 class LoadingContext {
   LoadingContext._();
 
@@ -64,8 +62,7 @@ class LoadingContext {
   }
 }
 
-/// Small inline loader — use inside buttons/lists instead of the
-/// full-screen dialog above (e.g. "load more products" spinner).
+
 class InlineLoader extends StatelessWidget {
   final double size;
   final Color? color;

@@ -6,11 +6,6 @@ import '../view/onboarding/onboardingscreen.dart';
 import '../view/splash/splash_screen.dart';
 import 'route_name.dart';
 
-/// Shopzo — centralized route generator.
-/// Set MaterialApp(onGenerateRoute: AppRoutes.generateRoute) in main.dart
-/// and navigate with Navigator.pushNamed(context, RouteName.xxx).
-///
-/// As you build more screens, add one case per RouteName constant here.
 class AppRoutes {
   AppRoutes._();
 
@@ -32,7 +27,6 @@ class AppRoutes {
       case RouteName.onboarding:
         return _page(const OnboardingScreen());
 
-      // TODO: add the remaining screens as you build them, e.g.
       // case RouteName.productDetail:
       //   final args = settings.arguments as Map<String, dynamic>;
       //   return _page(ProductDetailScreen(productId: args['id']));

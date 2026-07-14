@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'color_constant.dart';
 
-/// Shopzo — reusable primary/secondary button.
-/// Defaults to the brand primary color; pass `gradient:
-/// ColorConstant.brandGradient` for the Shop→zo hero-style CTA button.
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onTap;

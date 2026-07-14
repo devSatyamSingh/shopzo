@@ -5,10 +5,8 @@ import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../auth/login_screen.dart';
 
-/// Background decoration behind the onboarding illustration
 enum OnboardingBgShape { blob, circle, none }
 
-/// ---------------- MODEL ----------------
 class OnboardingData {
   final String image;
   final String title;

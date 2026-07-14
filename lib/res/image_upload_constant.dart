@@ -4,19 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'color_constant.dart';
 import 'text_context.dart';
 
-/// Shopzo — reusable Image Upload helper.
-/// Used for: profile photo, product image upload (admin), review photo,
-/// return-request photo proof, shop logo upload (tenant onboarding), etc.
-///
-/// Add to pubspec.yaml:
-///   image_picker: ^1.1.2
 class ImageUploadHelper {
   ImageUploadHelper._();
 
   static final ImagePicker _picker = ImagePicker();
 
-  /// Shows a bottom sheet with Camera / Gallery options and returns
-  /// the picked File, or null if the user cancels.
+
   static Future<File?> pickImage(
     BuildContext context, {
     bool allowCamera = true,
@@ -43,7 +36,6 @@ class ImageUploadHelper {
     return File(picked.path);
   }
 
-  /// Pick multiple images at once (e.g. product gallery images — admin side)
   static Future<List<File>> pickMultipleImages({
     double imageQuality = 80,
     int? limit,

@@ -29,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _loading = true);
 
-    // 👉 call your send-OTP API here, then navigate
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -205,7 +204,6 @@ class _LoginScreenState extends State<LoginScreen> {
               CustomButton(
                 text: 'Continue with Email',
                 onTap: () {
-                  // 👉 handle email login
                 },
                 outlined: true,
                 borderColor: ColorConstant.borderColor,
@@ -237,7 +235,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // 👉 open Terms of Service
                           },
                       ),
                       const TextSpan(text: ' and '),
@@ -249,7 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // 👉 open Privacy Policy
                           },
                       ),
                       const TextSpan(text: '.'),
