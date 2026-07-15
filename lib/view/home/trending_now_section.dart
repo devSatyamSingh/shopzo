@@ -39,9 +39,9 @@ class TrendingNowSection extends StatelessWidget {
             itemCount: products.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: size.height * 0.025,
+              mainAxisSpacing: size.height * 0.02,
               crossAxisSpacing: size.width * 0.04,
-              childAspectRatio: cardWidth / (size.height * 0.31),
+              childAspectRatio: cardWidth / (size.height * 0.28),
             ),
             itemBuilder: (context, index) {
               final product = products[index];

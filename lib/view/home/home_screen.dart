@@ -47,14 +47,14 @@ class HomeScreen extends StatelessWidget {
       reviewCount: 1200,
     ),
     ProductModel(
-      image: 'assets/images/pro5.jpg',
+      image: 'assets/images/pro8.jpg',
       name: 'SonicWave Portable',
       price: 3450,
       rating: 4.6,
       reviewCount: 850,
     ),
     ProductModel(
-      image: 'assets/images/pro6.jpg',
+      image: 'assets/images/pro7.jpg',
       name: 'Aura Desk Lamp',
       price: 1299,
       rating: 4.7,
@@ -94,7 +94,7 @@ class HomeScreen extends StatelessWidget {
   static const List<BrandModel> _brands = [
     BrandModel(logo: 'assets/images/pro4.jpg', name: 'Apple'),
     BrandModel(logo: 'assets/images/pro3.jpg', name: 'Samsung'),
-    BrandModel(logo: 'assets/images/pro6.jpg', name: 'Adidas'),
+    BrandModel(logo: 'assets/images/pro1.jpg', name: 'Adidas'),
     BrandModel(logo: 'assets/images/pro3.jpg', name: 'Amazon'),
   ];
 

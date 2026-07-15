@@ -5,9 +5,6 @@ import '../../res/text_context.dart';
 
 enum ProductCardVariant { deal, pick, trending }
 
-/// Shopzo — universal product card.
-/// One widget, three looks (via `variant`), so every product grid/list
-/// in the app stays visually consistent.
 class ProductCard extends StatelessWidget {
   final ProductModel product;
   final ProductCardVariant variant;
@@ -126,21 +123,21 @@ class ProductCard extends StatelessWidget {
                 // ---- bottom-right add-to-cart (trending variant) ----
                 if (variant == ProductCardVariant.trending)
                   Positioned(
-                    bottom: -16,
+                    bottom: 8,
                     right: 10,
                     child: GestureDetector(
                       onTap: onAddTap,
                       child: Container(
-                        height: 32,
-                        width: 32,
+                        height: 30,
+                        width: 30,
                         decoration: BoxDecoration(
                           color: ColorConstant.primaryColor,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: ColorConstant.primaryColor.withOpacity(.35),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              color: ColorConstant.primaryColor.withOpacity(.3),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -254,7 +251,7 @@ class _Badge extends StatelessWidget {
         text,
         style: const TextStyle(
           fontSize: 10,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
           color: Colors.white,
           fontFamily: 'Poppins',
         ),

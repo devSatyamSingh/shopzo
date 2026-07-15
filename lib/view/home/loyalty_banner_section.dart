@@ -46,10 +46,10 @@ class LoyaltyBannerSection extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Positioned(
-                right: -18,
-                top: -18,
+                right: -10,
+                top: -1,
                 child: Icon(Icons.card_giftcard_rounded,
-                    size: 90, color: Colors.white.withOpacity(.08)),
+                    size: 75, color: Colors.white.withOpacity(.08)),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +61,7 @@ class LoyaltyBannerSection extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                         letterSpacing: 0.6,
                       ),
@@ -72,8 +72,8 @@ class LoyaltyBannerSection extends StatelessWidget {
                       lines[1],
                       style: const TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),

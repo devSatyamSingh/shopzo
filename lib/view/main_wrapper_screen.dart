@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../res/color_constant.dart';
+import 'account_screen.dart';
 import 'bottombar_screen.dart';
 import 'cart/cart_screen.dart';
 import 'home/home_screen.dart';
@@ -23,7 +24,7 @@ class _MainWrapperState extends State<MainWrapper> {
     CartScreen(),
     CartScreen(),
     CartScreen(),
-    CartScreen(),
+    ProfileScreen(),
   ];
 
   void _onTabTap(int index) {
@@ -38,7 +39,7 @@ class _MainWrapperState extends State<MainWrapper> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: CustomBottomNavBar(
+      bottomNavigationBar: AnimatedNotchBottomNavBar(
         currentIndex: _currentIndex,
         onTap: _onTabTap,
         cartCount: _cartCount,

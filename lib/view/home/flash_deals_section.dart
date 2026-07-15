@@ -114,7 +114,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
         SizedBox(height: size.height * 0.015),
 
         SizedBox(
-          height: size.height * 0.29,
+          height: size.height * 0.24,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
