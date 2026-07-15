@@ -13,6 +13,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 ///   2) a real DNS lookup to confirm actual internet reachability
 ///   3) a periodic background check (catches "slow/dead wifi" cases
 ///      where the OS still reports "connected")
+///
+/// Add to pubspec.yaml:
+///   connectivity_plus: ^6.0.5
 class ConnectivityService {
   ConnectivityService._internal();
   static final ConnectivityService instance = ConnectivityService._internal();

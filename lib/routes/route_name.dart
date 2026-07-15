@@ -14,6 +14,7 @@ class RouteName {
 
   // ---- Core ----
   static const String home = "/home";
+  static const String mainWrapper = "/main_wrapper";
   static const String categories = "/categories";
   static const String productListing = "/product-listing";
   static const String search = "/search";

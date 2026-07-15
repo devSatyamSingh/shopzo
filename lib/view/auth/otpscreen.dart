@@ -74,7 +74,7 @@ class _OtpScreenState extends State<OtpScreen> {
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return;
       setState(() => _loading = false);
-      Navigator.pushReplacementNamed(context, RouteName.home);
+      Navigator.pushReplacementNamed(context, RouteName.mainWrapper);
     });
   }
 

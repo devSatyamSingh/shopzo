@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shopzo/utils/connectivty_wrapper.dart';
+import 'package:shopzo/utils/utils.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -15,6 +17,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Shopzo",
       debugShowCheckedModeBanner: false,
+
+      // Required so AppUtils snackbars/dialogs can be shown from
+      // anywhere (not just from inside a widget's build method).
+      navigatorKey: AppUtils.navigatorKey,
+      scaffoldMessengerKey: AppUtils.messengerKey,
+
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: "Poppins",
@@ -36,8 +44,16 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+
       initialRoute: RouteName.splash,
       onGenerateRoute: AppRoutes.generateRoute,
+
+      // This is what makes the No-Internet screen appear on top of
+      // whichever screen the user is currently on, without losing
+      // that screen's state (form data, scroll position, etc.).
+      builder: (context, child) {
+        return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

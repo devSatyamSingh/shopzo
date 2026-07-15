@@ -1,0 +1,73 @@
+import 'package:flutter/material.dart';
+import 'package:shopzo/view/home/product_card.dart';
+import 'package:shopzo/view/home/product_model.dart';
+import '../../../res/color_constant.dart';
+import '../../../res/text_context.dart';
+
+class TopPicksSection extends StatelessWidget {
+  final List<ProductModel> products;
+  final VoidCallback? onSeeAllTap;
+  final ValueChanged<ProductModel>? onProductTap;
+
+  const TopPicksSection({
+    super.key,
+    required this.products,
+    this.onSeeAllTap,
+    this.onProductTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+          child: Row(
+            children: [
+              TextContext(
+                text: 'Top Picks For You',
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: ColorConstant.headlineTextColor,
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: onSeeAllTap,
+                child: TextContext(
+                  text: 'See All',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: ColorConstant.primaryColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: size.height * 0.015),
+
+        SizedBox(
+          height: size.height * 0.29,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+            itemCount: products.length,
+            separatorBuilder: (_, __) => SizedBox(width: size.width * 0.035),
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return ProductCard(
+                product: product,
+                width: size.width * 0.4,
+                variant: ProductCardVariant.pick,
+                onTap: () => onProductTap?.call(product),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

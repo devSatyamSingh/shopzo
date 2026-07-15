@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:app_settings/app_settings.dart';
-import '../res/button_context.dart';
-import '../res/color_constant.dart';
-import '../res/text_context.dart';
-import '../utils/connectivity_service.dart';
+import '../../res/button_context.dart';
+import '../../res/color_constant.dart';
+import '../../res/text_context.dart';
+import '../../utils/connectivity_service.dart';
 
+/// Shopzo — No Internet screen.
+/// Shown automatically by ConnectivityWrapper whenever real internet
+/// is lost (device may still show "connected to wifi" — this checks
+/// actual reachability via ConnectivityService).
 class NoInternetScreen extends StatefulWidget {
   const NoInternetScreen({super.key});
 
@@ -36,7 +40,8 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
       );
     }
     // If online → ConnectivityService stream fires false→true,
-    // ConnectivityWrapper rebuilds and this screen disappears on its own.
+    // ConnectivityWrapper rebuilds and this screen disappears on its own,
+    // revealing whatever screen the user was already on underneath.
   }
 
   @override
@@ -58,12 +63,16 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
                 width: size.width * 0.19,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: ColorConstant.blackColor, width: 1.5),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Image.asset(
                   'assets/images/shopzolo.png',
                   fit: BoxFit.cover,
+
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    decoration: BoxDecoration(gradient: ColorConstant.brandGradient),
+                    child: const Icon(Icons.shopping_bag_rounded, color: Colors.white),
+                  ),
                 ),
               ),
 
@@ -91,7 +100,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
               SizedBox(height: size.height * 0.035),
 
               // ---------------- TITLE ----------------
-              TextContext(
+              const TextContext(
                 text: 'No Internet Connection',
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -105,7 +114,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
               // ---------------- DESCRIPTION ----------------
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-                child: TextContext(
+                child: const TextContext(
                   text:
                   "Please check your internet settings or try again when you're back online.",
                   fontSize: 14,
@@ -134,7 +143,6 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
               CustomButton(
                 text: 'Check Settings',
                 onTap: () {
-                  // opens device wifi/network settings
                   AppSettings.openAppSettings(type: AppSettingsType.wifi);
                 },
                 outlined: true,
