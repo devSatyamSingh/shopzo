@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../view/auth/login_screen.dart';
 import '../view/auth/otpscreen.dart';
 import '../view/home/home_screen.dart';
-import '../view/main_wrapper_screen.dart';
+import '../view/bottombar/main_wrapper_screen.dart';
 import '../view/onboarding/onboardingscreen.dart';
 import '../view/splash/splash_screen.dart';
 import 'route_name.dart';

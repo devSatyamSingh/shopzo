@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../res/color_constant.dart';
-import '../../res/text_context.dart';
+import '../../../res/color_constant.dart';
+import '../../../res/text_context.dart';
+import '../wishlist/wishlist_screen.dart';
+import 'help_center_screen.dart';
 
 /// Shopzo — Account / Profile screen.
 /// All tap callbacks are wired but left empty — plug in your
@@ -21,9 +23,14 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _onOrdersTap() {}
-  void _onWishlistTap() {}
+  void _onWishlistTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> WishlistScreen()));
+  }
   void _onCouponsTap() {}
-  void _onHelpCenterTap() {}
+  void _onHelpCenterTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> HelpCenterScreen()));
+
+  }
 
   void _onProfileInfoTap() {}
   void _onSavedAddressesTap() {}
@@ -84,8 +91,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.favorite_rounded,
                       title: 'Wishlist',
                       subtitle: 'Your favorite items',
-                      onTap: _onWishlistTap,
-                    ),
+                      onTap: () => _onWishlistTap(context),                    ),
                   ),
                 ],
               ),
@@ -106,7 +112,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.support_agent_rounded,
                       title: 'Help Center',
                       subtitle: 'Customer support',
-                      onTap: _onHelpCenterTap,
+                      onTap: () => _onHelpCenterTap(context),
                     ),
                   ),
                 ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../res/color_constant.dart';
-import '../res/text_context.dart';
+import '../../res/color_constant.dart';
+import '../../res/text_context.dart';
 
 class BottomNavItem {
   final IconData icon;
