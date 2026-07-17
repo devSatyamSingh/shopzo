@@ -43,7 +43,7 @@ class DeletePopup {
               TextContext(
                 text: title,
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),

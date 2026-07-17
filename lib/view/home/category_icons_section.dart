@@ -75,8 +75,8 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
                 SizedBox(height: size.height * 0.007),
                 TextContext(
                   text: item.label,
-                  fontSize: 11.5,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                   color: isActive
                       ? ColorConstant.primaryColor
                       : ColorConstant.labelTextColor,

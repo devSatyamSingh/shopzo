@@ -52,7 +52,7 @@ class HomeAppBar extends StatelessWidget {
                           TextSpan(
                             text: location,
                             style: TextStyle(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: ColorConstant.headlineTextColor,
                             ),
                           ),

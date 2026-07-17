@@ -65,8 +65,8 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
             children: [
               TextContext(
                 text: 'Flash Deals',
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
               ),
               const SizedBox(width: 8),
@@ -88,7 +88,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: ColorConstant.errorColor,
                       ),
                     ),

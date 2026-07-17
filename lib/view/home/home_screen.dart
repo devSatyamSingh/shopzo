@@ -5,6 +5,7 @@ import 'package:shopzo/view/home/shop_by_brand_screen.dart';
 import 'package:shopzo/view/home/top_picks_section.dart';
 import 'package:shopzo/view/home/trending_now_section.dart';
 import '../../res/color_constant.dart';
+import '../product_details/product_details_screen.dart';
 import 'category_icons_section.dart';
 import 'filter_bar_section.dart';
 import 'flash_deals_section.dart';
@@ -13,7 +14,7 @@ import 'home_appbar.dart';
 import 'home_searchbar.dart';
 import 'loyalty_banner_section.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   // 👉 replace all of this with real API data
@@ -99,6 +100,11 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -137,7 +143,17 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
 
                 // ---------------- FLASH DEALS ----------------
-                FlashDealsSection(products: _flashDeals),
+                FlashDealsSection(
+                  products: HomeScreen._flashDeals,
+                  onProductTap: (product) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductDetailScreen(),
+                      ),
+                    );
+                  },
+                ),
 
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
 
@@ -147,12 +163,21 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.008),
 
                 // ---------------- TOP PICKS ----------------
-                TopPicksSection(products: _topPicks),
-
+                TopPicksSection(
+                  products: HomeScreen._topPicks,
+                  onProductTap: (product) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductDetailScreen(),
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.025),
 
                 // ---------------- SHOP BY BRAND ----------------
-                ShopByBrandSection(brands: _brands),
+                ShopByBrandSection(brands: HomeScreen._brands),
 
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
 
@@ -162,8 +187,17 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
 
                 // ---------------- TRENDING NOW ----------------
-                TrendingNowSection(products: _trending),
-
+                TrendingNowSection(
+                  products: HomeScreen._trending,
+                  onProductTap: (product) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductDetailScreen(),
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               ],
             ),

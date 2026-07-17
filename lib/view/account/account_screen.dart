@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shopzo/view/order/order_list_screen.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../address/address_list_screen.dart';
 import '../wishlist/wishlist_screen.dart';
 import 'help_center_screen.dart';
 
@@ -12,17 +14,20 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   //  replace with real user data (provider / bloc / auth service)
-  static const String _name = 'John Doe';
-  static const String _email = 'john.doe@example.com';
+  static const String _name = 'Satyam Singh';
+  static const String _email = 'satyam@gmail.com';
   static const String _memberSince = 'Member since Jan 2024';
-  static const String _avatarUrl = 'assets/images/pro2.jpg';
-  static const String _appVersion = 'Shopzo v2.4.1 (Stable)';
+  static const String _avatarUrl = 'assets/images/pro12.jpg';
+  static const String _appVersion = 'Shopzo v2.4.1';
 
   void _onEditAvatar() {
     //  open image picker / edit profile photo
   }
 
-  void _onOrdersTap() {}
+  void _onOrdersTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> OrdersScreen()));
+
+  }
   void _onWishlistTap(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context)=> WishlistScreen()));
   }
@@ -33,7 +38,10 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _onProfileInfoTap() {}
-  void _onSavedAddressesTap() {}
+  void _onSavedAddressesTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> SelectAddressScreen()));
+
+  }
   void _onPaymentMethodsTap() {}
   void _onNotificationSettingsTap() {}
   void _onPrivacySecurityTap() {}
@@ -82,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.receipt_long_rounded,
                       title: 'Orders',
                       subtitle: 'Track your packages',
-                      onTap: _onOrdersTap,
+                      onTap: () => _onOrdersTap(context),
                     ),
                   ),
                   SizedBox(width: size.width * 0.035),
@@ -135,7 +143,7 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.location_on_outlined,
                     title: 'Saved Addresses',
                     subtitle: 'Manage delivery locations',
-                    onTap: _onSavedAddressesTap,
+                    onTap: () => _onSavedAddressesTap(context),
                   ),
                   _SettingsTileData(
                     icon: Icons.credit_card_rounded,

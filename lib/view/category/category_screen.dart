@@ -342,20 +342,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
               color: item.tintColor,
               alignment: Alignment.center,
               child: Center(
-                child: Container(
-                  width: 110,
-                  height: 120,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Image.asset(item.image),
-                    ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Image.asset(item.image),
                   ),
                 ),
               ),
@@ -373,8 +364,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     children: [
                       TextContext(
                         text: item.name,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -399,7 +390,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         fontFamily: "Poppins",
                         letterSpacing: 0.2,
                       ),
@@ -429,7 +420,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 TextContext(
                   text: "Popular This Week",
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ],
             ),

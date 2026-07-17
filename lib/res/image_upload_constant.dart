@@ -80,8 +80,8 @@ class _ImageSourceSheet extends StatelessWidget {
             const SizedBox(height: 20),
             const TextContext(
               text: "Upload Photo",
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
             const SizedBox(height: 20),
             Row(

@@ -28,8 +28,8 @@ class TrendingNowSection extends StatelessWidget {
         children: [
           TextContext(
             text: 'Trending Now',
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
             color: ColorConstant.headlineTextColor,
           ),
           SizedBox(height: size.height * 0.02),

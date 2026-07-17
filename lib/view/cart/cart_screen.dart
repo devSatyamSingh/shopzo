@@ -488,7 +488,7 @@ class _CartScreenState extends State<CartScreen> {
                           TextContext(
                             text: "₹${item.price.toStringAsFixed(0)}",
                             fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             color: ColorConstant.primaryColor,
                           ),
                         ],
@@ -585,7 +585,7 @@ class _CartScreenState extends State<CartScreen> {
           const TextContext(
             text: "Bill Details",
             fontSize: 16,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
           SizedBox(height: size.height * 0.016),
           _billRow("Item Total", "₹${_itemTotal.toStringAsFixed(0)}"),
@@ -759,8 +759,8 @@ class _QuantityStepper extends StatelessWidget {
               "$quantity",
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 fontFamily: "Poppins",
                 color: ColorConstant.headlineTextColor,
               ),

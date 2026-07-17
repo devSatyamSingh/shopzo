@@ -217,7 +217,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 TextContext(
                   text: "3 items just got cheaper!",
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   color: ColorConstant.headlineTextColor,
                 ),
                 SizedBox(height: 2),
@@ -409,8 +409,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   children: [
                     TextContext(
                       text: "\$${item.price.toStringAsFixed(0)}",
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: ColorConstant.primaryColor,
                     ),
                     if (item.mrp != null) ...[
@@ -555,8 +555,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
           SizedBox(height: size.height * 0.016),
           const TextContext(
             text: "Looking for more?",
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),

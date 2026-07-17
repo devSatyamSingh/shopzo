@@ -29,8 +29,8 @@ class TopPicksSection extends StatelessWidget {
             children: [
               TextContext(
                 text: 'Top Picks For You',
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
               ),
               const Spacer(),

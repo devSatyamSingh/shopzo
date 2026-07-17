@@ -77,8 +77,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               // ---------------- COMMON ISSUES ----------------
               TextContext(
                 text: 'Common Issues',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
               ),
               SizedBox(height: size.height * 0.02),
@@ -101,7 +101,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 child: TextContext(
                   text: 'QUICK CONTACT',
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   color: ColorConstant.labelTextColor,
                   letterSpacing: 1,
                 ),
@@ -346,8 +346,8 @@ class _SupportFormCard extends StatelessWidget {
         children: [
           TextContext(
             text: 'Still need help?',
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
             color: ColorConstant.headlineTextColor,
           ),
           SizedBox(height: size.height * 0.008),

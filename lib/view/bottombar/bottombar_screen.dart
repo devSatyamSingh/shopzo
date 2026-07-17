@@ -160,7 +160,7 @@ class _AnimatedNotchBottomNavBarState extends State<AnimatedNotchBottomNavBar>
                                       text: item.label,
                                       fontSize: 11,
                                       fontWeight:
-                                      isSelected ? FontWeight.w700 : FontWeight.w500,
+                                      isSelected ? FontWeight.w600 : FontWeight.w500,
                                       color: isSelected
                                           ? ColorConstant.primaryColor
                                           : ColorConstant.headlineTextColor,
@@ -247,7 +247,7 @@ class _CartBadge extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontSize: 9,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Poppins',
           height: 1.2,
         ),

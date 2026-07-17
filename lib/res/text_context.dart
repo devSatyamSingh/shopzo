@@ -104,7 +104,7 @@ class HeadlineText extends StatelessWidget {
     return TextContext(
       text: text,
       fontSize: fontSize,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       color: color ?? ColorConstant.headlineTextColor,
       textAlign: textAlign,
     );

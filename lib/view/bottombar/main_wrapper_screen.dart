@@ -5,6 +5,7 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../account/account_screen.dart';
 import '../category/category_screen.dart';
+import '../order/order_list_screen.dart';
 import 'bottombar_screen.dart';
 import '../cart/cart_screen.dart';
 import '../home/home_screen.dart';
@@ -33,7 +34,7 @@ class _MainWrapperState extends State<MainWrapper> {
     const HomeScreen(),
     const CategoryScreen(),
     const CartScreen(),
-    const CartScreen(),
+    const OrdersScreen(),
     const ProfileScreen(),
   ];
 

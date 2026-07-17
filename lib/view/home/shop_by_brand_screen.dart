@@ -43,8 +43,8 @@ class ShopByBrandSection extends StatelessWidget {
 
                   TextContext(
                     text: 'Shop By Brand',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                     color: ColorConstant.headlineTextColor,
                   ),
                 ],

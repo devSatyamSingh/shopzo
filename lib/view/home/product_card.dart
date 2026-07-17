@@ -206,7 +206,7 @@ class ProductCard extends StatelessWidget {
                   TextContext(
                     text: product.formattedPrice,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: ColorConstant.headlineTextColor,
                   ),
                   if (product.formattedOriginalPrice != null) ...[
