@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shopzo/view/account/coupons_screen.dart';
 import 'package:shopzo/view/order/order_list_screen.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import '../address/address_list_screen.dart';
+import '../payment/payment_methods_screen.dart';
+import '../profile/profile_information_screen.dart';
 import '../wishlist/wishlist_screen.dart';
 import 'help_center_screen.dart';
 
@@ -31,18 +34,26 @@ class ProfileScreen extends StatelessWidget {
   void _onWishlistTap(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context)=> WishlistScreen()));
   }
-  void _onCouponsTap() {}
+  void _onCouponsTap(BuildContext context)  {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> CouponsScreen()));
+
+  }
   void _onHelpCenterTap(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context)=> HelpCenterScreen()));
 
   }
 
-  void _onProfileInfoTap() {}
+  void _onProfileInfoTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileInformationScreen()));
+  }
   void _onSavedAddressesTap(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context)=> SelectAddressScreen()));
 
   }
-  void _onPaymentMethodsTap() {}
+  void _onPaymentMethodsTap(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> PaymentMethodsScreen()));
+
+  }
   void _onNotificationSettingsTap() {}
   void _onPrivacySecurityTap() {}
 
@@ -111,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.confirmation_num_rounded,
                       title: 'Coupons',
                       subtitle: 'Exclusive offers',
-                      onTap: _onCouponsTap,
+                      onTap: () => _onCouponsTap(context),
                     ),
                   ),
                   SizedBox(width: size.width * 0.035),
@@ -137,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.person_outline_rounded,
                     title: 'Profile Information',
                     subtitle: 'Name, Email, Phone',
-                    onTap: _onProfileInfoTap,
+                    onTap: () => _onProfileInfoTap(context),
                   ),
                   _SettingsTileData(
                     icon: Icons.location_on_outlined,
@@ -149,14 +160,15 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.credit_card_rounded,
                     title: 'Payment Methods',
                     subtitle: 'Saved cards and UPI',
-                    onTap: _onPaymentMethodsTap,
+                    onTap: () => _onPaymentMethodsTap(context),
+
                   ),
-                  _SettingsTileData(
-                    icon: Icons.notifications_none_rounded,
-                    title: 'Notification Settings',
-                    subtitle: 'Alerts and preferences',
-                    onTap: _onNotificationSettingsTap,
-                  ),
+                  // _SettingsTileData(
+                  //   icon: Icons.notifications_none_rounded,
+                  //   title: 'Notification Settings',
+                  //   subtitle: 'Alerts and preferences',
+                  //   onTap: _onNotificationSettingsTap,
+                  // ),
                   _SettingsTileData(
                     icon: Icons.shield_outlined,
                     title: 'Privacy & Security',

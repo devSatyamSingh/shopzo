@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../product_details/product_details_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -212,155 +213,166 @@ class _CartScreenState extends State<CartScreen> {
     final bool isOutOfStock = item.status == _CartItemStatus.outOfStock;
     final double thumbSize = (size.width * 0.2).clamp(64.0, 90.0);
 
-    return Container(
-      padding: EdgeInsets.all(size.width * 0.04),
-      decoration: BoxDecoration(
-        color: ColorConstant.whiteColor,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: ColorConstant.blackColor.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ProductDetailScreen(),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ---- Thumbnail ----
-              Container(
-                height: thumbSize,
-                width: thumbSize,
-                decoration: BoxDecoration(
-                  color: isOutOfStock
-                      ? ColorConstant.borderColor.withOpacity(0.5)
-                      : ColorConstant.fieldFillColor,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                alignment: Alignment.center,
-                child: Center(
-                  child: Container(
-                    width: thumbSize * .78,
-                    height: thumbSize * .78,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: FittedBox(
-                        fit: BoxFit.contain,
-                        child: Image.asset(
-                          item.image,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(size.width * 0.04),
+        decoration: BoxDecoration(
+          color: ColorConstant.whiteColor,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ---- Thumbnail ----
+                Container(
+                  height: thumbSize,
+                  width: thumbSize,
+                  decoration: BoxDecoration(
+                    color: isOutOfStock
+                        ? ColorConstant.borderColor.withOpacity(0.5)
+                        : ColorConstant.fieldFillColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  alignment: Alignment.center,
+                  child: Center(
+                    child: Container(
+                      width: thumbSize * .78,
+                      height: thumbSize * .78,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Image.asset(
+                            item.image,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(width: size.width * 0.035),
+                SizedBox(width: size.width * 0.035),
 
-              // ---- Name / variant / price ----
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextContext(
-                      text: item.name,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      color: isOutOfStock
-                          ? ColorConstant.placeholderColor
-                          : ColorConstant.headlineTextColor,
-                    ),
-                    const SizedBox(height: 4),
-                    TextContext(
-                      text: item.variant,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: ColorConstant.labelTextColor,
-                    ),
-                    const SizedBox(height: 8),
-                    if (isOutOfStock)
-                      const TextContext(
-                        text: "Currently unavailable",
+                // ---- Name / variant / price ----
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextContext(
+                        text: item.name,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        color: isOutOfStock
+                            ? ColorConstant.placeholderColor
+                            : ColorConstant.headlineTextColor,
+                      ),
+                      const SizedBox(height: 4),
+                      TextContext(
+                        text: item.variant,
                         fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: ColorConstant.labelTextColor,
+                      ),
+                      const SizedBox(height: 8),
+                      if (isOutOfStock)
+                        const TextContext(
+                          text: "Currently unavailable",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.errorColor,
+                        )
+                      else
+                        Row(
+                          children: [
+                            TextContext(
+                              text: "₹${item.price.toStringAsFixed(0)}",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.primaryColor,
+                            ),
+                            if (item.mrp != null) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                "₹${item.mrp!.toStringAsFixed(0)}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: "Poppins",
+                                  color: ColorConstant.placeholderColor,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: size.height * 0.014),
+            const Divider(height: 1, color: ColorConstant.dividerColor),
+            SizedBox(height: size.height * 0.012),
+
+            // ---- Remove + Quantity stepper ----
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () => setState(() => _items.remove(item)),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.delete_outline_rounded,
+                          size: 17, color: ColorConstant.errorColor),
+                      SizedBox(width: 4),
+                      TextContext(
+                        text: "Remove",
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w600,
                         color: ColorConstant.errorColor,
-                      )
-                    else
-                      Row(
-                        children: [
-                          TextContext(
-                            text: "₹${item.price.toStringAsFixed(0)}",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: ColorConstant.primaryColor,
-                          ),
-                          if (item.mrp != null) ...[
-                            const SizedBox(width: 6),
-                            Text(
-                              "₹${item.mrp!.toStringAsFixed(0)}",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontFamily: "Poppins",
-                                color: ColorConstant.placeholderColor,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          ],
-                        ],
                       ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: size.height * 0.014),
-          const Divider(height: 1, color: ColorConstant.dividerColor),
-          SizedBox(height: size.height * 0.012),
-
-          // ---- Remove + Quantity stepper ----
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () => setState(() => _items.remove(item)),
-                borderRadius: BorderRadius.circular(8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.delete_outline_rounded,
-                        size: 17, color: ColorConstant.errorColor),
-                    SizedBox(width: 4),
-                    TextContext(
-                      text: "Remove",
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: ColorConstant.errorColor,
-                    ),
-                  ],
-                ),
-              ),
-              if (!isOutOfStock)
-                _QuantityStepper(
-                  quantity: item.quantity,
-                  onIncrement: () => setState(() => item.quantity++),
-                  onDecrement: () => setState(() {
-                    if (item.quantity > 1) item.quantity--;
-                  }),
-                ),
-            ],
-          ),
-        ],
+                if (!isOutOfStock)
+                  _QuantityStepper(
+                    quantity: item.quantity,
+                    onIncrement: () => setState(() => item.quantity++),
+                    onDecrement: () => setState(() {
+                      if (item.quantity > 1) item.quantity--;
+                    }),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -415,86 +427,96 @@ class _CartScreenState extends State<CartScreen> {
             separatorBuilder: (_, __) => SizedBox(width: size.width * 0.026),
             itemBuilder: (context, index) {
               final item = _suggestions[index];
-              return Container(
-                width: cardWidth,
-                decoration: BoxDecoration(
-                  color: ColorConstant.whiteColor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: ColorConstant.blackColor.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProductDetailScreen(),
                     ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          height: cardWidth * 0.73,
-                          width: double.infinity,
-                          color: ColorConstant.fieldFillColor,
-                          alignment: Alignment.center,
-                          child: Center(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: FittedBox(
-                                fit: BoxFit.contain,
-                                child: Image.asset(
-                                  item.image,
+                  );
+                },
+                child: Container(
+                  width: cardWidth,
+                  decoration: BoxDecoration(
+                    color: ColorConstant.whiteColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorConstant.blackColor.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          Container(
+                            height: cardWidth * 0.73,
+                            width: double.infinity,
+                            color: ColorConstant.fieldFillColor,
+                            alignment: Alignment.center,
+                            child: Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: Image.asset(
+                                    item.image,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          right: 6,
-                          bottom: 6,
-                          child: InkWell(
-                            onTap: () {
-                              // TODO: add suggested item to cart
-                            },
-                            child: Container(
-                              height: 26,
-                              width: 26,
-                              decoration: const BoxDecoration(
-                                color: ColorConstant.primaryColor,
-                                shape: BoxShape.circle,
+                          Positioned(
+                            right: 6,
+                            bottom: 6,
+                            child: InkWell(
+                              onTap: () {
+                                // TODO: add suggested item to cart
+                              },
+                              child: Container(
+                                height: 26,
+                                width: 26,
+                                decoration: const BoxDecoration(
+                                  color: ColorConstant.primaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.add_rounded,
+                                    color: Colors.white, size: 16),
                               ),
-                              child: const Icon(Icons.add_rounded,
-                                  color: Colors.white, size: 16),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextContext(
-                            text: item.name,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          TextContext(
-                            text: "₹${item.price.toStringAsFixed(0)}",
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: ColorConstant.primaryColor,
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextContext(
+                              text: item.name,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 3),
+                            TextContext(
+                              text: "₹${item.price.toStringAsFixed(0)}",
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.primaryColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

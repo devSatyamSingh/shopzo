@@ -5,6 +5,7 @@ import 'package:shopzo/view/home/shop_by_brand_screen.dart';
 import 'package:shopzo/view/home/top_picks_section.dart';
 import 'package:shopzo/view/home/trending_now_section.dart';
 import '../../res/color_constant.dart';
+import '../notification_screen.dart';
 import '../product_details/product_details_screen.dart';
 import 'category_icons_section.dart';
 import 'filter_bar_section.dart';
@@ -122,8 +123,16 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ---------------- APP BAR ----------------
-                const HomeAppBar(),
-
+                HomeAppBar(
+                  onNotificationTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationScreen(),
+                      ),
+                    );
+                  },
+                ),
                 // ---------------- SEARCH BAR ----------------
                 const HomeSearchBar(),
 

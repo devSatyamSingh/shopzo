@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
+import 'category_product_list.dart';
 
 
 class CategoryScreen extends StatefulWidget {
@@ -320,87 +321,102 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   Widget _buildCategoryCard(Size size, _CategoryItem item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: ColorConstant.whiteColor,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: ColorConstant.blackColor.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryProductsScreen(
+              categoryId: item.name,
+              categoryName: item.name,
+              tintColor: item.tintColor,
+            ),
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Container(
-              color: item.tintColor,
-              alignment: Alignment.center,
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Image.asset(item.image),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: ColorConstant.whiteColor,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Container(
+                color: item.tintColor,
+                alignment: Alignment.center,
+                child: Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Image.asset(item.image),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 11, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextContext(
-                        text: item.name,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      TextContext(
-                        text: item.itemCount,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w400,
-                        color: ColorConstant.labelTextColor,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: ColorConstant.orangeGradient,
-                      borderRadius: BorderRadius.circular(20),
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 11, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextContext(
+                          text: item.name,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        TextContext(
+                          text: item.itemCount,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w400,
+                          color: ColorConstant.labelTextColor,
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      item.badgeText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: "Poppins",
-                        letterSpacing: 0.2,
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: ColorConstant.orangeGradient,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        item.badgeText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "Poppins",
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
