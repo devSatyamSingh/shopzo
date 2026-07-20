@@ -3,6 +3,7 @@ import 'package:shopzo/view/address/add_address_screen.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/button_context.dart';
+import '../../routes/route_name.dart';
 import '../checkout/checkout_step1_screen.dart';
 
 class SavedAddressModel {
@@ -66,12 +67,8 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
   }
 
   void _onAddNewAddress() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AddAddressScreen(),
-      ),
-    );  }
+    Navigator.pushNamed(context, RouteName.addEditAddress);
+  }
 
   void _onEdit(int index) {
     // 👉 navigate to AddAddressScreen in edit mode with _addresses[index]

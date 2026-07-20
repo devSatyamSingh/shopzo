@@ -5,6 +5,7 @@ import 'package:shopzo/view/home/shop_by_brand_screen.dart';
 import 'package:shopzo/view/home/top_picks_section.dart';
 import 'package:shopzo/view/home/trending_now_section.dart';
 import '../../res/color_constant.dart';
+import '../../routes/route_name.dart';
 import '../notification_screen.dart';
 import '../product_details/product_details_screen.dart';
 import 'category_icons_section.dart';
@@ -125,12 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // ---------------- APP BAR ----------------
                 HomeAppBar(
                   onNotificationTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const NotificationScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, RouteName.notifications);
                   },
                 ),
                 // ---------------- SEARCH BAR ----------------
@@ -155,12 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 FlashDealsSection(
                   products: HomeScreen._flashDeals,
                   onProductTap: (product) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ProductDetailScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, RouteName.productDetail);
                   },
                 ),
 
@@ -175,12 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TopPicksSection(
                   products: HomeScreen._topPicks,
                   onProductTap: (product) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ProductDetailScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, RouteName.productDetail);
                   },
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.025),
@@ -199,12 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TrendingNowSection(
                   products: HomeScreen._trending,
                   onProductTap: (product) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ProductDetailScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, RouteName.productDetail);
                   },
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.03),

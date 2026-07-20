@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
+import '../../routes/route_name.dart';
 import 'category_product_list.dart';
 
 
@@ -324,15 +325,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (_) => CategoryProductsScreen(
-              categoryId: item.name,
-              categoryName: item.name,
-              tintColor: item.tintColor,
-            ),
-          ),
+          RouteName.categoryProducts,
+          arguments: {
+            'categoryId': item.name,
+            'categoryName': item.name,
+            'tintColor': item.tintColor,
+          },
         );
       },
       child: Container(

@@ -10,39 +10,39 @@ class RouteName {
   // ---- Auth ----
   static const String login = "/login";
   static const String otpVerify = "/otp-verify";
-  static const String register = "/register";
 
-  // ---- Core ----
-  static const String home = "/home";
+  // ---- Core / Shell ----
   static const String mainWrapper = "/main_wrapper";
+  static const String home = "/home";
   static const String categories = "/categories";
-  static const String productListing = "/product-listing";
+  static const String categoryProducts = "/category-products";
   static const String search = "/search";
   static const String productDetail = "/product-detail";
-  static const String reviews = "/reviews";
+  static const String notifications = "/notifications";
 
   // ---- Cart / Checkout ----
   static const String cart = "/cart";
+  static const String checkoutAddress = "/checkout-address";
+  static const String checkoutSummary = "/checkout-summary";
+  static const String checkoutPayment = "/checkout-payment";
+
+  // ---- Address ----
   static const String addressList = "/address-list";
   static const String addEditAddress = "/add-edit-address";
-  static const String checkout = "/checkout";
-  static const String payment = "/payment";
-  static const String orderConfirmation = "/order-confirmation";
+
+  // ---- Payment ----
+  static const String paymentMethods = "/payment-methods";
+  static const String addPaymentMethod = "/add-payment-method";
 
   // ---- Orders ----
-  static const String orderTracking = "/order-tracking";
   static const String myOrders = "/my-orders";
   static const String orderDetail = "/order-detail";
-  static const String returnRequest = "/return-request";
 
   // ---- Account ----
   static const String wishlist = "/wishlist";
-  static const String notifications = "/notifications";
-  static const String profile = "/profile";
-  static const String editProfile = "/edit-profile";
   static const String coupons = "/coupons";
   static const String helpSupport = "/help-support";
-
-  // ---- Misc ----
-  static const String noInternet = "/no-internet";
+  static const String profileInformation = "/profile-information";
+  static const String editProfile = "/edit-profile";
+  static const String PrivacySecurity = "/prevacy_security";
 }

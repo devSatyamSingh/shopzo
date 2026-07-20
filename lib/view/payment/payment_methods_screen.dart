@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import 'add_payment_screen.dart';
 
 class UpiIdModel {
@@ -114,7 +115,7 @@ class PaymentMethodsScreen extends StatelessWidget {
   ];
 
   void _onAddNew(BuildContext context) {
-     Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPaymentMethodScreen()));
+    Navigator.pushNamed(context, RouteName.addPaymentMethod);
   }
 
   void _onUpiOptionsTap(UpiIdModel upi) {

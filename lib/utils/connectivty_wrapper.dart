@@ -3,26 +3,7 @@ import 'package:flutter/material.dart';
 import '../res/no_internet_connection_screen.dart';
 import '../utils/connectivity_service.dart';
 
-/// Shopzo — Global connectivity overlay wrapper.
-///
-/// HOW IT WORKS (important):
-/// This does NOT navigate to a "No Internet" route. It wraps the
-/// ENTIRE app (via MaterialApp's `builder`) and simply draws
-/// NoInternetScreen ON TOP of whatever screen is currently active,
-/// using a Stack. The Navigator underneath (`widget.child`) is never
-/// touched — its route stack, scroll positions, text field contents,
-/// form state, everything stays exactly as it was.
-///
-/// Result: user is on Product Detail, internet drops -> overlay fades
-/// in. Internet returns -> overlay disappears -> user is still on the
-/// exact same Product Detail screen, nothing lost, nothing rebuilt.
-///
-/// USAGE — in main.dart:
-///   MaterialApp(
-///     ...
-///     builder: (context, child) =>
-///         ConnectivityWrapper(child: child ?? const SizedBox.shrink()),
-///   )
+
 class ConnectivityWrapper extends StatefulWidget {
   final Widget child;
   const ConnectivityWrapper({super.key, required this.child});
@@ -31,13 +12,16 @@ class ConnectivityWrapper extends StatefulWidget {
   State<ConnectivityWrapper> createState() => _ConnectivityWrapperState();
 }
 
-class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
+class _ConnectivityWrapperState extends State<ConnectivityWrapper>
+    with WidgetsBindingObserver {
   bool _hasInternet = true;
   StreamSubscription<bool>? _sub;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     ConnectivityService.instance.initialize();
     _hasInternet = ConnectivityService.instance.hasInternet;
 
@@ -47,7 +31,26 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        ConnectivityService.instance.resume();
+        break;
+
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        ConnectivityService.instance.pause();
+        break;
+
+      case AppLifecycleState.detached:
+        break;
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sub?.cancel();
     super.dispose();
   }
@@ -56,10 +59,7 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // ---- The actual app (Navigator) — always alive underneath ----
         widget.child,
-
-        // ---- No Internet overlay (only thing this wrapper handles) ----
         if (!_hasInternet)
           Positioned.fill(
             child: Material(

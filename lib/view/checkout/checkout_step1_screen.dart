@@ -4,6 +4,7 @@ import 'package:shopzo/view/checkout/checkout_step3_screen.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import 'checkout_stepper.dart';
 
 class AddressModel {
@@ -61,12 +62,8 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
   }
 
   void _onContinue() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const CheckoutSummaryScreen(),
-      ),
-    );  }
+    Navigator.pushNamed(context, RouteName.checkoutSummary);
+  }
 
   @override
   Widget build(BuildContext context) {

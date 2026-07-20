@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../../routes/route_name.dart';
 
 class TopCategoryItem {
   final IconData icon;
   final String label;
+  final Color tintColor;
 
-  const TopCategoryItem({required this.icon, required this.label});
+  const TopCategoryItem({
+    required this.icon,
+    required this.label,
+    required this.tintColor,
+  });
 }
 
 class CategoryIconsSection extends StatefulWidget {
@@ -21,12 +27,47 @@ class CategoryIconsSection extends StatefulWidget {
 class _CategoryIconsSectionState extends State<CategoryIconsSection> {
   int _selectedIndex = 0;
 
+  // tintColor values match the same category's card color in
+  // CategoryScreen, so the two screens feel like the same category
+  // no matter which entry point the user tapped.
   static const List<TopCategoryItem> _items = [
-    TopCategoryItem(icon: Icons.devices_rounded, label: 'Electronics'),
-    TopCategoryItem(icon: Icons.checkroom_rounded, label: 'Fashion'),
-    TopCategoryItem(icon: Icons.chair_alt_rounded, label: 'Home'),
-    TopCategoryItem(icon: Icons.spa_rounded, label: 'Beauty'),
+    TopCategoryItem(
+      icon: Icons.devices_rounded,
+      label: 'Electronics',
+      tintColor: Color(0xFFE9ECF5),
+    ),
+    TopCategoryItem(
+      icon: Icons.checkroom_rounded,
+      label: 'Fashion',
+      tintColor: Color(0xFFF3E9E3),
+    ),
+    TopCategoryItem(
+      icon: Icons.chair_alt_rounded,
+      label: 'Home',
+      tintColor: Color(0xFFF6EFD9),
+    ),
+    TopCategoryItem(
+      icon: Icons.spa_rounded,
+      label: 'Beauty',
+      tintColor: Color(0xFFF8E6EC),
+    ),
   ];
+
+  void _onItemTap(int index) {
+    setState(() => _selectedIndex = index);
+    widget.onSelected?.call(index);
+
+    final item = _items[index];
+    Navigator.pushNamed(
+      context,
+      RouteName.categoryProducts,
+      arguments: {
+        'categoryId': item.label,
+        'categoryName': item.label,
+        'tintColor': item.tintColor,
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +86,7 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
           final item = _items[index];
 
           return GestureDetector(
-            onTap: () {
-              setState(() => _selectedIndex = index);
-              widget.onSelected?.call(index);
-            },
+            onTap: () => _onItemTap(index),
             child: Column(
               children: [
                 Container(

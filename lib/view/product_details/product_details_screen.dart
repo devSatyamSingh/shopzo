@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import '../checkout/checkout_step1_screen.dart';
 
 
@@ -1175,12 +1176,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 text: "Buy Now",
                 height: 52,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CheckoutAddressScreen(),
-                    ),
-                  );                },
+                  Navigator.pushNamed(context, RouteName.checkoutAddress);
+                  },
               ),
             ),
           ],

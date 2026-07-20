@@ -3,6 +3,7 @@ import 'package:shopzo/view/checkout/checkout_step3_screen.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import 'checkout_stepper.dart';
 
 class OrderItemModel {
@@ -104,12 +105,8 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
   }
 
   void _onContinue() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const CheckoutPaymentScreen(),
-      ),
-    );  }
+    Navigator.pushNamed(context, RouteName.checkoutPayment);
+  }
 
   @override
   Widget build(BuildContext context) {

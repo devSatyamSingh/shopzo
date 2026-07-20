@@ -3,6 +3,7 @@ import 'package:shopzo/view/account/coupons_screen.dart';
 import 'package:shopzo/view/order/order_list_screen.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import '../address/address_list_screen.dart';
 import '../payment/payment_methods_screen.dart';
 import '../profile/profile_information_screen.dart';
@@ -28,34 +29,35 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _onOrdersTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> OrdersScreen()));
-
+    Navigator.pushNamed(context, RouteName.myOrders);
   }
   void _onWishlistTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> WishlistScreen()));
+    Navigator.pushNamed(context, RouteName.wishlist);
   }
   void _onCouponsTap(BuildContext context)  {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> CouponsScreen()));
+    Navigator.pushNamed(context, RouteName.coupons);
 
   }
   void _onHelpCenterTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> HelpCenterScreen()));
+    Navigator.pushNamed(context, RouteName.helpSupport);
 
   }
 
   void _onProfileInfoTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileInformationScreen()));
+    Navigator.pushNamed(context, RouteName.profileInformation);
   }
   void _onSavedAddressesTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> SelectAddressScreen()));
+    Navigator.pushNamed(context, RouteName.addressList);
 
   }
   void _onPaymentMethodsTap(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> PaymentMethodsScreen()));
+    Navigator.pushNamed(context, RouteName.paymentMethods);
 
   }
   void _onNotificationSettingsTap() {}
-  void _onPrivacySecurityTap() {}
+  void _onPrivacySecurityTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.PrivacySecurity);
+  }
 
   void _onAboutTap() {}
   void _onTermsTap() {}
@@ -169,16 +171,15 @@ class ProfileScreen extends StatelessWidget {
                   //   subtitle: 'Alerts and preferences',
                   //   onTap: _onNotificationSettingsTap,
                   // ),
-                  _SettingsTileData(
-                    icon: Icons.shield_outlined,
-                    title: 'Privacy & Security',
-                    subtitle: 'Password and data',
-                    onTap: _onPrivacySecurityTap,
-                    isLast: true,
-                  ),
+                  // _SettingsTileData(
+                  //   icon: Icons.shield_outlined,
+                  //   title: 'Privacy & Security',
+                  //   subtitle: 'Password and data',
+                  //   onTap: () => _onPrivacySecurityTap(context),
+                  //   isLast: true,
+                  // ),
                 ],
               ),
-
               SizedBox(height: size.height * 0.03),
 
               // ---------------- MORE ----------------

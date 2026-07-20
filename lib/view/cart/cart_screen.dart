@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import '../product_details/product_details_screen.dart';
 
 class CartScreen extends StatefulWidget {
@@ -216,12 +217,7 @@ class _CartScreenState extends State<CartScreen> {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const ProductDetailScreen(),
-          ),
-        );
+        Navigator.pushNamed(context, RouteName.productDetail);
       },
       child: Container(
         padding: EdgeInsets.all(size.width * 0.04),
@@ -429,12 +425,7 @@ class _CartScreenState extends State<CartScreen> {
               final item = _suggestions[index];
               return InkWell(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ProductDetailScreen(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, RouteName.productDetail);
                 },
                 child: Container(
                   width: cardWidth,

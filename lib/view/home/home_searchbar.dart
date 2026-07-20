@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/search_screen.dart';
 import '../../../res/color_constant.dart';
+import '../../routes/route_name.dart';
 
 class HomeSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
@@ -16,12 +17,7 @@ class HomeSearchBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const SearchScreen(),
-            ),
-          );
+          Navigator.pushNamed(context, RouteName.search);
         },
         child: Container(
           height: size.height * 0.058,

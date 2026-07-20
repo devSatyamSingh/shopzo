@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import 'order_deatils_screen.dart';
 
 /// Shopzo — My Orders (Order List) Screen.
@@ -186,12 +187,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const OrderDetailScreen(),
-          ),
-        );
+        Navigator.pushNamed(context, RouteName.orderDetail);
       },
       child: Container(
         padding: EdgeInsets.all(size.width * 0.04),

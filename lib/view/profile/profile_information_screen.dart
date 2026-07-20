@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../res/button_context.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../routes/route_name.dart';
 import 'edit_profile_screen.dart';
 
 /// Shopzo — Profile Information screen.
@@ -23,10 +24,7 @@ class ProfileInformationScreen extends StatelessWidget {
   static const String _avatarUrl = 'assets/images/pro12.jpg';
 
   void _openEditProfile(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-    );
+    Navigator.pushNamed(context, RouteName.editProfile);
   }
 
   @override
