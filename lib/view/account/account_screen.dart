@@ -3,6 +3,7 @@ import 'package:shopzo/view/account/coupons_screen.dart';
 import 'package:shopzo/view/order/order_list_screen.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../res/delete_popup.dart';
 import '../../routes/route_name.dart';
 import '../address/address_list_screen.dart';
 import '../payment/payment_methods_screen.dart';
@@ -59,14 +60,46 @@ class ProfileScreen extends StatelessWidget {
     Navigator.pushNamed(context, RouteName.PrivacySecurity);
   }
 
-  void _onAboutTap() {}
-  void _onTermsTap() {}
-  void _onPrivacyPolicyTap() {}
-  void _onReturnPolicyTap() {}
+  void _onAboutTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.aboutUs);
 
-  void _onLogoutTap(BuildContext context) {
-    //  clear session/token, then:
-    // Navigator.pushNamedAndRemoveUntil(context, RouteName.login, (route) => false);
+  }
+  void _onTermsTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.termsConditions);
+
+  }
+  void _onPrivacyPolicyTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.privacyPolicy);
+
+  }
+  void _onReturnPolicyTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.returnRefund);
+
+  }
+
+  Future<void> _onLogoutTap(BuildContext context) async {
+    final confirmed = await DeletePopup.show(
+      context,
+      icon: Icons.logout_rounded,
+      iconColor: ColorConstant.errorColor,
+      title: "Log Out",
+      message: "Are you sure you want to log out of your Shopzo account?",
+      confirmText: "Log Out",
+      cancelText: "Cancel",
+    );
+
+    if (confirmed != true) return;
+
+    // 👉 clear session/token here, e.g.:
+    // ApiClient.clearAuth();
+    // await SharedPreferences.getInstance().then((p) => p.clear());
+
+    if (!context.mounted) return;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      RouteName.login,
+          (route) => false,
+    );
   }
 
   @override
@@ -189,22 +222,22 @@ class ProfileScreen extends StatelessWidget {
                 tiles: [
                   _SettingsTileData(
                     title: 'About Shopzo',
-                    onTap: _onAboutTap,
+                    onTap: () => _onAboutTap(context),
                     isExternal: true,
                   ),
                   _SettingsTileData(
                     title: 'Terms of Service',
-                    onTap: _onTermsTap,
+                    onTap: () => _onTermsTap(context),
                     isExternal: true,
                   ),
                   _SettingsTileData(
                     title: 'Privacy Policy',
-                    onTap: _onPrivacyPolicyTap,
+                    onTap: () => _onPrivacyPolicyTap(context),
                     isExternal: true,
                   ),
                   _SettingsTileData(
                     title: 'Return Policy',
-                    onTap: _onReturnPolicyTap,
+                    onTap: () => _onReturnPolicyTap(context),
                     isExternal: true,
                     isLast: true,
                   ),

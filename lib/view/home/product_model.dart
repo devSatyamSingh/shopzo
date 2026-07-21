@@ -7,8 +7,10 @@ class ProductModel {
   final double? originalPrice;
   final double? rating;
   final int? reviewCount;
-  final String? badgeText; // e.g. "NEW", "BESTSELLER"
+  final String? badgeText;
   final bool isWishlisted;
+  final String? category; // Add this
+  final String? gender; // Add this - can be 'Men', 'Women', 'Unisex'
 
   const ProductModel({
     required this.image,
@@ -19,6 +21,8 @@ class ProductModel {
     this.reviewCount,
     this.badgeText,
     this.isWishlisted = false,
+    this.category,
+    this.gender,
   });
 
   int? get discountPercent {

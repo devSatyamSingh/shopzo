@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../res/color_constant.dart';
-import '../../../res/text_context.dart';
+import '../../res/color_constant.dart';
+import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
+import '../all_brands_screen.dart';
 
 class BrandModel {
   final String logo;
@@ -24,6 +26,28 @@ class ShopByBrandSection extends StatelessWidget {
     this.onBrandTap,
   });
 
+  void _onViewAll(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AllBrandsScreen(brands: brands)),
+    );
+  }
+
+  void _onBrandTap(BuildContext context, BrandModel brand) {
+    // let the parent know too (e.g. for analytics), then navigate
+    onBrandTap?.call(brand);
+
+    Navigator.pushNamed(
+      context,
+      RouteName.categoryProducts,
+      arguments: {
+        'categoryId': brand.name,
+        'categoryName': brand.name,
+        'tintColor': ColorConstant.fieldFillColor,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -38,21 +62,14 @@ class ShopByBrandSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-
-                  TextContext(
-                    text: 'Shop By Brand',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: ColorConstant.headlineTextColor,
-                  ),
-                ],
+              TextContext(
+                text: 'Shop By Brand',
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: ColorConstant.headlineTextColor,
               ),
               InkWell(
-                onTap: () {
-                  // View all brands action
-                },
+                onTap: () => _onViewAll(context),
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -90,7 +107,7 @@ class ShopByBrandSection extends StatelessWidget {
             separatorBuilder: (_, __) => SizedBox(width: size.width * 0.045),
             itemBuilder: (context, index) {
               final brand = brands[index];
-              return _buildBrandItem(size, brand, circleSize);
+              return _buildBrandItem(context, size, brand, circleSize);
             },
           ),
         ),
@@ -99,9 +116,9 @@ class ShopByBrandSection extends StatelessWidget {
   }
 
   // ============ BRAND ITEM ============
-  Widget _buildBrandItem(Size size, BrandModel brand, double circleSize) {
+  Widget _buildBrandItem(BuildContext context, Size size, BrandModel brand, double circleSize) {
     return GestureDetector(
-      onTap: () => onBrandTap?.call(brand),
+      onTap: () => _onBrandTap(context, brand),
       child: Column(
         children: [
           // Circle with gradient shadow

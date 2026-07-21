@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/account/prevacy_securty_screen.dart';
+import '../view/about_us_screen.dart';
 import '../view/account/account_screen.dart';
 import '../view/account/coupons_screen.dart';
 import '../view/account/help_center_screen.dart';
@@ -22,10 +23,13 @@ import '../view/order/order_deatils_screen.dart';
 import '../view/order/order_list_screen.dart';
 import '../view/payment/add_payment_screen.dart';
 import '../view/payment/payment_methods_screen.dart';
+import '../view/privacy_policy_screen.dart';
 import '../view/product_details/product_details_screen.dart';
 import '../view/profile/edit_profile_screen.dart';
 import '../view/profile/profile_information_screen.dart';
+import '../view/return_refund_screen.dart';
 import '../view/splash/splash_screen.dart';
+import '../view/terms_cond_screen.dart';
 import '../view/wishlist/wishlist_screen.dart';
 import 'route_name.dart';
 
@@ -134,6 +138,17 @@ class AppRoutes {
         return _page(const EditProfileScreen());
       case RouteName.PrivacySecurity:
         return _page(const PrivacySecurityScreen());
+      case RouteName.aboutUs:
+        return _page(const AboutUsScreen());
+
+      case RouteName.termsConditions:
+        return _page(const TermsConditionsScreen());
+
+      case RouteName.privacyPolicy:
+        return _page(const PrivacyPolicyScreen());
+
+      case RouteName.returnRefund:
+        return _page(const ReturnRefundScreen());
 
       default:
         return _page(

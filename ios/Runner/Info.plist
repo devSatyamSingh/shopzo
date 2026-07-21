@@ -6,6 +6,8 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>Shopzo needs your location to detect your delivery address.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Shopzo</string>
 	<key>CFBundleExecutable</key>

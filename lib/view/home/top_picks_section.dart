@@ -1,8 +1,10 @@
+// lib/view/home/top_picks_section.dart
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/view/home/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../top_picks_screen.dart';
 
 class TopPicksSection extends StatelessWidget {
   final List<ProductModel> products;
@@ -15,6 +17,18 @@ class TopPicksSection extends StatelessWidget {
     this.onSeeAllTap,
     this.onProductTap,
   });
+
+  void _navigateToTopPicksScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TopPicksScreen(
+          products: products,
+          onProductTap: onProductTap,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +49,7 @@ class TopPicksSection extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: onSeeAllTap,
+                onTap: onSeeAllTap ?? () => _navigateToTopPicksScreen(context),
                 child: TextContext(
                   text: 'See All',
                   fontSize: 13,

@@ -45,4 +45,10 @@ class RouteName {
   static const String profileInformation = "/profile-information";
   static const String editProfile = "/edit-profile";
   static const String PrivacySecurity = "/prevacy_security";
+
+  static const String aboutUs = '/about-us';
+  static const String termsConditions = '/terms-conditions';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String returnRefund = '/return-refund';
+
 }

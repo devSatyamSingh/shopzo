@@ -1,9 +1,11 @@
+// lib/view/home/flash_deals_section.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/view/home/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../flash_deals_screen.dart';
 
 class FlashDealsSection extends StatefulWidget {
   final List<ProductModel> products;
@@ -48,6 +50,18 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');
+
+  void _navigateToFlashDealsScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FlashDealsScreen(
+          products: widget.products,
+          initialDuration: _remaining,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +113,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
               const Spacer(),
 
               GestureDetector(
-                onTap: widget.onSeeAllTap,
+                onTap: widget.onSeeAllTap ?? () => _navigateToFlashDealsScreen(context),
                 child: TextContext(
                   text: 'See All',
                   fontSize: 13,
