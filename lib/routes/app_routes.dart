@@ -8,6 +8,7 @@ import '../view/address/add_address_screen.dart';
 import '../view/address/address_list_screen.dart';
 import '../view/auth/login_screen.dart';
 import '../view/auth/otpscreen.dart';
+import '../view/auth/register_screen.dart';
 import '../view/bottombar/main_wrapper_screen.dart';
 import '../view/cart/cart_screen.dart';
 import '../view/category/category_product_list.dart';
@@ -21,6 +22,7 @@ import '../view/notification_screen.dart';
 import '../view/onboarding/onboardingscreen.dart';
 import '../view/order/order_deatils_screen.dart';
 import '../view/order/order_list_screen.dart';
+import '../view/order/review_rating_screen.dart';
 import '../view/payment/add_payment_screen.dart';
 import '../view/payment/payment_methods_screen.dart';
 import '../view/privacy_policy_screen.dart';
@@ -149,6 +151,13 @@ class AppRoutes {
 
       case RouteName.returnRefund:
         return _page(const ReturnRefundScreen());
+
+      case RouteName.register:
+        return MaterialPageRoute(builder: (_) => const RegisterScreen());
+
+    // lib/routes/app_routes.dart
+      case RouteName.reviewRating:
+        return _page(const ReviewRatingScreen());
 
       default:
         return _page(

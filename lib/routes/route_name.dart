@@ -50,5 +50,7 @@ class RouteName {
   static const String termsConditions = '/terms-conditions';
   static const String privacyPolicy = '/privacy-policy';
   static const String returnRefund = '/return-refund';
+  static const String register = '/register';
+  static const String reviewRating = '/review-rating';
 
 }

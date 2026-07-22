@@ -1,38 +1,52 @@
-/// Shopzo — custom exception wrapper so every API/repo layer throws
-/// one consistent, human-readable exception type.
+/// Shopzo — typed exceptions thrown by the network layer.
+/// Repositories catch these and map them to user-facing messages
+/// (via AppUtils.error) instead of leaking raw HTTP/parsing errors.
 class AppException implements Exception {
   final String message;
-  final int? statusCode;
+  final String prefix;
 
-  AppException(this.message, {this.statusCode});
+  AppException(this.message, this.prefix);
 
   @override
-  String toString() => message;
+  String toString() => message.isEmpty ? prefix : '$prefix: $message';
+}
 
-  factory AppException.fromStatusCode(int? statusCode, [String? serverMessage]) {
-    switch (statusCode) {
-      case 400:
-        return AppException(serverMessage ?? "Bad request. Please check your input.", statusCode: 400);
-      case 401:
-        return AppException(serverMessage ?? "Session expired. Please login again.", statusCode: 401);
-      case 403:
-        return AppException(serverMessage ?? "You don't have permission to do this.", statusCode: 403);
-      case 404:
-        return AppException(serverMessage ?? "Requested data not found.", statusCode: 404);
-      case 409:
-        return AppException(serverMessage ?? "This item is out of stock or unavailable.", statusCode: 409);
-      case 422:
-        return AppException(serverMessage ?? "Validation failed. Please check your details.", statusCode: 422);
-      case 500:
-        return AppException(serverMessage ?? "Something went wrong. Please try again.", statusCode: 500);
-      default:
-        return AppException(serverMessage ?? "Unexpected error occurred.", statusCode: statusCode);
-    }
-  }
+class FetchDataException extends AppException {
+  FetchDataException([String message = 'Something went wrong'])
+      : super(message, 'Error');
+}
 
-  factory AppException.noInternet() =>
-      AppException("No internet connection. Please check your network.");
+class NoInternetException extends AppException {
+  NoInternetException([String message = 'No internet connection'])
+      : super(message, 'No Internet');
+}
 
-  factory AppException.timeout() =>
-      AppException("Request timed out. Please try again.");
+class RequestTimeoutException extends AppException {
+  RequestTimeoutException([String message = 'Request timed out'])
+      : super(message, 'Timeout');
+}
+
+class BadRequestException extends AppException {
+  BadRequestException([String message = 'Invalid request'])
+      : super(message, 'Invalid Request');
+}
+
+class UnauthorisedException extends AppException {
+  UnauthorisedException([String message = 'Session expired, please log in again'])
+      : super(message, 'Unauthorised');
+}
+
+class InvalidInputException extends AppException {
+  InvalidInputException([String message = 'Invalid input'])
+      : super(message, 'Invalid Input');
+}
+
+class NotFoundException extends AppException {
+  NotFoundException([String message = 'Resource not found'])
+      : super(message, 'Not Found');
+}
+
+class ServerException extends AppException {
+  ServerException([String message = 'Server error, please try again later'])
+      : super(message, 'Server Error');
 }

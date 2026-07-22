@@ -1,80 +1,80 @@
-/// Shopzo — All API endpoints in one place.
-/// Never hardcode a URL inside a repo/service file — always reference
-/// ApiUrls.xxx so switching environments (dev/staging/prod) is a
-/// one-line change.
-class ApiUrls {
-  ApiUrls._();
 
-  // ---------------- BASE ----------------
-  // TODO: replace with your actual backend base URL per environment.
-  static const String baseUrl = "https://api.shopzo.com/api/v1";
+class ApiUrl {
+  ApiUrl._();
 
-  // ---------------- AUTH ----------------
+  //  switch this one line when moving staging → production
+  static const String baseUrl = "https://api.shopzo.com/v1";
+
+  // ---- Auth ----
   static const String sendOtp = "$baseUrl/auth/send-otp";
   static const String verifyOtp = "$baseUrl/auth/verify-otp";
-  static const String login = "$baseUrl/auth/login";
-  static const String register = "$baseUrl/auth/register";
-  static const String refreshToken = "$baseUrl/auth/refresh-token";
+  static const String resendOtp = "$baseUrl/auth/resend-otp";
   static const String logout = "$baseUrl/auth/logout";
 
-  // ---------------- TENANT / CONFIG ----------------
-  static const String tenantConfig = "$baseUrl/tenant/config";
+  // ---- Home ----
+  static const String homeData = "$baseUrl/home";
+  static const String banners = "$baseUrl/home/banners";
+  static const String flashDeals = "$baseUrl/home/flash-deals";
+  static const String topPicks = "$baseUrl/home/top-picks";
+  static const String trending = "$baseUrl/home/trending";
 
-  // ---------------- HOME ----------------
-  static const String banners = "$baseUrl/banners";
-  static const String featuredProducts = "$baseUrl/products/featured";
-
-  // ---------------- CATEGORY / PRODUCT ----------------
+  // ---- Categories / Brands ----
   static const String categories = "$baseUrl/categories";
-  static const String products = "$baseUrl/products";
-  static String productDetail(String id) => "$baseUrl/products/$id";
-  static String productVariants(String id) => "$baseUrl/products/$id/variants";
-  static const String searchProducts = "$baseUrl/products/search";
+  static String categoryProducts(String categoryId) =>
+      "$baseUrl/categories/$categoryId/products";
+  static const String brands = "$baseUrl/brands";
+  static String brandProducts(String brandId) => "$baseUrl/brands/$brandId/products";
 
-  // ---------------- CART ----------------
+  // ---- Search ----
+  static const String search = "$baseUrl/search";
+
+  // ---- Products ----
+  static String productDetail(String productId) => "$baseUrl/products/$productId";
+  static String productReviews(String productId) => "$baseUrl/products/$productId/reviews";
+
+  // ---- Cart ----
   static const String cart = "$baseUrl/cart";
   static const String addToCart = "$baseUrl/cart/add";
-  static const String updateCartItem = "$baseUrl/cart/update";
-  static const String removeCartItem = "$baseUrl/cart/remove";
-  static const String cartCount = "$baseUrl/cart/count";
+  static String updateCartItem(String itemId) => "$baseUrl/cart/$itemId";
+  static String removeCartItem(String itemId) => "$baseUrl/cart/$itemId";
+  static const String applyCoupon = "$baseUrl/cart/apply-coupon";
+  static const String removeCoupon = "$baseUrl/cart/remove-coupon";
 
-  // ---------------- COUPON ----------------
-  static const String applyCoupon = "$baseUrl/coupons/apply";
-  static const String availableCoupons = "$baseUrl/coupons";
+  // ---- Checkout ----
+  static const String checkoutSummary = "$baseUrl/checkout/summary";
+  static const String deliverySlots = "$baseUrl/checkout/delivery-slots";
+  static const String placeOrder = "$baseUrl/checkout/place-order";
 
-  // ---------------- ADDRESS ----------------
+  // ---- Address ----
   static const String addresses = "$baseUrl/addresses";
-  static String addressById(String id) => "$baseUrl/addresses/$id";
+  static String addressById(String addressId) => "$baseUrl/addresses/$addressId";
+  static const String reverseGeocode = "$baseUrl/addresses/reverse-geocode";
 
-  // ---------------- CHECKOUT / ORDER ----------------
-  static const String validateCheckout = "$baseUrl/checkout/validate";
-  static const String createOrder = "$baseUrl/orders";
+  // ---- Payment ----
+  static const String paymentMethods = "$baseUrl/payment-methods";
+  static const String addCard = "$baseUrl/payment-methods/cards";
+  static const String addUpi = "$baseUrl/payment-methods/upi";
+  static const String initiatePayment = "$baseUrl/payment/initiate";
+  static const String verifyPayment = "$baseUrl/payment/verify";
+
+  // ---- Orders ----
   static const String myOrders = "$baseUrl/orders";
-  static String orderDetail(String id) => "$baseUrl/orders/$id";
-  static String orderTracking(String id) => "$baseUrl/orders/$id/tracking";
-  static String cancelOrder(String id) => "$baseUrl/orders/$id/cancel";
-  static String returnRequest(String id) => "$baseUrl/orders/$id/return";
+  static String orderDetail(String orderId) => "$baseUrl/orders/$orderId";
+  static String cancelOrder(String orderId) => "$baseUrl/orders/$orderId/cancel";
+  static String trackOrder(String orderId) => "$baseUrl/orders/$orderId/track";
 
-  // ---------------- PAYMENT ----------------
-  static const String createPaymentOrder = "$baseUrl/payments/create-order";
-  static const String verifyPayment = "$baseUrl/payments/verify";
-
-  // ---------------- WISHLIST ----------------
+  // ---- Wishlist ----
   static const String wishlist = "$baseUrl/wishlist";
+  static String toggleWishlist(String productId) => "$baseUrl/wishlist/$productId";
 
-  // ---------------- REVIEWS ----------------
-  static String productReviews(String productId) =>
-      "$baseUrl/products/$productId/reviews";
-  static const String addReview = "$baseUrl/reviews";
+  // ---- Coupons ----
+  static const String coupons = "$baseUrl/coupons";
 
-  // ---------------- PROFILE ----------------
-  static const String profile = "$baseUrl/profile";
-  static const String updateProfile = "$baseUrl/profile/update";
-
-  // ---------------- NOTIFICATIONS ----------------
+  // ---- Notifications ----
   static const String notifications = "$baseUrl/notifications";
 
-  // ---------------- SUPPORT ----------------
-  static const String raiseTicket = "$baseUrl/support/ticket";
-  static const String faqs = "$baseUrl/support/faqs";
+  // ---- Profile ----
+  static const String profile = "$baseUrl/profile";
+  static const String updateProfile = "$baseUrl/profile/update";
+  static const String updateProfilePhoto = "$baseUrl/profile/photo";
 }

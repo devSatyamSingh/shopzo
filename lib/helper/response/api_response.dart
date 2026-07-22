@@ -1,39 +1,28 @@
 /// Shopzo — generic API response wrapper.
-/// Every repo method should return ApiResponse<T> so the ViewModel
-/// layer can handle success/error/loading in one consistent way.
+/// Every Repository method returns `Future<ApiResponse<T>>` (never a
+/// raw model, never a raw exception) so every ViewModel can handle
+/// loading/success/error the exact same way, for every screen.
+enum Status { loading, completed, error }
+
 class ApiResponse<T> {
-  final bool success;
-  final String message;
+  final Status status;
   final T? data;
-  final int? statusCode;
+  final String? message;
 
-  ApiResponse({
-    required this.success,
-    required this.message,
-    this.data,
-    this.statusCode,
-  });
+  ApiResponse._({required this.status, this.data, this.message});
 
-  factory ApiResponse.success(T data, {String message = "Success", int? statusCode}) {
-    return ApiResponse(success: true, message: message, data: data, statusCode: statusCode);
-  }
+  factory ApiResponse.loading() => ApiResponse._(status: Status.loading);
 
-  factory ApiResponse.error(String message, {int? statusCode}) {
-    return ApiResponse(success: false, message: message, data: null, statusCode: statusCode);
-  }
+  factory ApiResponse.completed(T data) =>
+      ApiResponse._(status: Status.completed, data: data);
 
-  factory ApiResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(dynamic json) fromJsonT,
-  ) {
-    return ApiResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: json['data'] != null ? fromJsonT(json['data']) : null,
-      statusCode: json['status_code'],
-    );
-  }
+  factory ApiResponse.error(String message) =>
+      ApiResponse._(status: Status.error, message: message);
+
+  bool get isLoading => status == Status.loading;
+  bool get isCompleted => status == Status.completed;
+  bool get isError => status == Status.error;
+
+  @override
+  String toString() => 'Status: $status | Message: $message | Data: $data';
 }
-
-/// Simple state wrapper for ViewModels (idle / loading / success / error)
-enum ViewState { idle, loading, success, error }

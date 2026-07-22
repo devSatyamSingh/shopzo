@@ -368,7 +368,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               fontSize: 12.5,
               borderRadius: BorderRadius.circular(30),
               onTap: () {
-                // TODO: open rate & review sheet
+                Navigator.pushNamed(context, RouteName.reviewRating);
               },
             ),
             const SizedBox(width: 10),
