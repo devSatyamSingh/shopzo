@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../res/color_constant.dart';
 import '../../routes/route_name.dart';
-
+import '../../utils/app_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -49,8 +49,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     await Future.delayed(const Duration(milliseconds: 2800));
 
     if (!mounted) return;
-    // TODO: check auth token here and route to RouteName.login OR RouteName.home
-    Navigator.of(context).pushReplacementNamed(RouteName.onboarding);
+
+
+    if (AppStorage.isLoggedIn) {
+      Navigator.of(context).pushReplacementNamed(RouteName.mainWrapper);
+    } else if (AppStorage.hasSeenOnboarding) {
+      Navigator.of(context).pushReplacementNamed(RouteName.onboarding);
+    } else {
+      Navigator.of(context).pushReplacementNamed(RouteName.onboarding);
+    }
   }
 
   @override
@@ -66,7 +73,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     final size = MediaQuery.of(context).size;
     final shortestSide = size.shortestSide;
     final isLandscape = size.width > size.height;
-
     final double logoSize = (shortestSide * 0.25).clamp(70.0, 180.0);
     final double titleFontSize = (size.width * 0.1).clamp(25.0, 50.0);
     final double taglineFontSize = (size.width * 0.032).clamp(11.0, 16.0);

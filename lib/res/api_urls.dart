@@ -3,13 +3,16 @@ class ApiUrl {
   ApiUrl._();
 
   //  switch this one line when moving staging → production
-  static const String baseUrl = "https://api.shopzo.com/v1";
+  static const String baseUrl = 'https://madhu.fctesting.shop/api';
 
   // ---- Auth ----
   static const String sendOtp = "$baseUrl/auth/send-otp";
   static const String verifyOtp = "$baseUrl/auth/verify-otp";
   static const String resendOtp = "$baseUrl/auth/resend-otp";
-  static const String logout = "$baseUrl/auth/logout";
+  static const String register = '$baseUrl/customer/register';
+  static const String login = '$baseUrl/customer/login';
+  static const String refreshToken = '$baseUrl/customer/refresh';
+  static const String logout = '$baseUrl/customer/logout';
 
   // ---- Home ----
   static const String homeData = "$baseUrl/home";

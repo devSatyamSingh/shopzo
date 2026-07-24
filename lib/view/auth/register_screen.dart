@@ -5,8 +5,8 @@ import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
-import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
+import '../../viewmodel/auth_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,8 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _phoneNumber = TextEditingController();
+  final _authViewModel = AuthViewModel();
 
-  String _fullPhoneNumber = '';
   String _rawNumber = '';
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
@@ -32,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneNumber.dispose();
     super.dispose();
   }
 
@@ -39,12 +40,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(email);
   }
 
-  void _onRegister() {
+  Future<void> _onRegister() async {
     if (_nameController.text.trim().isEmpty) {
       AppUtils.error(context, 'Please enter your full name');
       return;
     }
-    if (_emailController.text.trim().isEmpty ||
+    // Email is optional on the backend — only validate format if the user typed something.
+    if (_emailController.text.trim().isNotEmpty &&
         !_isValidEmail(_emailController.text.trim())) {
       AppUtils.error(context, 'Please enter a valid email address');
       return;
@@ -64,18 +66,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _loading = true);
 
-    // 👉 call your register API here with (_nameController.text,
-    // _emailController.text, _fullPhoneNumber, _passwordController.text)
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      AppUtils.success(context, 'Account created successfully');
-      Navigator.pushNamedAndRemoveUntil(
+    final success = await _authViewModel.register(
+      name: _nameController.text.trim(),
+      phone: _rawNumber,
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (success) {
+      AppUtils.success(context, 'Account created successfully. Please log in.');
+      // Register API doesn't return a token, so there's no session to start —
+      // just pop back to the Login screen underneath.
+      Navigator.pop(context);
+    } else {
+      AppUtils.error(
         context,
-        RouteName.mainWrapper,
-            (route) => false,
+        _authViewModel.errorMessage ?? 'Registration failed. Please try again.',
       );
-    });
+    }
   }
 
   void _onLoginTap() {
@@ -163,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // ---------------- EMAIL LABEL ----------------
               TextContext(
-                text: 'Email Address',
+                text: 'Email Address (optional)',
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: ColorConstant.bodyTextColor,
@@ -242,7 +253,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 onChanged: (phone) {
-                  _fullPhoneNumber = phone.completeNumber;
                   _rawNumber = phone.number;
                 },
                 onCountryChanged: (country) {},

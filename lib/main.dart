@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopzo/utils/app_storage.dart';
 import 'package:shopzo/utils/connectivty_wrapper.dart';
 import 'package:shopzo/utils/utils.dart';
 import 'package:shopzo/viewmodel/address_provider.dart';
@@ -8,7 +9,9 @@ import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppStorage.init();
   runApp(const MyApp());
 }
 

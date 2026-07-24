@@ -8,6 +8,8 @@ import '../../res/textfiled_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
 import 'register_screen.dart';
+import '../../viewmodel/auth_viewmodel.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,8 +20,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
+  final _authViewModel = AuthViewModel();
 
-  String _fullPhoneNumber = '';
   String _rawNumber = '';
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
@@ -31,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
+  Future<void> _onLogin() async {
     if (!_isPhoneValid || _rawNumber.isEmpty) {
       AppUtils.error(context, 'Please enter a valid mobile number');
       return;
@@ -43,12 +45,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _loading = true);
 
-    // 👉 call your login API here with (_fullPhoneNumber, _passwordController.text)
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      Navigator.pushReplacementNamed(context, RouteName.mainWrapper);
-    });
+    final success = await _authViewModel.login(
+      phone: _rawNumber,
+      password: _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (success) {
+      AppUtils.success(context, 'Login successful');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        RouteName.mainWrapper,
+            (route) => false,
+      );
+    } else {
+      AppUtils.error(
+        context,
+        _authViewModel.errorMessage ?? 'Login failed. Please try again.',
+      );
+    }
   }
 
   void _onRegisterTap() {
@@ -171,7 +188,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 onChanged: (phone) {
-                  _fullPhoneNumber = phone.completeNumber;
                   _rawNumber = phone.number;
                 },
                 onCountryChanged: (country) {},

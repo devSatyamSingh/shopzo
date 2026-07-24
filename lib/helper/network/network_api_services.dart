@@ -5,21 +5,24 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../res/api_urls.dart';
+import '../../routes/route_name.dart';
+import '../../utils/app_storage.dart';
+import '../../utils/utils.dart';
 import '../app_exception.dart';
+
 import 'base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
   static const Duration _timeout = Duration(seconds: 20);
   static const Duration _uploadTimeout = Duration(seconds: 60);
 
-  Future<String?> _getToken() async {
-    final sp = await SharedPreferences.getInstance();
-    return sp.getString('token');
-  }
+  // Prevents multiple parallel requests from all firing their own
+  // refresh call the instant a token expires — they share one refresh.
+  static Future<bool>? _refreshInFlight;
 
-  Future<Map<String, String>> _jsonHeaders() async {
-    final token = await _getToken();
+  Map<String, String> _jsonHeaders() {
+    final token = AppStorage.getAccessToken();
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -27,8 +30,8 @@ class NetworkApiServices extends BaseApiServices {
     };
   }
 
-  Future<Map<String, String>> _formDataHeaders() async {
-    final token = await _getToken();
+  Map<String, String> _formDataHeaders() {
+    final token = AppStorage.getAccessToken();
     return {
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
@@ -38,15 +41,84 @@ class NetworkApiServices extends BaseApiServices {
     if (kDebugMode) debugPrint('[$tag] $message');
   }
 
+  /// Runs [request]. If it throws UnauthorisedException (401/403 — expired
+  /// access token), tries ONE silent refresh and retries [request] once.
+  /// If the refresh itself fails (refresh token also expired/invalid),
+  /// clears the session and bounces the user to Login automatically.
+  Future<dynamic> _withAuthRetry(Future<dynamic> Function() request) async {
+    try {
+      return await request();
+    } on UnauthorisedException {
+      final refreshed = await _refreshAccessToken();
+      if (refreshed) {
+        return await request();
+      }
+      await AppStorage.logout();
+      AppUtils.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        RouteName.login,
+            (route) => false,
+      );
+      rethrow;
+    }
+  }
+
+  Future<bool> _refreshAccessToken() {
+    // If a refresh is already running, wait for that one instead of firing another.
+    _refreshInFlight ??= _doRefreshAccessToken();
+    return _refreshInFlight!.whenComplete(() => _refreshInFlight = null);
+  }
+
+  Future<bool> _doRefreshAccessToken() async {
+    final refreshToken = AppStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+
+    try {
+      final response = await http
+          .post(
+        Uri.parse(ApiUrl.refreshToken),
+        headers: const {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'refreshToken': refreshToken}),
+      )
+          .timeout(_timeout);
+
+      _log('REFRESH', '${response.statusCode} | ${response.body}');
+
+      if (response.statusCode != 200) return false;
+
+      final body = response.body.isNotEmpty ? jsonDecode(response.body) : {};
+      final data = (body is Map ? body['data'] : null) as Map<String, dynamic>?;
+      final newAccessToken = data?['accessToken']?.toString();
+      final newRefreshToken = data?['refreshToken']?.toString();
+
+      if (newAccessToken == null || newAccessToken.isEmpty) return false;
+
+      await AppStorage.updateTokens(
+        accessToken: newAccessToken,
+        refreshToken: (newRefreshToken != null && newRefreshToken.isNotEmpty)
+            ? newRefreshToken
+            : refreshToken,
+      );
+      return true;
+    } catch (e) {
+      _log('REFRESH ✗', e);
+      return false;
+    }
+  }
+
   // GET
   @override
   Future<dynamic> getGetApiResponse(String url) async {
     _log('GET →', url);
     try {
-      final headers = await _jsonHeaders();
-      final response = await http.get(Uri.parse(url), headers: headers).timeout(_timeout);
-      _log('GET ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+      return await _withAuthRetry(() async {
+        final response =
+        await http.get(Uri.parse(url), headers: _jsonHeaders()).timeout(_timeout);
+        _log('GET ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -66,12 +138,13 @@ class NetworkApiServices extends BaseApiServices {
   Future<dynamic> getPostApiResponse(String url, dynamic data) async {
     _log('POST →', '$url | body: ${jsonEncode(data)}');
     try {
-      final headers = await _jsonHeaders();
-      final response = await http
-          .post(Uri.parse(url), headers: headers, body: jsonEncode(data))
-          .timeout(_timeout);
-      _log('POST ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+      return await _withAuthRetry(() async {
+        final response = await http
+            .post(Uri.parse(url), headers: _jsonHeaders(), body: jsonEncode(data))
+            .timeout(_timeout);
+        _log('POST ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -91,12 +164,13 @@ class NetworkApiServices extends BaseApiServices {
   Future<dynamic> getPutApiResponse(String url, dynamic data) async {
     _log('PUT →', '$url | body: ${jsonEncode(data)}');
     try {
-      final headers = await _jsonHeaders();
-      final response = await http
-          .put(Uri.parse(url), headers: headers, body: jsonEncode(data))
-          .timeout(_timeout);
-      _log('PUT ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+      return await _withAuthRetry(() async {
+        final response = await http
+            .put(Uri.parse(url), headers: _jsonHeaders(), body: jsonEncode(data))
+            .timeout(_timeout);
+        _log('PUT ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -116,12 +190,13 @@ class NetworkApiServices extends BaseApiServices {
   Future<dynamic> getPatchApiResponse(String url, dynamic data) async {
     _log('PATCH →', '$url | body: ${jsonEncode(data)}');
     try {
-      final headers = await _jsonHeaders();
-      final response = await http
-          .patch(Uri.parse(url), headers: headers, body: jsonEncode(data))
-          .timeout(_timeout);
-      _log('PATCH ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+      return await _withAuthRetry(() async {
+        final response = await http
+            .patch(Uri.parse(url), headers: _jsonHeaders(), body: jsonEncode(data))
+            .timeout(_timeout);
+        _log('PATCH ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -141,10 +216,12 @@ class NetworkApiServices extends BaseApiServices {
   Future<dynamic> getDeleteApiResponse(String url) async {
     _log('DELETE →', url);
     try {
-      final headers = await _jsonHeaders();
-      final response = await http.delete(Uri.parse(url), headers: headers).timeout(_timeout);
-      _log('DELETE ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+      return await _withAuthRetry(() async {
+        final response =
+        await http.delete(Uri.parse(url), headers: _jsonHeaders()).timeout(_timeout);
+        _log('DELETE ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -169,26 +246,28 @@ class NetworkApiServices extends BaseApiServices {
       }) async {
     _log('FORM-DATA($method) →', '$url | fields: $fields | files: ${files?.keys}');
     try {
-      final request = http.MultipartRequest(method, Uri.parse(url));
-      request.headers.addAll(await _formDataHeaders());
+      return await _withAuthRetry(() async {
+        final request = http.MultipartRequest(method, Uri.parse(url));
+        request.headers.addAll(_formDataHeaders());
 
-      fields.forEach((key, value) {
-        if (value != null) request.fields[key] = value.toString();
-      });
+        fields.forEach((key, value) {
+          if (value != null) request.fields[key] = value.toString();
+        });
 
-      if (files != null) {
-        for (final entry in files.entries) {
-          request.files.add(
-            await http.MultipartFile.fromPath(entry.key, entry.value.path),
-          );
+        if (files != null) {
+          for (final entry in files.entries) {
+            request.files.add(
+              await http.MultipartFile.fromPath(entry.key, entry.value.path),
+            );
+          }
         }
-      }
 
-      final streamed = await request.send().timeout(_uploadTimeout);
-      final response = await http.Response.fromStream(streamed).timeout(_uploadTimeout);
+        final streamed = await request.send().timeout(_uploadTimeout);
+        final response = await http.Response.fromStream(streamed).timeout(_uploadTimeout);
 
-      _log('FORM-DATA ✓', '${response.statusCode} | ${response.body}');
-      return _returnRequest(response);
+        _log('FORM-DATA ✓', '${response.statusCode} | ${response.body}');
+        return _returnRequest(response);
+      });
     } on SocketException {
       throw NoInternetException();
     } on TimeoutException {
@@ -208,8 +287,7 @@ class NetworkApiServices extends BaseApiServices {
     final dynamic responseData =
     response.body.isNotEmpty ? jsonDecode(response.body) : <String, dynamic>{};
 
-    final String serverMessage =
-    (responseData is Map && responseData['message'] != null)
+    final String serverMessage = (responseData is Map && responseData['message'] != null)
         ? responseData['message'].toString()
         : '';
 

@@ -5,11 +5,10 @@ import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import '../../res/delete_popup.dart';
 import '../../routes/route_name.dart';
-import '../address/address_list_screen.dart';
-import '../payment/payment_methods_screen.dart';
-import '../profile/profile_information_screen.dart';
-import '../wishlist/wishlist_screen.dart';
-import 'help_center_screen.dart';
+import '../../utils/app_storage.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/auth_viewmodel.dart';
+
 
 /// Shopzo — Account / Profile screen.
 /// All tap callbacks are wired but left empty — plug in your
@@ -19,14 +18,26 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   //  replace with real user data (provider / bloc / auth service)
-  static const String _name = 'Satyam Singh';
-  static const String _email = 'satyam@gmail.com';
-  static const String _memberSince = 'Member since Jan 2024';
+  // static const String _name = 'Satyam Singh';
+  // static const String _email = 'satyam@gmail.com';
+  // static const String _memberSince = 'Member since Jan 2024';
   static const String _avatarUrl = 'assets/images/pro12.jpg';
   static const String _appVersion = 'Shopzo v2.4.1';
 
   void _onEditAvatar() {
     //  open image picker / edit profile photo
+  }
+
+  static String _formatMemberSince(String? createdAt) {
+    if (createdAt == null || createdAt.isEmpty) return 'Member since —';
+    final date = DateTime.tryParse(createdAt);
+    if (date == null) return 'Member since —';
+
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return 'Member since ${months[date.month - 1]} ${date.year}';
   }
 
   void _onOrdersTap(BuildContext context) {
@@ -77,6 +88,7 @@ class ProfileScreen extends StatelessWidget {
 
   }
 
+
   Future<void> _onLogoutTap(BuildContext context) async {
     final confirmed = await DeletePopup.show(
       context,
@@ -90,9 +102,11 @@ class ProfileScreen extends StatelessWidget {
 
     if (confirmed != true) return;
 
-    // 👉 clear session/token here, e.g.:
-    // ApiClient.clearAuth();
-    // await SharedPreferences.getInstance().then((p) => p.clear());
+    AppUtils.showLoader(context);
+    await AuthViewModel().logout();
+
+    if (!context.mounted) return;
+    AppUtils.hideLoader(context);
 
     if (!context.mounted) return;
     Navigator.pushNamedAndRemoveUntil(
@@ -105,6 +119,18 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final customer = AppStorage.getCustomer();
+
+    final memberSince = _formatMemberSince(customer?['createdAt']?.toString());
+
+    final name = customer?['name']?.toString().isNotEmpty == true
+        ? customer!['name'].toString()
+        : 'Guest User';
+
+    // email optional hai register me, agar khali ho to phone dikha do
+    final email = customer?['email']?.toString().isNotEmpty == true
+        ? customer!['email'].toString()
+        : (customer?['phone']?.toString() ?? '');
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -120,9 +146,9 @@ class ProfileScreen extends StatelessWidget {
               // ---------------- PROFILE HEADER ----------------
               _ProfileHeader(
                 avatarUrl: _avatarUrl,
-                name: _name,
-                email: _email,
-                memberSince: _memberSince,
+                name: name,
+                email: email,
+                memberSince: memberSince,
                 onEditAvatar: _onEditAvatar,
               ),
 

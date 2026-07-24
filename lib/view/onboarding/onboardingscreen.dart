@@ -3,6 +3,7 @@ import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
+import '../../utils/app_storage.dart';
 import '../auth/login_screen.dart';
 
 enum OnboardingBgShape { blob, circle, none }
@@ -98,8 +99,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _pageController.jumpToPage(_pages.length - 1);
   }
 
-  void _onGetStarted() {
-    Navigator.pushReplacementNamed(context, RouteName.login);  }
+  Future<void> _onGetStarted() async {
+    // Mark onboarding as seen FIRST — so if Splash ever runs again
+    // (app restart, hot restart, etc.) it goes straight to Login instead
+    // of showing these 3 pages again.
+    await AppStorage.setOnboardingSeen();
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, RouteName.login);
+  }
 
   @override
   Widget build(BuildContext context) {
