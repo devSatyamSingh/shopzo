@@ -18,6 +18,7 @@ import '../view/checkout/checkout_step2_screen.dart';
 import '../view/checkout/checkout_step3_screen.dart';
 import '../view/home/home_screen.dart';
 import '../view/home/search_screen.dart';
+import '../view/home/sub_category_screen.dart';
 import '../view/notification_screen.dart';
 import '../view/onboarding/onboardingscreen.dart';
 import '../view/order/order_deatils_screen.dart';
@@ -158,6 +159,15 @@ class AppRoutes {
     // lib/routes/app_routes.dart
       case RouteName.reviewRating:
         return _page(const ReviewRatingScreen());
+
+      case RouteName.subCategory:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return MaterialPageRoute(
+          builder: (_) => SubCategoryScreen(
+            categoryId: args['categoryId'] as String? ?? '',
+            categoryName: args['categoryName'] as String? ?? '',
+          ),
+        );
 
       default:
         return _page(

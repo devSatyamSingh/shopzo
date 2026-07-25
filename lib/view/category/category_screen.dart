@@ -1,72 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../model/category_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
 import '../../routes/route_name.dart';
+import '../../utils/skelton_box.dart';
+import '../../viewmodel/category_viewmodel.dart';
+import '../home/sub_category_screen.dart';
 import 'category_product_list.dart';
 
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
 
-  // ---- Dummy data — replace with real data from your ViewModel/repo ----
-  static final List<_CategoryItem> _categories = [
-    _CategoryItem(
-      image: "assets/images/pro1.jpg",
-      name: "Footwear",
-      itemCount: "128 items",
-      badgeText: "UP TO 60% OFF",
-      tintColor: const Color(0xFFE0EEF7),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro2.jpg",
-      name: "Apparel",
-      itemCount: "452 items",
-      badgeText: "STARTING ₹299",
-      tintColor: const Color(0xFFF3E9E3),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro3.jpg",
-      name: "Electronics",
-      itemCount: "85 items",
-      badgeText: "NEW DEALS",
-      tintColor: const Color(0xFFE9ECF5),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro4.jpg",
-      name: "Home & Living",
-      itemCount: "210 items",
-      badgeText: "FLAT 20% OFF",
-      tintColor: const Color(0xFFF6EFD9),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro12.jpg",
-      name: "Beauty",
-      itemCount: "320 items",
-      badgeText: "LUXE RANGE",
-      tintColor: const Color(0xFFF8E6EC),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro8.jpg",
-      name: "Grocery",
-      itemCount: "1.2k items",
-      badgeText: "FAST DELIVERY",
-      tintColor: const Color(0xFFE6F2E4),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro9.jpg",
-      name: "Accessories",
-      itemCount: "190 items",
-      badgeText: "UP TO 50% OFF",
-      tintColor: const Color(0xFFEFEFEF),
-    ),
-    _CategoryItem(
-      image: "assets/images/pro10.jpg",
-      name: "Sports",
-      itemCount: "95 items",
-      badgeText: "FITNESS SALE",
-      tintColor: const Color(0xFFE3EEF0),
-    ),
+  // Cycled as a card background tint — cosmetic only, API has no color field.
+  static const List<Color> _tints = [
+    Color(0xFFE0EEF7),
+    Color(0xFFF3E9E3),
+    Color(0xFFE9ECF5),
+    Color(0xFFF6EFD9),
+    Color(0xFFF8E6EC),
+    Color(0xFFE6F2E4),
+    Color(0xFFEFEFEF),
+    Color(0xFFE3EEF0),
   ];
 
   static const List<_QuickChip> _quickChips = [
@@ -105,12 +62,49 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Cached after first load — cheap to call again here even if Home
+    // already triggered it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoryViewModel>().fetchCategories();
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
+
+  void _onCategoryTap(CategoryViewModel viewModel, CategoryModel category) {
+    if (viewModel.hasChildren(category.id)) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SubCategoryScreen(
+            categoryId: category.id,
+            categoryName: category.name,
+          ),
+        ),
+      );
+    } else {
+      // Top-level category with no subcategories — go straight to its
+      // product list.
+      Navigator.pushNamed(
+        context,
+        RouteName.categoryProducts,
+        arguments: {
+          'categoryId': category.id,
+          'categoryName': category.name,
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -189,7 +183,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       suffixIcon: InkWell(
         onTap: () {
           _searchController.clear();
-          setState(() {});
+          setState(() => _query = '');
         },
         child: const Icon(
           Icons.close_rounded,
@@ -201,8 +195,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       borderRadius: 16,
       showBorder: false,
       onChanged: (value) {
-        setState(() {});
-        // Yahin search/filter logic chalega
+        setState(() => _query = value.trim().toLowerCase());
       },
     );
   }
@@ -303,38 +296,109 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  /// ---------------- MAIN CATEGORY GRID ----------------
+  /// ---------------- MAIN CATEGORY GRID (API-backed) ----------------
   Widget _buildCategoryGrid(Size size) {
     final double spacing = size.width * 0.026;
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: CategoryScreen._categories.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: spacing,
-        mainAxisSpacing: spacing,
-        childAspectRatio: 0.99,
-      ),
-      itemBuilder: (context, index) => _buildCategoryCard(size, CategoryScreen._categories[index]),
-    );
-  }
+    return Consumer<CategoryViewModel>(
+      builder: (context, viewModel, _) {
+        // ---------------- SKELETON (first load only) ----------------
+        if (viewModel.isLoading && viewModel.categories.isEmpty) {
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 6,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: spacing,
+              childAspectRatio: 0.99,
+            ),
+            itemBuilder: (context, index) => _buildCategoryCardSkeleton(),
+          );
+        }
 
-  Widget _buildCategoryCard(Size size, _CategoryItem item) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          RouteName.categoryProducts,
-          arguments: {
-            'categoryId': item.name,
-            'categoryName': item.name,
-            'tintColor': item.tintColor,
+        // ---------------- ERROR ----------------
+        if (viewModel.status == CategoryLoadStatus.error && viewModel.categories.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.wifi_off_rounded, size: 40, color: ColorConstant.placeholderColor),
+                  SizedBox(height: size.height * 0.012),
+                  TextContext(
+                    text: viewModel.errorMessage ?? 'Failed to load categories',
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                    textAlign: TextAlign.center,
+                    color: ColorConstant.labelTextColor,
+                  ),
+                  SizedBox(height: size.height * 0.015),
+                  TextButton(
+                    onPressed: () => viewModel.fetchCategories(forceRefresh: true),
+                    child: TextContext(
+                      text: 'Retry',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: ColorConstant.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final categories = viewModel.topLevelCategories
+            .where((c) => _query.isEmpty || c.name.toLowerCase().contains(_query))
+            .toList();
+
+        if (categories.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
+            child: Center(
+              child: TextContext(
+                text: 'No categories found',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: ColorConstant.labelTextColor,
+              ),
+            ),
+          );
+        }
+
+        // ---------------- REAL DATA ----------------
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: categories.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            childAspectRatio: 0.99,
+          ),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            final tint = CategoryScreen._tints[index % CategoryScreen._tints.length];
+            return _buildCategoryCard(size, viewModel, category, tint);
           },
         );
       },
+    );
+  }
+
+  Widget _buildCategoryCard(
+      Size size,
+      CategoryViewModel viewModel,
+      CategoryModel category,
+      Color tint,
+      ) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () => _onCategoryTap(viewModel, category),
       child: Container(
         decoration: BoxDecoration(
           color: ColorConstant.whiteColor,
@@ -354,16 +418,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Expanded(
               flex: 5,
               child: Container(
-                color: item.tintColor,
+                color: tint,
                 alignment: Alignment.center,
-                child: Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Image.asset(item.image),
-                    ),
+                child: category.image != null
+                    ? Image.network(
+                  category.image!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return const SizedBox.shrink();
+                  },
+                  errorBuilder: (context, error, stack) => Icon(
+                    Icons.category_rounded,
+                    size: 40,
+                    color: ColorConstant.primaryColor,
                   ),
+                )
+                    : Icon(
+                  Icons.category_rounded,
+                  size: 40,
+                  color: ColorConstant.primaryColor,
                 ),
               ),
             ),
@@ -378,7 +454,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextContext(
-                          text: item.name,
+                          text: category.name,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           maxLines: 1,
@@ -386,7 +462,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                         const SizedBox(height: 2),
                         TextContext(
-                          text: item.itemCount,
+                          text: '${category.productCount} items',
                           fontSize: 11.5,
                           fontWeight: FontWeight.w400,
                           color: ColorConstant.labelTextColor,
@@ -394,29 +470,69 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        gradient: ColorConstant.orangeGradient,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        item.badgeText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "Poppins",
-                          letterSpacing: 0.2,
+                    if (category.taxRate != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          gradient: ColorConstant.orangeGradient,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'GST ${category.taxRate}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "Poppins",
+                            letterSpacing: 0.2,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryCardSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: ColorConstant.whiteColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Expanded(flex: 5, child: SkeletonBox(width: double.infinity, height: double.infinity)),
+          Expanded(
+            flex: 5,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 10, 11, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SkeletonBox(width: 70, height: 12, borderRadius: BorderRadius.circular(4)),
+                  const SizedBox(height: 6),
+                  SkeletonBox(width: 50, height: 10, borderRadius: BorderRadius.circular(4)),
+                  const SizedBox(height: 10),
+                  SkeletonBox(width: 60, height: 16, borderRadius: BorderRadius.circular(20)),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -482,22 +598,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ],
     );
   }
-}
-
-class _CategoryItem {
-  final String image;// placeholder — swap for `image` (network/asset) later
-  final String name;
-  final String itemCount;
-  final String badgeText;
-  final Color tintColor;
-
-  _CategoryItem({
-    required this.image,
-    required this.name,
-    required this.itemCount,
-    required this.badgeText,
-    required this.tintColor,
-  });
 }
 
 class _QuickChip {

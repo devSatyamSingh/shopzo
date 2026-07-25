@@ -67,7 +67,6 @@ class AppStorage {
     return jsonDecode(raw) as Map<String, dynamic>;
   }
 
-
   static Future<void> setOnboardingSeen() => _instance.setBool(_keyOnboardingSeen, true);
 
   static bool get hasSeenOnboarding => _instance.getBool(_keyOnboardingSeen) ?? false;

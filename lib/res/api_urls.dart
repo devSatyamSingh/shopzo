@@ -13,6 +13,8 @@ class ApiUrl {
   static const String login = '$baseUrl/customer/login';
   static const String refreshToken = '$baseUrl/customer/refresh';
   static const String logout = '$baseUrl/customer/logout';
+  static const String categories = '$baseUrl/categories';
+  static String categoryById(String id) => '$baseUrl/categories/$id';
 
   // ---- Home ----
   static const String homeData = "$baseUrl/home";
@@ -22,7 +24,6 @@ class ApiUrl {
   static const String trending = "$baseUrl/home/trending";
 
   // ---- Categories / Brands ----
-  static const String categories = "$baseUrl/categories";
   static String categoryProducts(String categoryId) =>
       "$baseUrl/categories/$categoryId/products";
   static const String brands = "$baseUrl/brands";

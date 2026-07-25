@@ -5,6 +5,7 @@ import 'package:shopzo/utils/connectivty_wrapper.dart';
 import 'package:shopzo/utils/utils.dart';
 import 'package:shopzo/viewmodel/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
+import 'package:shopzo/viewmodel/category_viewmodel.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -24,13 +25,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",
         debugShowCheckedModeBanner: false,
-
-        // Required so AppUtils snackbars/dialogs can be shown from
-        // anywhere (not just from inside a widget's build method).
         navigatorKey: AppUtils.navigatorKey,
         scaffoldMessengerKey: AppUtils.messengerKey,
 

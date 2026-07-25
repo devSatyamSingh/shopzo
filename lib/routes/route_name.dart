@@ -52,5 +52,6 @@ class RouteName {
   static const String returnRefund = '/return-refund';
   static const String register = '/register';
   static const String reviewRating = '/review-rating';
+  static const String subCategory = '/sub-category';
 
 }
