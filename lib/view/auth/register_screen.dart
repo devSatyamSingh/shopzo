@@ -6,7 +6,7 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
-import '../../viewmodel/auth_viewmodel.dart';
+import '../../viewmodel/auth/auth_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

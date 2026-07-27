@@ -5,7 +5,7 @@ import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/view/home/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
-import '../flash_deals_screen.dart';
+import 'flash_deals_screen.dart';
 
 class FlashDealsSection extends StatefulWidget {
   final List<ProductModel> products;

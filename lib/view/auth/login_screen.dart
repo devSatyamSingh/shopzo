@@ -8,7 +8,7 @@ import '../../res/textfiled_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
 import 'register_screen.dart';
-import '../../viewmodel/auth_viewmodel.dart';
+import '../../viewmodel/auth/auth_viewmodel.dart';
 
 
 class LoginScreen extends StatefulWidget {

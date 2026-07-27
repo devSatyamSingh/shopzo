@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
-import '../all_brands_screen.dart';
+import 'all_brands_screen.dart';
 
 class BrandModel {
   final String logo;

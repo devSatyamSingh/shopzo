@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/category_model.dart';
+import '../../model/category/category_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
-import '../../viewmodel/category_viewmodel.dart';
+import '../../viewmodel/category_subcategory/category_viewmodel.dart';
 
 
 class SubCategoryScreen extends StatefulWidget {

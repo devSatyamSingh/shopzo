@@ -7,7 +7,7 @@ import '../../res/delete_popup.dart';
 import '../../routes/route_name.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/utils.dart';
-import '../../viewmodel/auth_viewmodel.dart';
+import '../../viewmodel/auth/auth_viewmodel.dart';
 
 
 /// Shopzo — Account / Profile screen.

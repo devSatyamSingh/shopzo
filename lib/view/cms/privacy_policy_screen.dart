@@ -1,7 +1,7 @@
 // lib/view/privacy/privacy_policy_screen.dart
 import 'package:flutter/material.dart';
-import '../../res/color_constant.dart';
-import '../../res/text_context.dart';
+import '../../../res/color_constant.dart';
+import '../../../res/text_context.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});

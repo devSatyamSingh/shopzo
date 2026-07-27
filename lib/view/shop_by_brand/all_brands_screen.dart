@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../res/color_constant.dart';
-import '../../res/text_context.dart';
-import '../../res/textfiled_context.dart';
-import '../../routes/route_name.dart';
-import 'home/shop_by_brand_screen.dart';
+import '../../../res/color_constant.dart';
+import '../../../res/text_context.dart';
+import '../../../res/textfiled_context.dart';
+import '../../../routes/route_name.dart';
+import 'shop_by_brand_screen.dart';
 
 /// Shopzo — All Brands screen.
 /// Reached from "View All" on the Shop By Brand section. Tapping any

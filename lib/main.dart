@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:shopzo/utils/app_storage.dart';
 import 'package:shopzo/utils/connectivty_wrapper.dart';
 import 'package:shopzo/utils/utils.dart';
-import 'package:shopzo/viewmodel/address_provider.dart';
+import 'package:shopzo/viewmodel/address/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
-import 'package:shopzo/viewmodel/category_viewmodel.dart';
+import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
+import 'package:shopzo/viewmodel/product/product_viewmodel.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -26,6 +27,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => CategoryViewModel()),
+        ChangeNotifierProvider(create: (_) => ProductViewModel()),
+
       ],
       child: MaterialApp(
         title: "Shopzo",

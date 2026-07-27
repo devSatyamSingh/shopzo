@@ -1,12 +1,12 @@
-import '../helper/app_exception.dart';
-import '../helper/network/network_api_services.dart';
-import '../helper/response/api_response.dart';
-import '../model/login_model.dart';
-import '../model/login_response_model.dart';
-import '../model/register_model.dart';
-import '../model/user_model.dart';
-import '../res/api_urls.dart';
-import '../utils/app_storage.dart';
+import '../../helper/app_exception.dart';
+import '../../helper/network/network_api_services.dart';
+import '../../helper/response/api_response.dart';
+import '../../model/auth/login_model.dart';
+import '../../model/auth/login_response_model.dart';
+import '../../model/auth/register_model.dart';
+import '../../model/auth/user_model.dart';
+import '../../res/api_urls.dart';
+import '../../utils/app_storage.dart';
 
 class AuthRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();

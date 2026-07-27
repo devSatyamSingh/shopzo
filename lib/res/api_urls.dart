@@ -33,9 +33,23 @@ class ApiUrl {
   static const String search = "$baseUrl/search";
 
   // ---- Products ----
-  static String productDetail(String productId) => "$baseUrl/products/$productId";
-  static String productReviews(String productId) => "$baseUrl/products/$productId/reviews";
-
+  static String products({
+    required int page,
+    int limit = 20,
+    String? categoryId,
+    String? search,
+  }) {
+    final params = <String, String>{
+      'page': '$page',
+      'limit': '$limit',
+      if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    final query = params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+    return '$baseUrl/products?$query';
+  }
   // ---- Cart ----
   static const String cart = "$baseUrl/cart";
   static const String addToCart = "$baseUrl/cart/add";

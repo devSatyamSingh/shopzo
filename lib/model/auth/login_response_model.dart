@@ -1,4 +1,4 @@
-import 'package:shopzo/model/user_model.dart';
+import 'package:shopzo/model/auth/user_model.dart';
 
 
 class LoginResponseModel {

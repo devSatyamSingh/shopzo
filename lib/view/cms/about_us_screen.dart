@@ -1,7 +1,7 @@
 // lib/view/about/about_us_screen.dart
 import 'package:flutter/material.dart';
-import '../../res/color_constant.dart';
-import '../../res/text_context.dart';
+import '../../../res/color_constant.dart';
+import '../../../res/text_context.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});

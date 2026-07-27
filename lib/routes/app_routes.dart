@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/account/prevacy_securty_screen.dart';
-import '../view/about_us_screen.dart';
+import '../view/cms/about_us_screen.dart';
 import '../view/account/account_screen.dart';
 import '../view/account/coupons_screen.dart';
 import '../view/account/help_center_screen.dart';
@@ -18,21 +18,21 @@ import '../view/checkout/checkout_step2_screen.dart';
 import '../view/checkout/checkout_step3_screen.dart';
 import '../view/home/home_screen.dart';
 import '../view/home/search_screen.dart';
-import '../view/home/sub_category_screen.dart';
-import '../view/notification_screen.dart';
+import '../view/category/sub_category_screen.dart';
+import '../view/notification/notification_screen.dart';
 import '../view/onboarding/onboardingscreen.dart';
 import '../view/order/order_deatils_screen.dart';
 import '../view/order/order_list_screen.dart';
 import '../view/order/review_rating_screen.dart';
 import '../view/payment/add_payment_screen.dart';
 import '../view/payment/payment_methods_screen.dart';
-import '../view/privacy_policy_screen.dart';
+import '../view/cms/privacy_policy_screen.dart';
 import '../view/product_details/product_details_screen.dart';
 import '../view/profile/edit_profile_screen.dart';
 import '../view/profile/profile_information_screen.dart';
-import '../view/return_refund_screen.dart';
+import '../view/cms/return_refund_screen.dart';
 import '../view/splash/splash_screen.dart';
-import '../view/terms_cond_screen.dart';
+import '../view/cms/terms_cond_screen.dart';
 import '../view/wishlist/wishlist_screen.dart';
 import 'route_name.dart';
 
@@ -74,10 +74,9 @@ class AppRoutes {
       case RouteName.categoryProducts:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         return _page(
-          CategoryProductsScreen(
+          CategoryProductListScreen(
             categoryId: args['categoryId'] as String? ?? '',
             categoryName: args['categoryName'] as String? ?? '',
-            tintColor: args['tintColor'] as Color? ?? const Color(0xFFEFEFEF),
           ),
         );
 

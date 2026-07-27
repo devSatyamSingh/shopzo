@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../model/login_model.dart';
-import '../model/register_model.dart';
-import '../model/user_model.dart';
-import '../repo/auth_repo.dart';
-import '../utils/app_storage.dart';
+import '../../model/auth/login_model.dart';
+import '../../model/auth/register_model.dart';
+import '../../model/auth/user_model.dart';
+import '../../repo/auth/auth_repo.dart';
+import '../../utils/app_storage.dart';
 
 
 

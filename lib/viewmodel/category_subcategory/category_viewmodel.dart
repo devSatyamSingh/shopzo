@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../model/category_model.dart';
-import '../repo/category_repo.dart';
+import '../../model/category/category_model.dart';
+import '../../repo/category_subcatgory/category_repo.dart';
 
 enum CategoryLoadStatus { idle, loading, loaded, error }
 

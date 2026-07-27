@@ -4,7 +4,7 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
-import '../../viewmodel/category_viewmodel.dart';
+import '../../viewmodel/category_subcategory/category_viewmodel.dart';
 
 
 class CategoryIconsSection extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/view/home/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
-import '../top_picks_screen.dart';
+import 'top_picks_screen.dart';
 
 class TopPicksSection extends StatelessWidget {
   final List<ProductModel> products;

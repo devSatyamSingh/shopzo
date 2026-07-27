@@ -1,8 +1,8 @@
-import '../helper/app_exception.dart';
-import '../helper/network/network_api_services.dart';
-import '../helper/response/api_response.dart';
-import '../model/category_model.dart';
-import '../res/api_urls.dart';
+import '../../helper/app_exception.dart';
+import '../../helper/network/network_api_services.dart';
+import '../../helper/response/api_response.dart';
+import '../../model/category/category_model.dart';
+import '../../res/api_urls.dart';
 
 
 class CategoryRepository {

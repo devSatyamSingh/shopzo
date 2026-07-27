@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/category_model.dart';
+import '../../model/category/category_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
-import '../../viewmodel/category_viewmodel.dart';
-import '../home/sub_category_screen.dart';
+import '../../viewmodel/category_subcategory/category_viewmodel.dart';
+import 'sub_category_screen.dart';
 import 'category_product_list.dart';
 
 
@@ -444,7 +444,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
             ),
             Expanded(
-              flex: 5,
+              flex: 4,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, 11, 10),
                 child: Column(
@@ -460,13 +460,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
-                        TextContext(
-                          text: '${category.productCount} items',
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w400,
-                          color: ColorConstant.labelTextColor,
-                        ),
+                        // const SizedBox(height: 2),
+                        // TextContext(
+                        //   text: '${category.productCount} items',
+                        //   fontSize: 11.5,
+                        //   fontWeight: FontWeight.w400,
+                        //   color: ColorConstant.labelTextColor,
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 8),
