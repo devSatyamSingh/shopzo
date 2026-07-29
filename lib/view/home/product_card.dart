@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shopzo/view/home/product_model.dart';
+import '../../model/product_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 
@@ -22,6 +22,64 @@ class ProductCard extends StatelessWidget {
     this.onWishlistTap,
     this.onAddTap,
   });
+
+  bool get _isNetworkImage => product.image.startsWith('http');
+
+  Widget _buildImage(double imageHeight) {
+    if (product.image.isEmpty) {
+      return Container(
+        height: imageHeight,
+        width: width,
+        color: ColorConstant.fieldFillColor,
+        alignment: Alignment.center,
+        child: Icon(Icons.image_outlined, color: ColorConstant.placeholderColor, size: 28),
+      );
+    }
+
+    if (_isNetworkImage) {
+      return Image.network(
+        product.image,
+        height: imageHeight,
+        width: width,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return Container(
+            height: imageHeight,
+            width: width,
+            color: ColorConstant.fieldFillColor,
+            alignment: Alignment.center,
+            child: SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: ColorConstant.primaryColor),
+            ),
+          );
+        },
+        errorBuilder: (_, __, ___) => Container(
+          height: imageHeight,
+          width: width,
+          color: ColorConstant.fieldFillColor,
+          alignment: Alignment.center,
+          child: Icon(Icons.image_outlined, color: ColorConstant.placeholderColor, size: 28),
+        ),
+      );
+    }
+
+    return Image.asset(
+      product.image,
+      height: imageHeight,
+      width: width,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        height: imageHeight,
+        width: width,
+        color: ColorConstant.fieldFillColor,
+        alignment: Alignment.center,
+        child: Icon(Icons.image_outlined, color: ColorConstant.placeholderColor, size: 28),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,20 +112,7 @@ class ProductCard extends StatelessWidget {
                     topLeft: Radius.circular(18),
                     topRight: Radius.circular(18),
                   ),
-                  child: Image.asset(
-                    product.image,
-                    height: imageHeight,
-                    width: width,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: imageHeight,
-                      width: width,
-                      color: ColorConstant.fieldFillColor,
-                      alignment: Alignment.center,
-                      child: Icon(Icons.image_outlined,
-                          color: ColorConstant.placeholderColor, size: 28),
-                    ),
-                  ),
+                  child: _buildImage(imageHeight),
                 ),
 
                 // ---- top-left badge (discount % OR NEW/BESTSELLER) ----

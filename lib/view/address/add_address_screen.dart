@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import '../../model/address_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
+import '../../viewmodel/address/address_viewmodel.dart';
 
-/// Shopzo — Add / Confirm Address screen.
+/// Shopzo — Add / Edit Address screen.
+/// Pass `editAddress` to open in edit mode (prefilled, PUT on save).
+/// Leave it null for add mode (POST on save).
+///
 /// Requires: google_maps_flutter, geolocator, geocoding packages +
 /// a valid Maps API key authorized for this app's package + SHA-1
 /// (Android) / bundle id (iOS), plus location permissions declared
 /// in AndroidManifest.xml / Info.plist (see bottom of file for both).
 class AddAddressScreen extends StatefulWidget {
-  const AddAddressScreen({super.key});
+  final AddressModel? editAddress;
+
+  const AddAddressScreen({super.key, this.editAddress});
 
   @override
   State<AddAddressScreen> createState() => _AddAddressScreenState();
@@ -43,9 +51,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   String _selectedState = 'Uttar Pradesh';
   String _areaChipText = 'Locating you...';
-  int _saveAsIndex = 0; // 0 = Home, 1 = Work, 2 = Other
+  int _saveAsIndex = 0; // 0 = Home, 1 = Work, 2 = Other — UI label only for now,
+  // the API doesn't have a Home/Work/Other field yet (only SHIPPING/BILLING).
   bool _setAsDefault = true;
   bool _saving = false;
+
+  bool get _isEditMode => widget.editAddress != null;
 
   static const List<String> _states = [
     'Uttar Pradesh',
@@ -65,15 +76,35 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   @override
   void initState() {
     super.initState();
-    _detectCurrentLocation();
+
+    if (_isEditMode) {
+      _prefillFromExisting(widget.editAddress!);
+    } else {
+      _detectCurrentLocation();
+    }
+  }
+
+  void _prefillFromExisting(AddressModel address) {
+    _houseController.text = address.line1;
+    _landmarkController.text = address.line2 ?? '';
+    _cityController.text = address.city;
+    _pincodeController.text = address.postalCode;
+    if (_states.contains(address.state)) {
+      _selectedState = address.state;
+    }
+    _setAsDefault = address.isDefault;
+    _addressController.text = address.fullAddress;
+    _areaChipText = address.fullAddress;
+    _locatingUser = false;
   }
 
   // ============================================================
   // LOCATION
   // ============================================================
 
-  /// Runs once on screen open: checks permission, grabs a GPS fix,
-  /// moves the map there, and reverse-geocodes it into an address.
+  /// Runs once on screen open (add mode only): checks permission, grabs
+  /// a GPS fix, moves the map there, and reverse-geocodes it into an
+  /// address.
   Future<void> _detectCurrentLocation() async {
     setState(() => _locatingUser = true);
 
@@ -191,7 +222,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   }
 
   void _onCameraIdle() {
-    _reverseGeocode(_mapCenter);
+    if (!_isEditMode) _reverseGeocode(_mapCenter);
   }
 
   void _onUseMyLocation() {
@@ -199,24 +230,51 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   }
 
   // ============================================================
-  // SAVE
+  // SAVE (create or update, depending on mode)
   // ============================================================
 
-  void _onSaveAddress() {
+  Future<void> _onSaveAddress() async {
     if (_houseController.text.trim().isEmpty ||
-        _receiverNameController.text.trim().isEmpty ||
-        _receiverPhoneController.text.trim().isEmpty) {
+        _cityController.text.trim().isEmpty ||
+        _pincodeController.text.trim().isEmpty) {
       AppUtils.error(context, 'Please fill all required fields.');
       return;
     }
+
+    final viewModel = context.read<AddressViewModel>();
+
+    final request = AddressRequestModel(
+      line1: _houseController.text.trim(),
+      line2: _landmarkController.text.trim().isNotEmpty
+          ? _landmarkController.text.trim()
+          : (_apartmentController.text.trim().isNotEmpty
+          ? _apartmentController.text.trim()
+          : null),
+      city: _cityController.text.trim(),
+      state: _selectedState,
+      postalCode: _pincodeController.text.trim(),
+      type: 'SHIPPING',
+      isDefault: _setAsDefault,
+    );
+
     setState(() => _saving = true);
-    // 👉 call your save-address API here, sending _mapCenter (lat/lng)
-    // along with all the text field values
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (!mounted) return;
-      setState(() => _saving = false);
-      Navigator.pop(context);
-    });
+
+    final success = _isEditMode
+        ? await viewModel.updateAddress(widget.editAddress!.id, request)
+        : await viewModel.addAddress(request);
+
+    if (!mounted) return;
+    setState(() => _saving = false);
+
+    if (success) {
+      AppUtils.success(context, _isEditMode ? 'Address updated' : 'Address saved');
+      Navigator.pop(context, true);
+    } else {
+      AppUtils.error(
+        context,
+        viewModel.errorMessage ?? 'Failed to save address. Please try again.',
+      );
+    }
   }
 
   @override
@@ -249,8 +307,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             child: Stack(
               children: [
                 GoogleMap(
-                  initialCameraPosition: const CameraPosition(
-                    target: _fallbackPosition,
+                  initialCameraPosition: CameraPosition(
+                    target: _mapCenter,
                     zoom: 15.5,
                   ),
                   onMapCreated: _onMapCreated,
@@ -270,7 +328,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   ),
                 ),
 
-                // ---- initial GPS-locating overlay ----
+                // ---- initial GPS-locating overlay (add mode only) ----
                 if (_locatingUser)
                   Container(
                     color: ColorConstant.blackColor.withOpacity(.15),
@@ -302,7 +360,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                               color: ColorConstant.headlineTextColor,
                             ),
                           ),
-                         ],
+                        ],
                       ),
                     ),
                   ),
@@ -377,9 +435,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                           ),
                                         ),
                                         onSubmitted: (query) async {
-                                          // 👉 use `locationFromAddress(query)` from the
-                                          // geocoding package to forward-geocode the
-                                          // typed search text, then animate camera there.
                                           if (query.trim().isEmpty) return;
                                           try {
                                             final results = await locationFromAddress(query);
@@ -533,7 +588,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     ),
 
                     TextContext(
-                      text: 'Confirm Your Location',
+                      text: _isEditMode ? 'Edit Address' : 'Confirm Your Location',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: ColorConstant.headlineTextColor,
@@ -669,6 +724,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
                     SizedBox(height: size.height * 0.02),
 
+                    // 👉 receiver name/phone fields kept in the UI, just not
+                    // sent to the API yet — backend doesn't accept them on
+                    // /addresses currently. Wire these into
+                    // AddressRequestModel + AddressModel once it does.
                     _FieldLabel(text: "Receiver's Name"),
                     CustomTextField(
                       controller: _receiverNameController,
@@ -725,7 +784,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     SizedBox(height: size.height * 0.025),
 
                     CustomButton(
-                      text: 'Save Address',
+                      text: _isEditMode ? 'Update Address' : 'Save Address',
                       onTap: _onSaveAddress,
                       loading: _saving,
                       color: ColorConstant.primaryColor,

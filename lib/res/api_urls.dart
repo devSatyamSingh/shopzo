@@ -1,4 +1,3 @@
-
 class ApiUrl {
   ApiUrl._();
 
@@ -50,6 +49,30 @@ class ApiUrl {
         .join('&');
     return '$baseUrl/products?$query';
   }
+
+  /// Public storefront product listing — used by Home sections
+  /// (Trending Now, Flash Deals, Top Picks) and category browsing.
+  static String websiteProducts({
+    int page = 1,
+    int limit = 20,
+    String? categoryId,
+    String? search,
+  }) {
+    final params = <String, String>{
+      'page': '$page',
+      'limit': '$limit',
+      if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+    final query = params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+    return '$baseUrl/websiteProducts?$query';
+  }
+
+  /// Full product detail — includes variants, attributes and reviews.
+  static String productById(String id) => '$baseUrl/products/$id';
+
   // ---- Cart ----
   static const String cart = "$baseUrl/cart";
   static const String addToCart = "$baseUrl/cart/add";
@@ -64,9 +87,8 @@ class ApiUrl {
   static const String placeOrder = "$baseUrl/checkout/place-order";
 
   // ---- Address ----
-  static const String addresses = "$baseUrl/addresses";
-  static String addressById(String addressId) => "$baseUrl/addresses/$addressId";
-  static const String reverseGeocode = "$baseUrl/addresses/reverse-geocode";
+  static const String addresses = '$baseUrl/addresses';
+  static String addressById(String id) => '$baseUrl/addresses/$id';
 
   // ---- Payment ----
   static const String paymentMethods = "$baseUrl/payment-methods";

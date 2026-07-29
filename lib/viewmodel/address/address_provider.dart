@@ -1,23 +1,22 @@
-// lib/view/home/address_provider.dart
 import 'package:flutter/material.dart';
-import '../../view/address/address_list_screen.dart';
+import '../../model/address_model.dart';
 
+/// Shopzo — holds whichever address is currently selected for delivery,
+/// shown in HomeAppBar ("Deliver to ..."). Separate from AddressViewModel
+/// (which owns the full CRUD list) — this just tracks the ONE choice the
+/// user made on SelectAddressScreen.
 class AddressProvider extends ChangeNotifier {
-  String _selectedAddress = 'Mumbai 400001';
-  SavedAddressModel? _selectedAddressModel;
-
+  String _selectedAddress = 'Select delivery address';
   String get selectedAddress => _selectedAddress;
-  SavedAddressModel? get selectedAddressModel => _selectedAddressModel;
 
-  void updateAddress(SavedAddressModel address) {
-    _selectedAddress = address.address.split(',').last.trim(); // Show city/pincode
+  AddressModel? _selectedAddressModel;
+  AddressModel? get selectedAddressModel => _selectedAddressModel;
+
+  void updateAddress(AddressModel address) {
     _selectedAddressModel = address;
-    notifyListeners();
-  }
-
-  void resetAddress() {
-    _selectedAddress = 'Mumbai 400001';
-    _selectedAddressModel = null;
+    _selectedAddress = address.city.isNotEmpty
+        ? '${address.city}${address.postalCode.isNotEmpty ? ' ${address.postalCode}' : ''}'
+        : address.fullAddress;
     notifyListeners();
   }
 }

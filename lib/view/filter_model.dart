@@ -1,6 +1,6 @@
 // lib/view/home/filter/filter_model.dart
 import 'package:flutter/material.dart';
-import 'home/product_model.dart';
+import '../model/product_model.dart';
 
 enum SortOption {
   popularity,

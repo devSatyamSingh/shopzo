@@ -1,7 +1,7 @@
 // lib/view/home/top_picks_section.dart
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/product_card.dart';
-import 'package:shopzo/view/home/product_model.dart';
+import 'package:shopzo/model/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import 'top_picks_screen.dart';

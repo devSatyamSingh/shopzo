@@ -5,8 +5,11 @@ import 'package:shopzo/utils/connectivty_wrapper.dart';
 import 'package:shopzo/utils/utils.dart';
 import 'package:shopzo/viewmodel/address/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
+import 'package:shopzo/viewmodel/address/address_viewmodel.dart';
 import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
 import 'package:shopzo/viewmodel/product/product_viewmodel.dart';
+import 'package:shopzo/viewmodel/product_details_viewmodel.dart';
+import 'package:shopzo/viewmodel/product_list_viewmodel.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -26,7 +29,10 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
+        ChangeNotifierProvider(create: (_) => AddressViewModel()),
         ChangeNotifierProvider(create: (_) => CategoryViewModel()),
+        ChangeNotifierProvider(create: (_) => ProductListViewModel()),
+        ChangeNotifierProvider(create: (_) => ProductDetailViewModel()),
         ChangeNotifierProvider(create: (_) => ProductViewModel()),
 
       ],

@@ -94,8 +94,7 @@ class _QuickCategoryGridState extends State<QuickCategoryGrid> {
           if (subCategories.isEmpty) return const SizedBox.shrink();
 
           final bool needsToggle = subCategories.length > _collapsedCount;
-          final int visibleCount =
-          _expanded ? subCategories.length : (needsToggle ? _collapsedCount : subCategories.length);
+          final int visibleCount = _expanded ? subCategories.length : (needsToggle ? _collapsedCount : subCategories.length);
           final int gridItemCount = needsToggle ? visibleCount + 1 : subCategories.length;
 
           // ---------------- REAL DATA ----------------

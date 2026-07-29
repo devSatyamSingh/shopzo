@@ -1,6 +1,12 @@
+import 'product_list_model.dart';
+
 /// Shopzo — shared product model used by all product-card sections
 /// (Flash Deals, Top Picks For You, Trending Now).
+///
+/// `image` holds either a network URL (real API product) or an asset
+/// path — ProductCard auto-detects which one it is.
 class ProductModel {
+  final String? id;
   final String image;
   final String name;
   final double price;
@@ -9,10 +15,11 @@ class ProductModel {
   final int? reviewCount;
   final String? badgeText;
   final bool isWishlisted;
-  final String? category; // Add this
-  final String? gender; // Add this - can be 'Men', 'Women', 'Unisex'
+  final String? category;
+  final String? gender;
 
   const ProductModel({
+    this.id,
     required this.image,
     required this.name,
     required this.price,
@@ -24,6 +31,20 @@ class ProductModel {
     this.category,
     this.gender,
   });
+
+  /// Converts a real API product (from GET /websiteProducts) into the
+  /// shape ProductCard expects.
+  factory ProductModel.fromApi(ProductListModel m) {
+    return ProductModel(
+      id: m.id,
+      image: m.image ?? '',
+      name: m.name,
+      price: m.displayPrice,
+      rating: m.avgRating > 0 ? m.avgRating : null,
+      reviewCount: m.reviewCount > 0 ? m.reviewCount : null,
+      category: m.category?.name,
+    );
+  }
 
   int? get discountPercent {
     if (originalPrice == null || originalPrice! <= price) return null;

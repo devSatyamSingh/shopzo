@@ -1,35 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:shopzo/view/address/add_address_screen.dart';
+import '../../model/address_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/button_context.dart';
-import '../../routes/route_name.dart';
+import '../../utils/skelton_box.dart';
 import '../../utils/utils.dart';
+import '../../viewmodel/address/address_viewmodel.dart';
 
-class SavedAddressModel {
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBgColor;
-  final String type;
-  final String name;
-  final String address;
-  final String phone;
-  final bool isDefault;
-
-  const SavedAddressModel({
-    required this.icon,
-    required this.iconColor,
-    required this.iconBgColor,
-    required this.type,
-    required this.name,
-    required this.address,
-    required this.phone,
-    this.isDefault = false,
-  });
-}
-
+/// Shopzo — Select / manage saved addresses.
+/// Backed by AddressViewModel (shared via Provider) — add/edit/delete all
+/// update the SAME list, so this screen never needs a manual refetch.
 class SelectAddressScreen extends StatefulWidget {
   const SelectAddressScreen({super.key});
 
@@ -40,52 +24,41 @@ class SelectAddressScreen extends StatefulWidget {
 class _SelectAddressScreenState extends State<SelectAddressScreen> {
   int _selectedIndex = 0;
   bool _isLoadingLocation = false;
-  List<SavedAddressModel> _addresses = [
-    SavedAddressModel(
-      icon: Icons.home_rounded,
-      iconColor: ColorConstant.primaryColor,
-      iconBgColor: ColorConstant.primaryLight,
-      type: 'Home',
-      name: 'Arjun Malhotra',
-      address:
-      '402, Skyline Residency, 12th Main Road, Indiranagar, Bengaluru, Karnataka - 560038',
-      phone: '+91 98765 43210',
-      isDefault: true,
-    ),
-    SavedAddressModel(
-      icon: Icons.work_rounded,
-      iconColor: ColorConstant.orangeColor,
-      iconBgColor: ColorConstant.orangeLight,
-      type: 'Work',
-      name: 'Arjun Malhotra',
-      address: 'Tech Park Towers, Block C, 5th Floor, Whitefield, Bengaluru, Karnataka - 560066',
-      phone: '+91 98765 43210',
-    ),
-  ];
+
+  // Only used for the "Use Current Location" convenience card — NOT
+  // persisted to the backend. If the user wants it saved permanently,
+  // they still go through Add New Address.
+  AddressModel? _currentLocationAddress;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AddressViewModel>().fetchAddresses();
+    });
+  }
 
   // ---------------- USE CURRENT LOCATION ----------------
   Future<void> _onUseCurrentLocation() async {
-    // Check permissions
     final hasPermission = await _ensureLocationPermission();
     if (!hasPermission) return;
 
     setState(() => _isLoadingLocation = true);
 
     try {
-      // Get current position
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
 
-      // Reverse geocode to get address
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
 
       if (placemarks.isEmpty) {
+        if (!mounted) return;
         AppUtils.error(context, 'Could not fetch address for your location.');
         setState(() => _isLoadingLocation = false);
         return;
@@ -93,46 +66,33 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
 
       final place = placemarks.first;
 
-      // Build full address
-      final addressParts = [
-        place.subLocality,
-        place.locality,
-        place.administrativeArea,
-        place.postalCode,
-        place.country,
-      ].where((e) => e != null && e.isNotEmpty).toList();
-
-      final fullAddress = addressParts.join(', ');
-
-      // Create new address from current location
-      final currentLocationAddress = SavedAddressModel(
-        icon: Icons.my_location_rounded,
-        iconColor: ColorConstant.primaryColor,
-        iconBgColor: ColorConstant.primaryLight,
-        type: 'Current Location',
-        name: 'My Location',
-        address: fullAddress.isNotEmpty ? fullAddress : 'Current Location',
-        phone: '',
-        isDefault: false,
-      );
-
-      // Add to list and select it
       setState(() {
-        _addresses.insert(0, currentLocationAddress);
+        _currentLocationAddress = AddressModel(
+          id: 'current-location-${DateTime.now().millisecondsSinceEpoch}',
+          customerId: '',
+          type: 'SHIPPING',
+          line1: place.subLocality?.isNotEmpty == true ? place.subLocality! : 'Current Location',
+          line2: place.street,
+          city: place.locality ?? '',
+          state: place.administrativeArea ?? '',
+          postalCode: place.postalCode ?? '',
+          country: place.country ?? 'India',
+          isDefault: false,
+          createdAt: DateTime.now().toIso8601String(),
+        );
         _selectedIndex = 0;
         _isLoadingLocation = false;
       });
 
-      // Show success message
+      if (!mounted) return;
       AppUtils.success(context, 'Current location added successfully!');
-
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoadingLocation = false);
       AppUtils.error(context, 'Could not detect your location. Please try again.');
     }
   }
 
-  /// Handle location permissions
   Future<bool> _ensureLocationPermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -161,24 +121,31 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
     return true;
   }
 
-  void _onAddNewAddress() {
-    Navigator.pushNamed(context, RouteName.addEditAddress);
+  void _onAddNewAddress() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddAddressScreen()),
+    );
+    // AddressViewModel already updates its own list on success —
+    // nothing else to do here.
   }
 
-  void _onEdit(int index) {
-    // Navigate to AddAddressScreen in edit mode
+  void _onEdit(AddressModel address) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddAddressScreen(editAddress: address)),
+    );
   }
 
-  void _onDelete(int index) {
-    // Show confirm dialog, then remove from list
+  void _onDelete(AddressModel address) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Address'),
-        content: Text('Are you sure you want to delete "${_addresses[index].type}" address?'),
+        content: Text('Are you sure you want to delete this address?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: TextContext(
               text: 'Cancel',
               fontSize: 14,
@@ -187,14 +154,21 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
             ),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                _addresses.removeAt(index);
-                if (_selectedIndex >= _addresses.length) {
-                  _selectedIndex = _addresses.length - 1;
-                }
-              });
-              Navigator.pop(context);
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final success = await context.read<AddressViewModel>().deleteAddress(address.id);
+              if (!mounted) return;
+              if (success) {
+                setState(() {
+                  if (_selectedIndex > 0) _selectedIndex = 0;
+                });
+                AppUtils.success(context, 'Address deleted');
+              } else {
+                AppUtils.error(
+                  context,
+                  context.read<AddressViewModel>().errorMessage ?? 'Failed to delete address',
+                );
+              }
             },
             child: TextContext(
               text: 'Delete',
@@ -208,8 +182,9 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
     );
   }
 
-  void _onDeliverHere() {
-    final selectedAddress = _addresses[_selectedIndex];
+  void _onDeliverHere(List<AddressModel> displayList) {
+    if (displayList.isEmpty) return;
+    final selectedAddress = displayList[_selectedIndex];
     Navigator.pop(context, selectedAddress);
   }
 
@@ -225,182 +200,249 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: size.height * 0.02),
+        child: Consumer<AddressViewModel>(
+          builder: (context, viewModel, _) {
+            // ---------------- SKELETON ----------------
+            if (viewModel.isLoading && viewModel.addresses.isEmpty) {
+              return _AddressListSkeleton(size: size);
+            }
 
-                    // ---------------- USE CURRENT LOCATION ----------------
-                    GestureDetector(
-                      onTap: _isLoadingLocation ? null : _onUseCurrentLocation,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: _isLoadingLocation
-                              ? ColorConstant.primaryLight.withOpacity(.5)
-                              : ColorConstant.primaryLight,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 44,
-                              width: 44,
-                              decoration: BoxDecoration(
-                                color: ColorConstant.primaryColor,
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: _isLoadingLocation
-                                  ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                                  : const Icon(
-                                Icons.my_location_rounded,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextContext(
-                                    text: _isLoadingLocation
-                                        ? 'Detecting your location...'
-                                        : 'Use Current Location',
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: _isLoadingLocation
-                                        ? ColorConstant.placeholderColor
-                                        : ColorConstant.primaryColor,
-                                  ),
-                                  TextContext(
-                                    text: _isLoadingLocation
-                                        ? 'Please wait while we find your location'
-                                        : 'Detect your location automatically',
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w400,
-                                    color: _isLoadingLocation
-                                        ? ColorConstant.placeholderColor
-                                        : ColorConstant.labelTextColor,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (!_isLoadingLocation)
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: ColorConstant.primaryColor,
-                                size: 22,
-                              ),
-                          ],
+            // ---------------- ERROR ----------------
+            if (viewModel.status == AddressLoadStatus.error && viewModel.addresses.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.wifi_off_rounded, size: 46, color: ColorConstant.placeholderColor),
+                      SizedBox(height: size.height * 0.015),
+                      TextContext(
+                        text: viewModel.errorMessage ?? 'Something went wrong',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        textAlign: TextAlign.center,
+                        color: ColorConstant.labelTextColor,
+                      ),
+                      SizedBox(height: size.height * 0.02),
+                      TextButton(
+                        onPressed: () => viewModel.fetchAddresses(forceRefresh: true),
+                        child: TextContext(
+                          text: 'Retry',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.primaryColor,
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-                    SizedBox(height: size.height * 0.028),
+            // saved addresses + the (unsaved) current-location card, if any
+            final displayList = [
+              if (_currentLocationAddress != null) _currentLocationAddress!,
+              ...viewModel.addresses,
+            ];
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (_selectedIndex >= displayList.length) _selectedIndex = 0;
+
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextContext(
-                          text: 'Saved Addresses',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: ColorConstant.headlineTextColor,
+                        SizedBox(height: size.height * 0.02),
+
+                        // ---------------- USE CURRENT LOCATION ----------------
+                        GestureDetector(
+                          onTap: _isLoadingLocation ? null : _onUseCurrentLocation,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: _isLoadingLocation
+                                  ? ColorConstant.primaryLight.withOpacity(.5)
+                                  : ColorConstant.primaryLight,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 44,
+                                  width: 44,
+                                  decoration: BoxDecoration(
+                                    color: ColorConstant.primaryColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: _isLoadingLocation
+                                      ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                      : const Icon(
+                                    Icons.my_location_rounded,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TextContext(
+                                        text: _isLoadingLocation
+                                            ? 'Detecting your location...'
+                                            : 'Use Current Location',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _isLoadingLocation
+                                            ? ColorConstant.placeholderColor
+                                            : ColorConstant.primaryColor,
+                                      ),
+                                      TextContext(
+                                        text: _isLoadingLocation
+                                            ? 'Please wait while we find your location'
+                                            : 'Detect your location automatically',
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w400,
+                                        color: _isLoadingLocation
+                                            ? ColorConstant.placeholderColor
+                                            : ColorConstant.labelTextColor,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (!_isLoadingLocation)
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: ColorConstant.primaryColor,
+                                    size: 22,
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
-                        TextContext(
-                          text: '${_addresses.length} addresses',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: ColorConstant.labelTextColor,
+
+                        SizedBox(height: size.height * 0.028),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextContext(
+                              text: 'Saved Addresses',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.headlineTextColor,
+                            ),
+                            TextContext(
+                              text: '${viewModel.addresses.length} addresses',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: ColorConstant.labelTextColor,
+                            ),
+                          ],
                         ),
+
+                        SizedBox(height: size.height * 0.015),
+
+                        // ---------------- EMPTY ----------------
+                        if (displayList.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: size.height * 0.03),
+                            child: Center(
+                              child: TextContext(
+                                text: 'No saved addresses yet',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: ColorConstant.labelTextColor,
+                              ),
+                            ),
+                          ),
+
+                        // ---------------- ADDRESS CARDS ----------------
+                        ...List.generate(displayList.length, (index) {
+                          final address = displayList[index];
+                          final isSelected = index == _selectedIndex;
+                          final isUnsavedCurrentLocation =
+                              _currentLocationAddress != null && index == 0;
+
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: size.height * 0.018),
+                            child: _SavedAddressCard(
+                              address: address,
+                              isSelected: isSelected,
+                              showEditDelete: !isUnsavedCurrentLocation,
+                              onTap: () => setState(() => _selectedIndex = index),
+                              onEdit: () => _onEdit(address),
+                              onDelete: () => _onDelete(address),
+                            ),
+                          );
+                        }),
+
+                        // ---------------- ADD NEW ADDRESS ----------------
+                        GestureDetector(
+                          onTap: _onAddNewAddress,
+                          child: _DashedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: ColorConstant.primaryColor, width: 1.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.add_rounded,
+                                      size: 18, color: ColorConstant.primaryColor),
+                                ),
+                                const SizedBox(width: 10),
+                                TextContext(
+                                  text: 'Add New Address',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorConstant.primaryColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: size.height * 0.02),
                       ],
                     ),
-
-                    SizedBox(height: size.height * 0.015),
-
-                    // ---------------- ADDRESS CARDS ----------------
-                    ...List.generate(_addresses.length, (index) {
-                      final address = _addresses[index];
-                      final isSelected = index == _selectedIndex;
-
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: size.height * 0.018),
-                        child: _SavedAddressCard(
-                          address: address,
-                          isSelected: isSelected,
-                          onTap: () => setState(() => _selectedIndex = index),
-                          onEdit: () => _onEdit(index),
-                          onDelete: () => _onDelete(index),
-                        ),
-                      );
-                    }),
-
-                    // ---------------- ADD NEW ADDRESS ----------------
-                    GestureDetector(
-                      onTap: _onAddNewAddress,
-                      child: _DashedBox(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: ColorConstant.primaryColor, width: 1.6),
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon(Icons.add_rounded,
-                                  size: 18, color: ColorConstant.primaryColor),
-                            ),
-                            const SizedBox(width: 10),
-                            TextContext(
-                              text: 'Add New Address',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: ColorConstant.primaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: size.height * 0.02),
-                  ],
+                  ),
                 ),
-              ),
-            ),
 
-            // ---------------- BOTTOM BUTTON ----------------
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.06,
-                vertical: size.height * 0.015,
-              ),
-              child: CustomButton(
-                text: 'Deliver Here',
-                onTap: _onDeliverHere,
-                color: ColorConstant.primaryColor,
-                icon: Icons.keyboard_double_arrow_right_rounded,
-                iconColor: ColorConstant.whiteColor,
-              ),
-            ),
-          ],
+                // ---------------- BOTTOM BUTTON ----------------
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.06,
+                    vertical: size.height * 0.015,
+                  ),
+                  child: CustomButton(
+                    text: 'Deliver Here',
+                    onTap: () => _onDeliverHere(displayList),
+                    color: ColorConstant.primaryColor,
+                    icon: Icons.keyboard_double_arrow_right_rounded,
+                    iconColor: ColorConstant.whiteColor,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -409,8 +451,9 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
 
 /// ---------------- SAVED ADDRESS CARD ----------------
 class _SavedAddressCard extends StatelessWidget {
-  final SavedAddressModel address;
+  final AddressModel address;
   final bool isSelected;
+  final bool showEditDelete;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -418,10 +461,16 @@ class _SavedAddressCard extends StatelessWidget {
   const _SavedAddressCard({
     required this.address,
     required this.isSelected,
+    required this.showEditDelete,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
   });
+
+  IconData get _typeIcon =>
+      address.type == 'BILLING' ? Icons.receipt_long_rounded : Icons.local_shipping_rounded;
+
+  String get _typeLabel => address.type == 'BILLING' ? 'Billing Address' : 'Shipping Address';
 
   @override
   Widget build(BuildContext context) {
@@ -449,15 +498,15 @@ class _SavedAddressCard extends StatelessWidget {
                   height: 34,
                   width: 34,
                   decoration: BoxDecoration(
-                    color: address.iconBgColor,
+                    color: ColorConstant.primaryLight,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(address.icon, size: 16, color: address.iconColor),
+                  child: Icon(_typeIcon, size: 16, color: ColorConstant.primaryColor),
                 ),
                 const SizedBox(width: 10),
                 TextContext(
-                  text: address.type,
+                  text: _typeLabel,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: ColorConstant.headlineTextColor,
@@ -493,77 +542,84 @@ class _SavedAddressCard extends StatelessWidget {
             SizedBox(height: size.height * 0.012),
 
             TextContext(
-              text: address.name,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.headlineTextColor,
-            ),
-            SizedBox(height: size.height * 0.004),
-            TextContext(
-              text: address.address,
+              text: address.fullAddress,
               fontSize: 13,
               fontWeight: FontWeight.w400,
               height: 1.4,
               color: ColorConstant.labelTextColor,
             ),
-            SizedBox(height: size.height * 0.01),
-            if (address.phone.isNotEmpty)
+
+            if (showEditDelete) ...[
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
+                child: Divider(color: ColorConstant.dividerColor, height: 1),
+              ),
+
+              // ---- edit / delete row ----
               Row(
                 children: [
-                  Icon(Icons.call_rounded, size: 14, color: ColorConstant.labelTextColor),
-                  const SizedBox(width: 6),
-                  TextContext(
-                    text: address.phone,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: ColorConstant.labelTextColor,
+                  GestureDetector(
+                    onTap: onEdit,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_rounded, size: 15, color: ColorConstant.primaryColor),
+                        const SizedBox(width: 5),
+                        TextContext(
+                          text: 'Edit',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.primaryColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.06),
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline_rounded, size: 15, color: ColorConstant.errorColor),
+                        const SizedBox(width: 5),
+                        TextContext(
+                          text: 'Delete',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.errorColor,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
-              child: Divider(color: ColorConstant.dividerColor, height: 1),
-            ),
-
-            // ---- edit / delete row ----
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: onEdit,
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit_rounded, size: 15, color: ColorConstant.primaryColor),
-                      const SizedBox(width: 5),
-                      TextContext(
-                        text: 'Edit',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.primaryColor,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: size.width * 0.06),
-                GestureDetector(
-                  onTap: onDelete,
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete_outline_rounded, size: 15, color: ColorConstant.errorColor),
-                      const SizedBox(width: 5),
-                      TextContext(
-                        text: 'Delete',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.errorColor,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// ---------------- SKELETON ----------------
+class _AddressListSkeleton extends StatelessWidget {
+  final Size size;
+  const _AddressListSkeleton({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.02),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SkeletonBox(width: double.infinity, height: 72, borderRadius: BorderRadius.circular(16)),
+          SizedBox(height: size.height * 0.03),
+          SkeletonBox(width: 130, height: 16, borderRadius: BorderRadius.circular(4)),
+          SizedBox(height: size.height * 0.015),
+          for (int i = 0; i < 2; i++) ...[
+            SkeletonBox(width: double.infinity, height: 140, borderRadius: BorderRadius.circular(16)),
+            SizedBox(height: size.height * 0.018),
+          ],
+        ],
       ),
     );
   }

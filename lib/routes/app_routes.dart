@@ -84,7 +84,13 @@ class AppRoutes {
         return _page(const SearchScreen());
 
       case RouteName.productDetail:
-        return _page(const ProductDetailScreen());
+        final productId = settings.arguments as String? ?? '';
+
+        return _page(
+          ProductDetailScreen(
+            productId: productId,
+          ),
+        );
 
       case RouteName.notifications:
         return _page(const NotificationScreen());
