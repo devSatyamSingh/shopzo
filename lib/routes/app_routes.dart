@@ -82,15 +82,13 @@ class AppRoutes {
 
       case RouteName.search:
         return _page(const SearchScreen());
-
       case RouteName.productDetail:
-        final productId = settings.arguments as String? ?? '';
-
-        return _page(
-          ProductDetailScreen(
-            productId: productId,
-          ),
+        final args = settings.arguments;
+        final String productId = args is Map ? args['productId'] as String : args as String;
+        return MaterialPageRoute(
+          builder: (_) => ProductDetailScreen(productId: productId),
         );
+
 
       case RouteName.notifications:
         return _page(const NotificationScreen());

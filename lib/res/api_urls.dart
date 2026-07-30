@@ -74,12 +74,9 @@ class ApiUrl {
   static String productById(String id) => '$baseUrl/products/$id';
 
   // ---- Cart ----
-  static const String cart = "$baseUrl/cart";
-  static const String addToCart = "$baseUrl/cart/add";
-  static String updateCartItem(String itemId) => "$baseUrl/cart/$itemId";
-  static String removeCartItem(String itemId) => "$baseUrl/cart/$itemId";
-  static const String applyCoupon = "$baseUrl/cart/apply-coupon";
-  static const String removeCoupon = "$baseUrl/cart/remove-coupon";
+  static const String cart = "$baseUrl/website/cart";
+  static const String cartItems = "$baseUrl/website/cart/items";
+  static String cartItem(String itemId) => "$baseUrl/website/cart/items/$itemId";
 
   // ---- Checkout ----
   static const String checkoutSummary = "$baseUrl/checkout/summary";

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
-import '../product_details/product_details_screen.dart';
+import '../../utils/utils.dart';
+import '../../model/cart_model.dart';
+import '../../viewmodel/cart_viewmodel.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -13,54 +16,19 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // ---- Dummy data — replace with real data from your ViewModel/repo ----
-  final List<_CartItem> _items = [
-    _CartItem(
-      image: "assets/images/pro1.jpg",
-      name: "Elite Wireless Headphones",
-      variant: "Color: Midnight Blue",
-      price: 1299,
-      mrp: 2499,
-      quantity: 1,
-      status: _CartItemStatus.normal,
-    ),
-    _CartItem(
-      image: "assets/images/pro2.jpg",
-      name: "Smart Horizon Watch",
-      variant: "Size: 44mm",
-      price: 899,
-      quantity: 1,
-      status: _CartItemStatus.lowStock,
-      stockMessage: "Only 1 left in stock — order soon",
-    ),
-    _CartItem(
-      image: "assets/images/pro4.jpg",
-      name: "Urban Comfort Sneakers",
-      variant: "Size: 9",
-      price: 0,
-      quantity: 1,
-      status: _CartItemStatus.outOfStock,
-    ),
-  ];
-
-  final List<_SuggestedItem> _suggestions = const [
-    _SuggestedItem( image: "assets/images/pro10.jpg", name: "Hard Shell Case", price: 299),
-    _SuggestedItem( image: "assets/images/pro9.jpg", name: "Silver Link Strap", price: 449),
-    _SuggestedItem( image: "assets/images/pro12.jpg", name: "Fast Charger", price: 699),
-  ];
-
-  final String _couponCode = "SAVE50";
-  final double _couponSavings = 120;
-
-  double get _itemTotal => 2499;
-  double get _deliveryFee => 0;
-  double get _platformFee => 5;
-  double get _totalPayable =>
-      _itemTotal - _couponSavings + _platformFee + _deliveryFee;
+  @override
+  void initState() {
+    super.initState();
+    // Load cart right after first frame (context not ready inside initState body)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartViewModel>().fetchCart(showLoader: false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final vm = context.watch<CartViewModel>();
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -68,36 +36,58 @@ class _CartScreenState extends State<CartScreen> {
         bottom: false,
         child: Column(
           children: [
-            _buildHeader(context, size),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.045,
-                  vertical: size.height * 0.018,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildAddressStrip(size),
-                    SizedBox(height: size.height * 0.02),
-                    for (final item in _items) ...[
-                      _buildCartItemCard(size, item),
-                      if (item.status == _CartItemStatus.lowStock)
-                        _buildLowStockBanner(size, item.stockMessage!),
-                      SizedBox(height: size.height * 0.018),
-                    ],
-                    SizedBox(height: size.height * 0.006),
-                    _buildSuggestionsStrip(size),
-                    SizedBox(height: size.height * 0.02),
-                    _buildCouponCard(size),
-                    SizedBox(height: size.height * 0.02),
-                    _buildBillDetailsCard(size),
-                    SizedBox(height: size.height * 0.02),
-                  ],
-                ),
-              ),
-            ),
-            _buildCheckoutBar(context, size),
+            _buildHeader(context, size, vm),
+            Expanded(child: _buildBody(context, size, vm)),
+            if (vm.hasLoadedOnce && !vm.isEmpty) _buildCheckoutBar(context, size, vm),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ---------------- BODY SWITCH: loading / error / empty / content ----------------
+  Widget _buildBody(BuildContext context, Size size, CartViewModel vm) {
+    // First load, nothing on screen yet
+    if (vm.isLoading && !vm.hasLoadedOnce) {
+      return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
+    }
+
+    // Load failed and we have nothing to show
+    if (vm.isError && !vm.hasLoadedOnce) {
+      return _buildErrorState(size, vm);
+    }
+
+    // Loaded successfully but cart has no items
+    if (vm.isEmpty) {
+      return _buildEmptyState(size);
+    }
+
+    // Happy path — real cart content, pull-to-refresh enabled
+    return RefreshIndicator(
+      color: ColorConstant.primaryColor,
+      onRefresh: () => vm.fetchCart(showLoader: false),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.045,
+          vertical: size.height * 0.018,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildAddressStrip(size),
+            SizedBox(height: size.height * 0.02),
+            for (final item in vm.cart.items) ...[
+              _buildCartItemCard(context, size, vm, item),
+              if (item.isLowStock && !item.isUnavailable)
+                _buildLowStockBanner(size, "Only ${item.availableStock} left in stock — order soon"),
+              if (!item.inStockEnough && !item.isUnavailable)
+                _buildLowStockBanner(size, "Only ${item.availableStock} available. Reduce quantity to continue."),
+              SizedBox(height: size.height * 0.018),
+            ],
+            SizedBox(height: size.height * 0.006),
+            _buildBillDetailsCard(size, vm),
+            SizedBox(height: size.height * 0.02),
           ],
         ),
       ),
@@ -105,7 +95,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- HEADER ----------------
-  Widget _buildHeader(BuildContext context, Size size) {
+  Widget _buildHeader(BuildContext context, Size size, CartViewModel vm) {
     return Container(
       padding: EdgeInsets.fromLTRB(
         size.width * 0.03,
@@ -121,7 +111,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Row(
         children: [
-          SizedBox(width: 15,),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +124,9 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 const SizedBox(height: 2),
                 TextContext(
-                  text: "${_items.length} items",
+                  text: vm.hasLoadedOnce
+                      ? "${vm.cart.totalLines} item${vm.cart.totalLines == 1 ? '' : 's'}"
+                      : " ",
                   fontSize: 12.5,
                   fontWeight: FontWeight.w400,
                   color: ColorConstant.labelTextColor,
@@ -142,7 +134,107 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
           ),
+          if (vm.hasLoadedOnce && !vm.isEmpty)
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => _confirmClearCart(context, vm),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.delete_outline_rounded,
+                    color: ColorConstant.errorColor, size: 22),
+              ),
+            ),
         ],
+      ),
+    );
+  }
+
+  /// ---------------- EMPTY STATE ----------------
+  Widget _buildEmptyState(Size size) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 100,
+              width: 100,
+              decoration: const BoxDecoration(
+                color: ColorConstant.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.shopping_cart_outlined,
+                  color: ColorConstant.primaryColor, size: 46),
+            ),
+            SizedBox(height: size.height * 0.024),
+            const TextContext(
+              text: "Your cart is empty",
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: ColorConstant.headlineTextColor,
+            ),
+            SizedBox(height: size.height * 0.008),
+            const TextContext(
+              text: "Looks like you haven't added anything yet",
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: ColorConstant.labelTextColor,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: size.height * 0.028),
+            CustomButton(
+              text: "Start Shopping",
+              height: 46,
+              fontSize: 14,
+              onTap: () {
+                // TODO: confirm this is your actual bottom-nav / home route name
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  RouteName.home,
+                      (route) => false,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ---------------- ERROR STATE ----------------
+  Widget _buildErrorState(Size size, CartViewModel vm) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, color: ColorConstant.placeholderColor, size: 46),
+            SizedBox(height: size.height * 0.02),
+            const TextContext(
+              text: "Couldn't load your cart",
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(height: size.height * 0.008),
+            TextContext(
+              text: vm.errorMessage ?? "Something went wrong. Please try again.",
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: ColorConstant.labelTextColor,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: size.height * 0.024),
+            CustomButton(
+              text: "Retry",
+              height: 44,
+              fontSize: 14,
+              onTap: () => vm.fetchCart(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -186,7 +278,8 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 SizedBox(height: 2),
                 TextContext(
-                  text: "Home - 201301",
+                  // TODO: wire to real selected-address once Address module is connected
+                  text: "Select delivery address",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -195,7 +288,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           InkWell(
             onTap: () {
-              // TODO: open address list / picker
+              // TODO: open address list / picker (RouteName.addressList)
             },
             child: const TextContext(
               text: "Change",
@@ -210,170 +303,208 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- CART ITEM CARD ----------------
-  Widget _buildCartItemCard(Size size, _CartItem item) {
-    final bool isOutOfStock = item.status == _CartItemStatus.outOfStock;
+  Widget _buildCartItemCard(
+      BuildContext context, Size size, CartViewModel vm, CartItemModel item) {
+    final bool isUnavailable = item.isUnavailable;
+    final bool isUpdating = vm.isItemUpdating(item.id);
     final double thumbSize = (size.width * 0.2).clamp(64.0, 90.0);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: () {
-        Navigator.pushNamed(context, RouteName.productDetail);
-      },
-      child: Container(
-        padding: EdgeInsets.all(size.width * 0.04),
-        decoration: BoxDecoration(
-          color: ColorConstant.whiteColor,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: ColorConstant.blackColor.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ---- Thumbnail ----
-                Container(
-                  height: thumbSize,
-                  width: thumbSize,
-                  decoration: BoxDecoration(
-                    color: isOutOfStock
-                        ? ColorConstant.borderColor.withOpacity(0.5)
-                        : ColorConstant.fieldFillColor,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  alignment: Alignment.center,
-                  child: Center(
-                    child: Container(
-                      width: thumbSize * .78,
-                      height: thumbSize * .78,
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: Image.asset(
-                            item.image,
-                          ),
+    return Opacity(
+      opacity: isUnavailable ? 0.6 : 1,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          // TODO: ProductDetailScreen currently takes no constructor params
+          // (see audit) — update its route/constructor to accept productId
+          // before this navigation will show the correct product.
+          Navigator.pushNamed(
+            context,
+            RouteName.productDetail,
+            arguments: {'productId': item.productId},
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.all(size.width * 0.04),
+          decoration: BoxDecoration(
+            color: ColorConstant.whiteColor,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: ColorConstant.blackColor.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ---- Thumbnail ----
+                  Container(
+                    height: thumbSize,
+                    width: thumbSize,
+                    decoration: BoxDecoration(
+                      color: ColorConstant.fieldFillColor,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    alignment: Alignment.center,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: (item.image != null && item.image!.trim().isNotEmpty)
+                          ? Image.network(
+                        item.image!,
+                        fit: BoxFit.cover,
+                        height: thumbSize,
+                        width: thumbSize,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                            child: SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: ColorConstant.primaryColor,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stack) => const Icon(
+                          Icons.image_not_supported_outlined,
+                          color: ColorConstant.placeholderColor,
+                          size: 26,
                         ),
+                      )
+                          : const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: ColorConstant.placeholderColor,
+                        size: 26,
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: size.width * 0.035),
+                  SizedBox(width: size.width * 0.035),
 
-                // ---- Name / variant / price ----
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextContext(
-                        text: item.name,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        color: isOutOfStock
-                            ? ColorConstant.placeholderColor
-                            : ColorConstant.headlineTextColor,
-                      ),
-                      const SizedBox(height: 4),
-                      TextContext(
-                        text: item.variant,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: ColorConstant.labelTextColor,
-                      ),
-                      const SizedBox(height: 8),
-                      if (isOutOfStock)
-                        const TextContext(
-                          text: "Currently unavailable",
-                          fontSize: 12,
+                  // ---- Name / variant / price ----
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextContext(
+                          text: item.productName,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: ColorConstant.errorColor,
-                        )
-                      else
-                        Row(
-                          children: [
-                            TextContext(
-                              text: "₹${item.price.toStringAsFixed(0)}",
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: ColorConstant.primaryColor,
-                            ),
-                            if (item.mrp != null) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                "₹${item.mrp!.toStringAsFixed(0)}",
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: "Poppins",
-                                  color: ColorConstant.placeholderColor,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          color: isUnavailable
+                              ? ColorConstant.placeholderColor
+                              : ColorConstant.headlineTextColor,
+                        ),
+                        if (item.variantSku != null && item.variantSku!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          TextContext(
+                            text: item.variantSku!,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: ColorConstant.labelTextColor,
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        if (isUnavailable)
+                          const TextContext(
+                            text: "Currently unavailable",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ColorConstant.errorColor,
+                          )
+                        else
+                          Row(
+                            children: [
+                              TextContext(
+                                text: AppUtils.formatCurrency(item.unitPrice),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: ColorConstant.primaryColor,
+                              ),
+                              const SizedBox(width: 8),
+                              TextContext(
+                                text: "Total: ${AppUtils.formatCurrency(item.lineTotal)}",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: ColorConstant.labelTextColor,
                               ),
                             ],
-                          ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: size.height * 0.014),
+              const Divider(height: 1, color: ColorConstant.dividerColor),
+              SizedBox(height: size.height * 0.012),
+
+              // ---- Remove + Quantity stepper ----
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: isUpdating ? null : () => _confirmRemoveItem(context, vm, item),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.delete_outline_rounded,
+                            size: 17, color: ColorConstant.errorColor),
+                        SizedBox(width: 4),
+                        TextContext(
+                          text: "Remove",
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.errorColor,
                         ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: size.height * 0.014),
-            const Divider(height: 1, color: ColorConstant.dividerColor),
-            SizedBox(height: size.height * 0.012),
-
-            // ---- Remove + Quantity stepper ----
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () => setState(() => _items.remove(item)),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.delete_outline_rounded,
-                          size: 17, color: ColorConstant.errorColor),
-                      SizedBox(width: 4),
-                      TextContext(
-                        text: "Remove",
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.errorColor,
+                  if (!isUnavailable)
+                    isUpdating
+                        ? const SizedBox(
+                      height: 26,
+                      width: 70,
+                      child: Center(
+                        child: SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: ColorConstant.primaryColor,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-                if (!isOutOfStock)
-                  _QuantityStepper(
-                    quantity: item.quantity,
-                    onIncrement: () => setState(() => item.quantity++),
-                    onDecrement: () => setState(() {
-                      if (item.quantity > 1) item.quantity--;
-                    }),
-                  ),
-              ],
-            ),
-          ],
+                    )
+                        : _QuantityStepper(
+                      quantity: item.quantity,
+                      onIncrement: item.quantity < item.availableStock
+                          ? () => vm.incrementQuantity(item, context: context)
+                          : () => AppUtils.warning(
+                        context,
+                        "Only ${item.availableStock} in stock",
+                      ),
+                      onDecrement: () => vm.decrementQuantity(item, context: context),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// ---------------- LOW STOCK BANNER (attached under a specific card) ----------------
+  /// ---------------- LOW STOCK / STOCK WARNING BANNER ----------------
   Widget _buildLowStockBanner(Size size, String message) {
     return Container(
       margin: EdgeInsets.only(top: size.height * 0.008),
@@ -402,183 +533,14 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  /// ---------------- FREQUENTLY BOUGHT TOGETHER STRIP ----------------
-  Widget _buildSuggestionsStrip(Size size) {
-    final double cardWidth = size.width * 0.32;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TextContext(
-          text: "Add these too?",
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        SizedBox(height: size.height * 0.014),
-        SizedBox(
-          height: cardWidth * 1.2,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _suggestions.length,
-            separatorBuilder: (_, __) => SizedBox(width: size.width * 0.026),
-            itemBuilder: (context, index) {
-              final item = _suggestions[index];
-              return InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, RouteName.productDetail);
-                },
-                child: Container(
-                  width: cardWidth,
-                  decoration: BoxDecoration(
-                    color: ColorConstant.whiteColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ColorConstant.blackColor.withOpacity(0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            height: cardWidth * 0.73,
-                            width: double.infinity,
-                            color: ColorConstant.fieldFillColor,
-                            alignment: Alignment.center,
-                            child: Center(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: Image.asset(
-                                    item.image,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            right: 6,
-                            bottom: 6,
-                            child: InkWell(
-                              onTap: () {
-                                // TODO: add suggested item to cart
-                              },
-                              child: Container(
-                                height: 26,
-                                width: 26,
-                                decoration: const BoxDecoration(
-                                  color: ColorConstant.primaryColor,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.add_rounded,
-                                    color: Colors.white, size: 16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextContext(
-                              text: item.name,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 3),
-                            TextContext(
-                              text: "₹${item.price.toStringAsFixed(0)}",
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: ColorConstant.primaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// ---------------- APPLIED COUPON CARD ----------------
-  Widget _buildCouponCard(Size size) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.04,
-        vertical: size.height * 0.013,
-      ),
-      decoration: BoxDecoration(
-        color: ColorConstant.successColor.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 34,
-            width: 34,
-            decoration: const BoxDecoration(
-              color: ColorConstant.successColor,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Icons.check_rounded, color: Colors.white, size: 18),
-          ),
-          SizedBox(width: size.width * 0.03),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextContext(
-                  text: "$_couponCode Applied",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: ColorConstant.successColor,
-                ),
-                const SizedBox(height: 2),
-                TextContext(
-                  text: "You saved ₹${_couponSavings.toStringAsFixed(0)}",
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: ColorConstant.successColor,
-                ),
-              ],
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              // TODO: remove coupon
-            },
-            child: const TextContext(
-              text: "Remove",
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.errorColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// ---------------- BILL DETAILS CARD ----------------
-  Widget _buildBillDetailsCard(Size size) {
+  Widget _buildBillDetailsCard(Size size, CartViewModel vm) {
+    final double itemTotal = vm.subtotal;
+    // TODO: wire real delivery fee / platform fee once /checkout/summary is integrated
+    const double deliveryFee = 0;
+    const double platformFee = 0;
+    final double totalPayable = itemTotal + deliveryFee + platformFee;
+
     return Container(
       padding: EdgeInsets.all(size.width * 0.045),
       decoration: BoxDecoration(
@@ -601,52 +563,26 @@ class _CartScreenState extends State<CartScreen> {
             fontWeight: FontWeight.w600,
           ),
           SizedBox(height: size.height * 0.016),
-          _billRow("Item Total", "₹${_itemTotal.toStringAsFixed(0)}"),
+          _billRow("Item Total", AppUtils.formatCurrency(itemTotal)),
           SizedBox(height: size.height * 0.012),
           _billRow(
             "Delivery Fee",
-            _deliveryFee == 0 ? "FREE" : "₹${_deliveryFee.toStringAsFixed(0)}",
-            valueColor: _deliveryFee == 0 ? ColorConstant.successColor : null,
+            deliveryFee == 0 ? "FREE" : AppUtils.formatCurrency(deliveryFee),
+            valueColor: deliveryFee == 0 ? ColorConstant.successColor : null,
           ),
           SizedBox(height: size.height * 0.012),
           _billRow(
-            "Coupon Discount",
-            "-₹${_couponSavings.toStringAsFixed(0)}",
-            valueColor: ColorConstant.successColor,
+            "Platform Fee",
+            platformFee == 0 ? "FREE" : AppUtils.formatCurrency(platformFee),
           ),
-          SizedBox(height: size.height * 0.012),
-          _billRow("Platform Fee", "₹${_platformFee.toStringAsFixed(0)}"),
           SizedBox(height: size.height * 0.016),
           const Divider(height: 1, color: ColorConstant.dividerColor),
           SizedBox(height: size.height * 0.016),
           _billRow(
             "To Pay",
-            "₹${_totalPayable.toStringAsFixed(0)}",
+            AppUtils.formatCurrency(totalPayable),
             bold: true,
             valueColor: ColorConstant.primaryColor,
-          ),
-          SizedBox(height: size.height * 0.02),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: ColorConstant.fieldFillColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.eco_rounded, color: ColorConstant.successColor, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextContext(
-                    text: "Your order is eligible for eco-friendly packaging",
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.italic,
-                    color: ColorConstant.labelTextColor,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -674,7 +610,10 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- STICKY BOTTOM CHECKOUT BAR ----------------
-  Widget _buildCheckoutBar(BuildContext context, Size size) {
+  Widget _buildCheckoutBar(BuildContext context, Size size, CartViewModel vm) {
+    final bool hasBlockingIssue =
+    vm.cart.items.any((i) => i.isUnavailable || !i.inStockEnough);
+
     return SafeArea(
       top: false,
       child: Container(
@@ -701,22 +640,15 @@ class _CartScreenState extends State<CartScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextContext(
-                    text: "₹${_totalPayable.toStringAsFixed(0)}",
+                    text: AppUtils.formatCurrency(vm.subtotal),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      TextContext(
-                        text: "View price details",
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.primaryColor,
-                      ),
-                      Icon(Icons.keyboard_arrow_up_rounded,
-                          color: ColorConstant.primaryColor, size: 16),
-                    ],
+                  TextContext(
+                    text: "${vm.itemCount} item${vm.itemCount == 1 ? '' : 's'}",
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: ColorConstant.labelTextColor,
                   ),
                 ],
               ),
@@ -725,20 +657,53 @@ class _CartScreenState extends State<CartScreen> {
             Expanded(
               flex: 6,
               child: CustomButton(
-                text: "Proceed to Checkout",
+                text: hasBlockingIssue ? "Review Cart" : "Proceed to Checkout",
                 height: 49,
                 fontSize: 14,
                 icon: Icons.arrow_forward_rounded,
                 iconSize: 18,
-                onTap: () {
-                  // TODO: navigate to RouteName.checkout
-                },
+                onTap: hasBlockingIssue
+                    ? () => AppUtils.warning(
+                  context,
+                  "Please remove unavailable / out-of-stock items to continue",
+                )
+                    : () => Navigator.pushNamed(context, RouteName.checkoutAddress),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// ---------------- CONFIRM DIALOGS ----------------
+  Future<void> _confirmRemoveItem(
+      BuildContext context, CartViewModel vm, CartItemModel item) async {
+    final confirmed = await AppUtils.showConfirmDialog(
+      context,
+      title: "Remove item?",
+      message: "Remove \"${item.productName}\" from your cart?",
+      confirmText: "Remove",
+      isDestructive: true,
+    );
+    if (confirmed) {
+      // ignore: use_build_context_synchronously
+      vm.removeItem(itemId: item.id, context: context);
+    }
+  }
+
+  Future<void> _confirmClearCart(BuildContext context, CartViewModel vm) async {
+    final confirmed = await AppUtils.showConfirmDialog(
+      context,
+      title: "Clear cart?",
+      message: "This will remove all items from your cart.",
+      confirmText: "Clear",
+      isDestructive: true,
+    );
+    if (confirmed) {
+      // ignore: use_build_context_synchronously
+      vm.clearCart(context: context);
+    }
   }
 }
 
@@ -797,44 +762,4 @@ class _QuantityStepper extends StatelessWidget {
       ),
     );
   }
-}
-
-/// ------------------------------------------------------------
-/// Local models — move to lib/model/cart_item_model.dart once
-/// wired to a real API.
-/// ------------------------------------------------------------
-enum _CartItemStatus { normal, lowStock, outOfStock }
-
-class _CartItem {
-  final String image; // placeholder — swap for `image` (network/asset) later
-  final String name;
-  final String variant;
-  final double price;
-  final double? mrp;
-  int quantity;
-  final _CartItemStatus status;
-  final String? stockMessage;
-
-  _CartItem({
-    required this.image,
-    required this.name,
-    required this.variant,
-    required this.price,
-    this.mrp,
-    required this.quantity,
-    required this.status,
-    this.stockMessage,
-  });
-}
-
-class _SuggestedItem {
-  final String image;
-  final String name;
-  final double price;
-
-  const _SuggestedItem({
-    required this.image,
-    required this.name,
-    required this.price,
-  });
 }

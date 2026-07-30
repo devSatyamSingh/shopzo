@@ -9,6 +9,8 @@ import '../order/order_list_screen.dart';
 import 'bottombar_screen.dart';
 import '../cart/cart_screen.dart';
 import '../home/home_screen.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodel/cart_viewmodel.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -76,6 +78,14 @@ class _MainWrapperState extends State<MainWrapper> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartViewModel>().fetchCart();
+    });
+  }
+
+  @override
   void dispose() {
     _toastTimer?.cancel();
     super.dispose();
@@ -83,6 +93,8 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final cartCount = context.watch<CartViewModel>().itemCount;   // <-- real count
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -105,7 +117,7 @@ class _MainWrapperState extends State<MainWrapper> {
         bottomNavigationBar: AnimatedNotchBottomNavBar(
           currentIndex: _currentIndex,
           onTap: _onTabTap,
-          cartCount: _cartCount,
+          cartCount: cartCount,
         ),
       ),
     );

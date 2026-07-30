@@ -11,6 +11,8 @@ class ProductDetailViewModel extends ChangeNotifier {
   ProductDetailStatus get status => _status;
   bool get isLoading => _status == ProductDetailStatus.loading;
   final Map<String, String> _defaultAttributes = {};
+  String _productId = '';
+  String get productId => _productId;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -30,6 +32,7 @@ class ProductDetailViewModel extends ChangeNotifier {
 
   Future<void> fetchProduct(String id) async {
     _status = ProductDetailStatus.loading;
+    _productId = id;
     _errorMessage = null;
     _selectedAttributes.clear();
     _selectedVariant = null;

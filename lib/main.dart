@@ -6,6 +6,7 @@ import 'package:shopzo/utils/utils.dart';
 import 'package:shopzo/viewmodel/address/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
 import 'package:shopzo/viewmodel/address/address_viewmodel.dart';
+import 'package:shopzo/viewmodel/cart_viewmodel.dart';
 import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
 import 'package:shopzo/viewmodel/product/product_viewmodel.dart';
 import 'package:shopzo/viewmodel/product_details_viewmodel.dart';
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductListViewModel()),
         ChangeNotifierProvider(create: (_) => ProductDetailViewModel()),
         ChangeNotifierProvider(create: (_) => ProductViewModel()),
-
+        ChangeNotifierProvider(create: (_) => CartViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",

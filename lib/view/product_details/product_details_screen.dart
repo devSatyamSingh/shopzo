@@ -6,6 +6,7 @@ import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../model/product_detail_model.dart';
 import '../../viewmodel/product_details_viewmodel.dart';
+import '../../viewmodel/cart_viewmodel.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String productId;
@@ -119,7 +120,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ),
                     const SizedBox(height: 10),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () => vm.fetchProduct(vm.productId),
                       child: TextContext(
                         text: 'Retry',
                         fontSize: 13,
@@ -172,7 +173,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   ),
                 ),
               ),
-              _buildBottomActionBar(context, size, vm),
+              _buildBottomActionBar(context, size, product, vm),
             ],
           );
         },
@@ -966,8 +967,22 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   /// ---------------- STICKY BOTTOM ACTION BAR ----------------
-  Widget _buildBottomActionBar(BuildContext context, Size size, ProductDetailViewModel vm) {
+  /// Real "Add to Cart" wiring:
+  ///  - Disabled while out of stock or variant selection incomplete
+  ///  - Shows a spinner label while the API call is in flight
+  ///    (CartViewModel.isAdding(productId))
+  ///  - Once the current productId + variantId combo is already in the
+  ///    cart, the button flips to "Go to Cart" and just navigates —
+  ///    it will NOT add a duplicate line, use the qty stepper on
+  ///    CartScreen for that instead.
+  Widget _buildBottomActionBar(
+      BuildContext context, Size size, ProductDetailModel product, ProductDetailViewModel vm) {
+    final cartVm = context.watch<CartViewModel>();
+
+    final String? variantId = vm.selectedVariant?.id;
     final bool canAct = vm.isInStock && vm.isSelectionComplete;
+    final bool isAdding = cartVm.isAdding(product.id);
+    final bool alreadyInCart = cartVm.isInCart(product.id, variantId: variantId);
 
     return SafeArea(
       top: false,
@@ -983,16 +998,32 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           children: [
             Expanded(
               child: CustomButton(
-                text: "Add to Cart",
-                outlined: true,
+                text: isAdding
+                    ? "Adding..."
+                    : alreadyInCart
+                    ? "Go to Cart"
+                    : "Add to Cart",
+                outlined: !alreadyInCart,
                 height: 52,
-                icon: Icons.shopping_cart_outlined,
+                icon: alreadyInCart ? Icons.shopping_cart_rounded : Icons.shopping_cart_outlined,
                 iconSize: 18,
-                onTap: canAct
-                    ? () {
-                  // TODO: call add-to-cart API with vm.selectedVariant / vm.quantity
-                }
-                    : null,
+                onTap: (!canAct || isAdding)
+                    ? null
+                    : () async {
+                  if (alreadyInCart) {
+                    Navigator.pushNamed(context, RouteName.cart);
+                    return;
+                  }
+                  await cartVm.addToCart(
+                    productId: product.id,
+                    variantId: variantId,
+                    quantity: vm.quantity,
+                    context: context,
+                  );
+                  // addToCart already shows success/error snackbar via
+                  // AppUtils — button will auto-flip to "Go to Cart"
+                  // once cartVm notifies listeners.
+                },
               ),
             ),
             SizedBox(width: size.width * 0.03),
