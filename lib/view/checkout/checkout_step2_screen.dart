@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopzo/view/checkout/checkout_step3_screen.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/coupon_viewmodel.dart';
 import 'checkout_stepper.dart';
 
 class OrderItemModel {
@@ -34,17 +37,31 @@ class SellerGroup {
   });
 }
 
-class CheckoutSummaryScreen extends StatefulWidget {
+class CheckoutSummaryScreen extends StatelessWidget {
   const CheckoutSummaryScreen({super.key});
 
   @override
-  State<CheckoutSummaryScreen> createState() => _CheckoutSummaryScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<CouponViewModel>(
+      create: (_) => CouponViewModel(),
+      child: const _CheckoutSummaryView(),
+    );
+  }
 }
 
-class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
+class _CheckoutSummaryView extends StatefulWidget {
+  const _CheckoutSummaryView();
+
+  @override
+  State<_CheckoutSummaryView> createState() => _CheckoutSummaryViewState();
+}
+
+class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
   int _selectedDateIndex = 0;
   int _selectedSlotIndex = 0;
   bool _showBreakdown = false;
+
+  final TextEditingController _couponController = TextEditingController();
 
   static const List<String> _dateLabels = ['Today', 'Tomorrow', 'Wed', 'Thu'];
   static const List<String> _dateNumbers = ['18', '19', '20', '21'];
@@ -86,10 +103,15 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
     ),
   ];
 
+  // TODO: replace with real cart/checkout subtotal once checkout API is wired
   static const double _itemTotal = 16297;
-  static const double _couponDiscount = 120;
   static const double _platformFee = 10;
-  static const double _toPay = _itemTotal - _couponDiscount + _platformFee;
+
+  @override
+  void dispose() {
+    _couponController.dispose();
+    super.dispose();
+  }
 
   String _fmt(double v) {
     final whole = v.toStringAsFixed(0);
@@ -100,17 +122,33 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
     // 👉 pop back to Address step, or open address picker
   }
 
-  void _onRemoveCoupon() {
-    // 👉 remove applied coupon
-  }
-
   void _onContinue() {
     Navigator.pushNamed(context, RouteName.checkoutPayment);
+  }
+
+  Future<void> _applyCoupon(CouponViewModel couponVm, String code) async {
+    if (code.trim().isEmpty) {
+      AppUtils.warning(context, "Please enter a coupon code");
+      return;
+    }
+    final ok = await couponVm.applyCoupon(code: code.trim(), subtotal: _itemTotal);
+    if (!mounted) return;
+    if (ok) {
+      AppUtils.success(context, couponVm.validationMessage ?? "Coupon applied");
+      _couponController.clear();
+      AppUtils.hideKeyboard(context);
+    } else {
+      AppUtils.error(context, couponVm.validationMessage ?? "Invalid coupon");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final couponVm = context.watch<CouponViewModel>();
+
+    final double discount = couponVm.hasCouponApplied ? couponVm.discount : 0;
+    final double toPay = (_itemTotal - discount + _platformFee).clamp(0, double.infinity);
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -308,79 +346,8 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
                       child: _SellerCard(group: group),
                     )),
 
-                    // ---------------- COUPON APPLIED ----------------
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: ColorConstant.successColor.withOpacity(.1),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                              color: ColorConstant.successColor,
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.sell_rounded, size: 14, color: Colors.white),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    TextContext(
-                                      text: 'SAVE50 Applied',
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: ColorConstant.successColor,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: ColorConstant.successColor,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: const Text(
-                                        '50% OFF',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 9.5,
-                                          fontWeight: FontWeight.w500,
-                                          fontFamily: 'Poppins',
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                TextContext(
-                                  text: 'You saved ₹120 with this coupon',
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w400,
-                                  color: ColorConstant.successColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: _onRemoveCoupon,
-                            child: TextContext(
-                              text: 'Remove',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: ColorConstant.errorColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // ---------------- COUPON SECTION (REAL) ----------------
+                    _buildCouponSection(size, couponVm),
 
                     SizedBox(height: size.height * 0.02),
 
@@ -411,7 +378,12 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
                           SizedBox(height: size.height * 0.014),
                           _BillRow(label: 'Item Total', value: '₹${_fmt(_itemTotal)}'),
                           _BillRow(label: 'Delivery Fee', value: 'FREE', valueColor: ColorConstant.successColor),
-                          _BillRow(label: 'Coupon Discount', value: '-₹${_fmt(_couponDiscount)}', valueColor: ColorConstant.successColor),
+                          if (discount > 0)
+                            _BillRow(
+                              label: 'Coupon Discount',
+                              value: '-₹${_fmt(discount)}',
+                              valueColor: ColorConstant.successColor,
+                            ),
                           _BillRow(label: 'Platform Fee', value: '₹${_fmt(_platformFee)}'),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
@@ -427,7 +399,7 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
                                 color: ColorConstant.headlineTextColor,
                               ),
                               TextContext(
-                                text: '₹${_fmt(_toPay)}',
+                                text: '₹${_fmt(toPay)}',
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: ColorConstant.primaryColor,
@@ -469,7 +441,7 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextContext(
-                          text: '₹${_fmt(_toPay)}',
+                          text: '₹${_fmt(toPay)}',
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: ColorConstant.primaryColor,
@@ -513,6 +485,139 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// ---------------- COUPON SECTION (real, wired to CouponViewModel) ----------------
+  Widget _buildCouponSection(Size size, CouponViewModel couponVm) {
+    if (couponVm.hasCouponApplied) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: ColorConstant.successColor.withOpacity(.1),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 30,
+              width: 30,
+              decoration: const BoxDecoration(
+                color: ColorConstant.successColor,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.sell_rounded, size: 14, color: Colors.white),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextContext(
+                    text: '${couponVm.appliedCoupon!.code} Applied',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: ColorConstant.successColor,
+                  ),
+                  TextContext(
+                    text: 'You saved ₹${_fmt(couponVm.discount)} with this coupon',
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w400,
+                    color: ColorConstant.successColor,
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: couponVm.removeCoupon,
+              child: const TextContext(
+                text: 'Remove',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: ColorConstant.errorColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final bool isValidating = couponVm.isValidating;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ColorConstant.whiteColor,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const TextContext(
+            text: "Have a coupon code?",
+            fontSize: 13.5,
+            fontWeight: FontWeight.w600,
+          ),
+          SizedBox(height: size.height * 0.01),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: ColorConstant.fieldFillColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextField(
+                    controller: _couponController,
+                    textCapitalization: TextCapitalization.characters,
+                    enabled: !isValidating,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: "ENTER COUPON CODE",
+                      hintStyle: TextStyle(fontSize: 12.5, color: ColorConstant.placeholderColor, fontFamily: "Poppins"),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                height: 44,
+                width: 84,
+                child: CustomButton(
+                  text: isValidating ? "" : "Apply",
+                  height: 44,
+                  fontSize: 13,
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: isValidating ? null : () => _applyCoupon(couponVm, _couponController.text),
+                ),
+              ),
+            ],
+          ),
+          if (couponVm.validationMessage != null && !couponVm.lastAttemptSucceeded) ...[
+            const SizedBox(height: 6),
+            TextContext(
+              text: couponVm.validationMessage!,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: ColorConstant.errorColor,
+            ),
+          ],
+        ],
       ),
     );
   }

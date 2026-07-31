@@ -132,7 +132,13 @@ class AppRoutes {
         return _page(const WishlistScreen());
 
       case RouteName.coupons:
-        return _page(const CouponsScreen());
+        final args = settings.arguments;
+        final double subtotal = args is Map
+            ? (args['subtotal'] as num?)?.toDouble() ?? 0
+            : (args is num ? args.toDouble() : 0);
+        return MaterialPageRoute(
+          builder: (_) => CouponsScreen(subtotal: subtotal),
+        );
 
       case RouteName.helpSupport:
         return _page(const HelpCenterScreen());

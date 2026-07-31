@@ -133,9 +133,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               ),
             );
           }
-
           final product = vm.product!;
-
           return Column(
             children: [
               Expanded(
@@ -1031,11 +1029,29 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               child: CustomButton(
                 text: "Buy Now",
                 height: 52,
-                onTap: canAct
-                    ? () {
+                onTap: (!canAct || isAdding)
+                    ? null
+                    : () async {
+                  // Flipkart-style: Buy Now silently ensures the item is in
+                  // the cart before going to checkout. If it's already there
+                  // (same product + variant), we don't add it again — just
+                  // proceed straight to checkout.
+                  final bool alreadyThere =
+                  cartVm.isInCart(product.id, variantId: variantId);
+
+                  if (!alreadyThere) {
+                    final added = await cartVm.addToCart(
+                      productId: product.id,
+                      variantId: variantId,
+                      quantity: vm.quantity,
+                      context: context,
+                    );
+                    if (!added) return; // stay on this screen if add failed
+                  }
+
+                  if (!context.mounted) return;
                   Navigator.pushNamed(context, RouteName.checkoutAddress);
-                }
-                    : null,
+                },
               ),
             ),
           ],

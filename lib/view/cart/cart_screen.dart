@@ -7,6 +7,8 @@ import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
 import '../../model/cart_model.dart';
 import '../../viewmodel/cart_viewmodel.dart';
+import '../../viewmodel/coupon_viewmodel.dart';
+import '../account/coupons_screen.dart'; // CouponsScreen + CouponApplyResult
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -16,19 +18,115 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  // ---- Item selection state (which lines proceed to checkout) ----
+  final Set<String> _selectedItemIds = {};
+  Set<String> _knownItemIds = {};
+
+  final TextEditingController _couponController = TextEditingController();
+
+  // Prevents scheduling multiple coupon-invalidation callbacks for the
+  // same drift event (build() can run several times before the first
+  // post-frame callback fires).
+  bool _invalidationScheduled = false;
+
   @override
   void initState() {
     super.initState();
-    // Load cart right after first frame (context not ready inside initState body)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CartViewModel>().fetchCart(showLoader: false);
     });
   }
 
   @override
+  void dispose() {
+    _couponController.dispose();
+    super.dispose();
+  }
+
+  /// Keeps _selectedItemIds in sync with the live cart:
+  ///  - newly-seen items (first load, or items just added) get
+  ///    auto-selected by default
+  ///  - items removed from the cart get dropped from the selection
+  void _syncSelection(CartViewModel vm) {
+    final currentIds = vm.cart.items
+        .where((i) => !i.isUnavailable)
+        .map((e) => e.id)
+        .toSet();
+
+    _selectedItemIds.removeWhere((id) => !currentIds.contains(id));
+
+    final allCurrentIds = vm.cart.items.map((e) => e.id).toSet();
+    for (final id in allCurrentIds) {
+      if (!_knownItemIds.contains(id) && currentIds.contains(id)) {
+        _selectedItemIds.add(id);
+      }
+    }
+    _knownItemIds = allCurrentIds;
+  }
+
+  List<CartItemModel> _selectedItems(CartViewModel vm) =>
+      vm.cart.items.where((i) => _selectedItemIds.contains(i.id)).toList();
+
+  double _selectedSubtotal(CartViewModel vm) =>
+      _selectedItems(vm).fold(0.0, (sum, item) => sum + item.lineTotal);
+
+  /// The discount that is SAFE to show right now. Even if the coupon
+  /// object hasn't been cleared from CouponViewModel yet (invalidation
+  /// runs one frame later via addPostFrameCallback), this guarantees the
+  /// UI never displays a discount that doesn't match the current
+  /// selection — no negative totals, no stale numbers, ever.
+  double _effectiveDiscount(CartViewModel vm, CouponViewModel couponVm) {
+    if (!couponVm.hasCouponApplied) return 0;
+    final currentSubtotal = _selectedSubtotal(vm);
+    if (currentSubtotal <= 0.009) return 0;
+    if (couponVm.appliedSubtotal != null &&
+        (couponVm.appliedSubtotal! - currentSubtotal).abs() > 0.009) {
+      return 0; // stale — will be auto-removed by the guard below
+    }
+    return couponVm.discount;
+  }
+
+  /// Runs once per drift event: if the coupon's applied-subtotal no
+  /// longer matches the currently-selected subtotal (item removed,
+  /// checkbox unselected, quantity changed, cart refreshed from server —
+  /// any reason at all), the coupon is stale. Drop it and tell the user.
+  void _guardCouponValidity(CartViewModel vm, CouponViewModel couponVm) {
+    if (!couponVm.hasCouponApplied || couponVm.appliedSubtotal == null) return;
+    final currentSubtotal = _selectedSubtotal(vm);
+    final bool driftDetected =
+        (couponVm.appliedSubtotal! - currentSubtotal).abs() > 0.009;
+
+    if (driftDetected && !_invalidationScheduled) {
+      _invalidationScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _invalidationScheduled = false;
+        if (!mounted) return;
+        couponVm.removeCoupon();
+        AppUtils.warning(context, "Coupon removed — your cart selection changed");
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // CouponViewModel scoped to this screen only.
+    return ChangeNotifierProvider<CouponViewModel>(
+      create: (_) => CouponViewModel(),
+      child: Builder(
+        builder: (context) => _buildScaffold(context),
+      ),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final vm = context.watch<CartViewModel>();
+    final couponVm = context.watch<CouponViewModel>();
+
+    if (vm.hasLoadedOnce) {
+      _syncSelection(vm);
+      _guardCouponValidity(vm, couponVm);
+    }
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -37,8 +135,9 @@ class _CartScreenState extends State<CartScreen> {
         child: Column(
           children: [
             _buildHeader(context, size, vm),
-            Expanded(child: _buildBody(context, size, vm)),
-            if (vm.hasLoadedOnce && !vm.isEmpty) _buildCheckoutBar(context, size, vm),
+            Expanded(child: _buildBody(context, size, vm, couponVm)),
+            if (vm.hasLoadedOnce && !vm.isEmpty)
+              _buildCheckoutBar(context, size, vm, couponVm),
           ],
         ),
       ),
@@ -46,23 +145,20 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- BODY SWITCH: loading / error / empty / content ----------------
-  Widget _buildBody(BuildContext context, Size size, CartViewModel vm) {
-    // First load, nothing on screen yet
+  Widget _buildBody(
+      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
     if (vm.isLoading && !vm.hasLoadedOnce) {
       return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
     }
 
-    // Load failed and we have nothing to show
     if (vm.isError && !vm.hasLoadedOnce) {
       return _buildErrorState(size, vm);
     }
 
-    // Loaded successfully but cart has no items
     if (vm.isEmpty) {
       return _buildEmptyState(size);
     }
 
-    // Happy path — real cart content, pull-to-refresh enabled
     return RefreshIndicator(
       color: ColorConstant.primaryColor,
       onRefresh: () => vm.fetchCart(showLoader: false),
@@ -77,8 +173,10 @@ class _CartScreenState extends State<CartScreen> {
           children: [
             _buildAddressStrip(size),
             SizedBox(height: size.height * 0.02),
+            _buildSelectAllRow(size, vm, couponVm),
+            SizedBox(height: size.height * 0.01),
             for (final item in vm.cart.items) ...[
-              _buildCartItemCard(context, size, vm, item),
+              _buildCartItemCard(context, size, vm, couponVm, item),
               if (item.isLowStock && !item.isUnavailable)
                 _buildLowStockBanner(size, "Only ${item.availableStock} left in stock — order soon"),
               if (!item.inStockEnough && !item.isUnavailable)
@@ -86,7 +184,7 @@ class _CartScreenState extends State<CartScreen> {
               SizedBox(height: size.height * 0.018),
             ],
             SizedBox(height: size.height * 0.006),
-            _buildBillDetailsCard(size, vm),
+            _buildBillDetailsCard(context, size, vm, couponVm),
             SizedBox(height: size.height * 0.02),
           ],
         ),
@@ -149,6 +247,45 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  /// ---------------- SELECT ALL ROW ----------------
+  Widget _buildSelectAllRow(Size size, CartViewModel vm, CouponViewModel couponVm) {
+    final selectableItems = vm.cart.items.where((i) => !i.isUnavailable).toList();
+    final bool allSelected =
+        selectableItems.isNotEmpty && selectableItems.every((i) => _selectedItemIds.contains(i.id));
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.02, vertical: size.height * 0.006),
+      child: Row(
+        children: [
+          Checkbox(
+            value: allSelected,
+            activeColor: ColorConstant.primaryColor,
+            onChanged: selectableItems.isEmpty
+                ? null
+                : (checked) {
+              setState(() {
+                if (checked == true) {
+                  _selectedItemIds.addAll(selectableItems.map((e) => e.id));
+                } else {
+                  _selectedItemIds.clear();
+                }
+              });
+              // Selection just changed the total — the coupon guard in
+              // build() will pick this up on the next frame and drop
+              // the coupon automatically if it no longer matches.
+            },
+          ),
+          TextContext(
+            text: "Select All (${_selectedItemIds.length}/${selectableItems.length})",
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: ColorConstant.headlineTextColor,
+          ),
+        ],
+      ),
+    );
+  }
+
   /// ---------------- EMPTY STATE ----------------
   Widget _buildEmptyState(Size size) {
     return Center(
@@ -189,7 +326,6 @@ class _CartScreenState extends State<CartScreen> {
               height: 46,
               fontSize: 14,
               onTap: () {
-                // TODO: confirm this is your actual bottom-nav / home route name
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   RouteName.home,
@@ -278,7 +414,6 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 SizedBox(height: 2),
                 TextContext(
-                  // TODO: wire to real selected-address once Address module is connected
                   text: "Select delivery address",
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -303,202 +438,239 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- CART ITEM CARD ----------------
-  Widget _buildCartItemCard(
-      BuildContext context, Size size, CartViewModel vm, CartItemModel item) {
+  Widget _buildCartItemCard(BuildContext context, Size size, CartViewModel vm,
+      CouponViewModel couponVm, CartItemModel item) {
     final bool isUnavailable = item.isUnavailable;
     final bool isUpdating = vm.isItemUpdating(item.id);
+    final bool isSelected = _selectedItemIds.contains(item.id);
     final double thumbSize = (size.width * 0.2).clamp(64.0, 90.0);
 
     return Opacity(
       opacity: isUnavailable ? 0.6 : 1,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          // TODO: ProductDetailScreen currently takes no constructor params
-          // (see audit) — update its route/constructor to accept productId
-          // before this navigation will show the correct product.
-          Navigator.pushNamed(
-            context,
-            RouteName.productDetail,
-            arguments: {'productId': item.productId},
-          );
-        },
-        child: Container(
-          padding: EdgeInsets.all(size.width * 0.04),
-          decoration: BoxDecoration(
-            color: ColorConstant.whiteColor,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: ColorConstant.blackColor.withOpacity(0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ---- Thumbnail ----
-                  Container(
-                    height: thumbSize,
-                    width: thumbSize,
-                    decoration: BoxDecoration(
-                      color: ColorConstant.fieldFillColor,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    alignment: Alignment.center,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: (item.image != null && item.image!.trim().isNotEmpty)
-                          ? Image.network(
-                        item.image!,
-                        fit: BoxFit.cover,
-                        height: thumbSize,
-                        width: thumbSize,
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return const Center(
-                            child: SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: ColorConstant.primaryColor,
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stack) => const Icon(
-                          Icons.image_not_supported_outlined,
-                          color: ColorConstant.placeholderColor,
-                          size: 26,
-                        ),
-                      )
-                          : const Icon(
-                        Icons.image_not_supported_outlined,
-                        color: ColorConstant.placeholderColor,
-                        size: 26,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.035),
-
-                  // ---- Name / variant / price ----
-                  Expanded(
-                    child: Column(
+      child: Container(
+        decoration: BoxDecoration(
+          color: ColorConstant.whiteColor,
+          borderRadius: BorderRadius.circular(18),
+          border: isSelected && !isUnavailable
+              ? Border.all(color: ColorConstant.primaryColor.withOpacity(0.4), width: 1.2)
+              : null,
+          boxShadow: [
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  RouteName.productDetail,
+                  arguments: item.productId,
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.all(size.width * 0.04),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextContext(
-                          text: item.productName,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          color: isUnavailable
-                              ? ColorConstant.placeholderColor
-                              : ColorConstant.headlineTextColor,
-                        ),
-                        if (item.variantSku != null && item.variantSku!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          TextContext(
-                            text: item.variantSku!,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: ColorConstant.labelTextColor,
+                        // ---- Selection checkbox ----
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Checkbox(
+                            value: isSelected,
+                            activeColor: ColorConstant.primaryColor,
+                            onChanged: isUnavailable
+                                ? null
+                                : (checked) {
+                              setState(() {
+                                if (checked == true) {
+                                  _selectedItemIds.add(item.id);
+                                } else {
+                                  _selectedItemIds.remove(item.id);
+                                }
+                              });
+                              // Coupon guard in build() re-checks the
+                              // new subtotal on the next frame.
+                            },
                           ),
-                        ],
-                        const SizedBox(height: 8),
-                        if (isUnavailable)
-                          const TextContext(
-                            text: "Currently unavailable",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: ColorConstant.errorColor,
-                          )
-                        else
-                          Row(
+                        ),
+
+                        // ---- Thumbnail ----
+                        Container(
+                          height: thumbSize,
+                          width: thumbSize,
+                          decoration: BoxDecoration(
+                            color: ColorConstant.fieldFillColor,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          alignment: Alignment.center,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: (item.image != null && item.image!.trim().isNotEmpty)
+                                ? Image.network(
+                              item.image!,
+                              fit: BoxFit.cover,
+                              height: thumbSize,
+                              width: thumbSize,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return const Center(
+                                  child: SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: ColorConstant.primaryColor,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stack) => const Icon(
+                                Icons.image_not_supported_outlined,
+                                color: ColorConstant.placeholderColor,
+                                size: 26,
+                              ),
+                            )
+                                : const Icon(
+                              Icons.image_not_supported_outlined,
+                              color: ColorConstant.placeholderColor,
+                              size: 26,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: size.width * 0.035),
+
+                        // ---- Name / variant / price ----
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextContext(
-                                text: AppUtils.formatCurrency(item.unitPrice),
+                                text: item.productName,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: ColorConstant.primaryColor,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                color: isUnavailable
+                                    ? ColorConstant.placeholderColor
+                                    : ColorConstant.headlineTextColor,
                               ),
-                              const SizedBox(width: 8),
+                              if (item.variantSku != null && item.variantSku!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                TextContext(
+                                  text: item.variantSku!,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: ColorConstant.labelTextColor,
+                                ),
+                              ],
+                              const SizedBox(height: 8),
+                              if (isUnavailable)
+                                const TextContext(
+                                  text: "Currently unavailable",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorConstant.errorColor,
+                                )
+                              else
+                                Row(
+                                  children: [
+                                    TextContext(
+                                      text: AppUtils.formatCurrency(item.unitPrice),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorConstant.primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    TextContext(
+                                      text: "Total: ${AppUtils.formatCurrency(item.lineTotal)}",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: ColorConstant.labelTextColor,
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: size.height * 0.014),
+                    const Divider(height: 1, color: ColorConstant.dividerColor),
+                    SizedBox(height: size.height * 0.012),
+
+                    // ---- Remove + Quantity stepper ----
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: isUpdating ? null : () => _confirmRemoveItem(context, vm, item),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.delete_outline_rounded,
+                                  size: 17, color: ColorConstant.errorColor),
+                              SizedBox(width: 4),
                               TextContext(
-                                text: "Total: ${AppUtils.formatCurrency(item.lineTotal)}",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: ColorConstant.labelTextColor,
+                                text: "Remove",
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: ColorConstant.errorColor,
                               ),
                             ],
                           ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: size.height * 0.014),
-              const Divider(height: 1, color: ColorConstant.dividerColor),
-              SizedBox(height: size.height * 0.012),
-
-              // ---- Remove + Quantity stepper ----
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: isUpdating ? null : () => _confirmRemoveItem(context, vm, item),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.delete_outline_rounded,
-                            size: 17, color: ColorConstant.errorColor),
-                        SizedBox(width: 4),
-                        TextContext(
-                          text: "Remove",
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
-                          color: ColorConstant.errorColor,
                         ),
-                      ],
-                    ),
-                  ),
-                  if (!isUnavailable)
-                    isUpdating
-                        ? const SizedBox(
-                      height: 26,
-                      width: 70,
-                      child: Center(
-                        child: SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: ColorConstant.primaryColor,
+                        if (!isUnavailable)
+                          isUpdating
+                              ? const SizedBox(
+                            height: 26,
+                            width: 70,
+                            child: Center(
+                              child: SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: ColorConstant.primaryColor,
+                                ),
+                              ),
+                            ),
+                          )
+                              : _QuantityStepper(
+                            quantity: item.quantity,
+                            onIncrement: item.quantity < item.availableStock
+                                ? () async {
+                              await vm.incrementQuantity(item, context: context);
+                              // Quantity change moves the subtotal — the
+                              // coupon guard in build() re-checks on the
+                              // next frame and clears a now-stale coupon.
+                            }
+                                : () => AppUtils.warning(
+                              context,
+                              "Only ${item.availableStock} in stock",
+                            ),
+                            onDecrement: () async {
+                              await vm.decrementQuantity(item, context: context);
+                            },
                           ),
-                        ),
-                      ),
-                    )
-                        : _QuantityStepper(
-                      quantity: item.quantity,
-                      onIncrement: item.quantity < item.availableStock
-                          ? () => vm.incrementQuantity(item, context: context)
-                          : () => AppUtils.warning(
-                        context,
-                        "Only ${item.availableStock} in stock",
-                      ),
-                      onDecrement: () => vm.decrementQuantity(item, context: context),
+                      ],
                     ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -533,16 +705,16 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  /// ---------------- BILL DETAILS CARD ----------------
-  Widget _buildBillDetailsCard(Size size, CartViewModel vm) {
-    final double itemTotal = vm.subtotal;
-    // TODO: wire real delivery fee / platform fee once /checkout/summary is integrated
-    const double deliveryFee = 0;
-    const double platformFee = 0;
-    final double totalPayable = itemTotal + deliveryFee + platformFee;
+  /// ---------------- COUPON APPLY (manual field, above bill) ----------------
+  Widget _buildCouponSection(BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    final double selectedSubtotal = _selectedSubtotal(vm);
+    final double effectiveDiscount = _effectiveDiscount(vm, couponVm);
+    final bool showAppliedBanner = couponVm.hasCouponApplied && effectiveDiscount > 0;
+    final bool isTypedCodeValidating = couponVm.isValidating &&
+        couponVm.validatingCode == _couponController.text.trim().toUpperCase();
 
     return Container(
-      padding: EdgeInsets.all(size.width * 0.045),
+      padding: EdgeInsets.all(size.width * 0.04),
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(18),
@@ -557,35 +729,230 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TextContext(
-            text: "Bill Details",
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-          SizedBox(height: size.height * 0.016),
-          _billRow("Item Total", AppUtils.formatCurrency(itemTotal)),
-          SizedBox(height: size.height * 0.012),
-          _billRow(
-            "Delivery Fee",
-            deliveryFee == 0 ? "FREE" : AppUtils.formatCurrency(deliveryFee),
-            valueColor: deliveryFee == 0 ? ColorConstant.successColor : null,
-          ),
-          SizedBox(height: size.height * 0.012),
-          _billRow(
-            "Platform Fee",
-            platformFee == 0 ? "FREE" : AppUtils.formatCurrency(platformFee),
-          ),
-          SizedBox(height: size.height * 0.016),
-          const Divider(height: 1, color: ColorConstant.dividerColor),
-          SizedBox(height: size.height * 0.016),
-          _billRow(
-            "To Pay",
-            AppUtils.formatCurrency(totalPayable),
-            bold: true,
-            valueColor: ColorConstant.primaryColor,
-          ),
+          if (showAppliedBanner) ...[
+            Row(
+              children: [
+                Container(
+                  height: 28,
+                  width: 28,
+                  decoration: const BoxDecoration(color: ColorConstant.successColor, shape: BoxShape.circle),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.check_rounded, size: 15, color: Colors.white),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextContext(
+                        text: "${couponVm.appliedCoupon!.code} Applied",
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: ColorConstant.successColor,
+                      ),
+                      TextContext(
+                        text: "You saved ${AppUtils.formatCurrency(effectiveDiscount)}",
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w400,
+                        color: ColorConstant.successColor,
+                      ),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: couponVm.removeCoupon,
+                  child: const TextContext(
+                    text: "Remove",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: ColorConstant.errorColor,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            const TextContext(
+              text: "Have a coupon code?",
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(height: size.height * 0.01),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 42,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: ColorConstant.fieldFillColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextField(
+                      controller: _couponController,
+                      textCapitalization: TextCapitalization.characters,
+                      enabled: !couponVm.isValidating && _selectedItemIds.isNotEmpty,
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        hintText: "ENTER CODE",
+                        hintStyle: TextStyle(fontSize: 12.5, color: ColorConstant.placeholderColor, fontFamily: "Poppins"),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  height: 42,
+                  width: 84,
+                  child: CustomButton(
+                    text: isTypedCodeValidating ? "" : "Apply",
+                    height: 42,
+                    fontSize: 13,
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: (couponVm.isValidating || _selectedItemIds.isEmpty)
+                        ? null
+                        : () async {
+                      final code = _couponController.text.trim();
+                      if (code.isEmpty) {
+                        AppUtils.warning(context, "Please enter a coupon code");
+                        return;
+                      }
+                      final currentSubtotal = _selectedSubtotal(vm);
+                      final ok = await couponVm.applyCoupon(code: code, subtotal: currentSubtotal);
+                      if (!mounted) return;
+                      if (ok) {
+                        AppUtils.success(context, couponVm.validationMessage ?? "Coupon applied");
+                        _couponController.clear();
+                        AppUtils.hideKeyboard(context);
+                      } else {
+                        AppUtils.error(context, couponVm.validationMessage ?? "Invalid coupon");
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            if (_selectedItemIds.isEmpty) ...[
+              const SizedBox(height: 6),
+              const TextContext(
+                text: "Select at least one item to apply a coupon",
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                color: ColorConstant.placeholderColor,
+              ),
+            ],
+            SizedBox(height: size.height * 0.01),
+            InkWell(
+              onTap: _selectedItemIds.isEmpty
+                  ? null
+                  : () async {
+                final currentSubtotal = _selectedSubtotal(vm);
+                final result = await Navigator.push<CouponApplyResult>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CouponsScreen(subtotal: currentSubtotal),
+                  ),
+                );
+                if (result != null && mounted) {
+                  // Re-validate against the *current* selected subtotal
+                  // (not the one captured before navigating), in case
+                  // anything changed while the coupon screen was open.
+                  final refreshedSubtotal = _selectedSubtotal(vm);
+                  await couponVm.applyCoupon(code: result.code, subtotal: refreshedSubtotal);
+                }
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.local_offer_outlined, size: 15, color: ColorConstant.primaryColor),
+                  SizedBox(width: 6),
+                  TextContext(
+                    text: "View all coupons",
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: ColorConstant.primaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  /// ---------------- BILL DETAILS CARD ----------------
+  Widget _buildBillDetailsCard(
+      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    final double itemTotal = _selectedSubtotal(vm);
+    final double discount = _effectiveDiscount(vm, couponVm);
+    const double deliveryFee = 0;
+    const double platformFee = 0;
+    final double totalPayable = (itemTotal - discount + deliveryFee + platformFee)
+        .clamp(0, double.infinity);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildCouponSection(context, size, vm, couponVm),
+        SizedBox(height: size.height * 0.018),
+        Container(
+          padding: EdgeInsets.all(size.width * 0.045),
+          decoration: BoxDecoration(
+            color: ColorConstant.whiteColor,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: ColorConstant.blackColor.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const TextContext(
+                text: "Bill Details",
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              SizedBox(height: size.height * 0.016),
+              _billRow("Item Total (${_selectedItemIds.length} item${_selectedItemIds.length == 1 ? '' : 's'})",
+                  AppUtils.formatCurrency(itemTotal)),
+              if (discount > 0) ...[
+                SizedBox(height: size.height * 0.012),
+                _billRow(
+                  "Coupon Discount",
+                  "-${AppUtils.formatCurrency(discount)}",
+                  valueColor: ColorConstant.successColor,
+                ),
+              ],
+              SizedBox(height: size.height * 0.012),
+              _billRow(
+                "Delivery Fee",
+                deliveryFee == 0 ? "FREE" : AppUtils.formatCurrency(deliveryFee),
+                valueColor: deliveryFee == 0 ? ColorConstant.successColor : null,
+              ),
+              SizedBox(height: size.height * 0.012),
+              _billRow(
+                "Platform Fee",
+                platformFee == 0 ? "FREE" : AppUtils.formatCurrency(platformFee),
+              ),
+              SizedBox(height: size.height * 0.016),
+              const Divider(height: 1, color: ColorConstant.dividerColor),
+              SizedBox(height: size.height * 0.016),
+              _billRow(
+                "To Pay",
+                AppUtils.formatCurrency(totalPayable),
+                bold: true,
+                valueColor: ColorConstant.primaryColor,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -610,9 +977,16 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- STICKY BOTTOM CHECKOUT BAR ----------------
-  Widget _buildCheckoutBar(BuildContext context, Size size, CartViewModel vm) {
+  Widget _buildCheckoutBar(
+      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    final selectedItems = _selectedItems(vm);
     final bool hasBlockingIssue =
-    vm.cart.items.any((i) => i.isUnavailable || !i.inStockEnough);
+    selectedItems.any((i) => i.isUnavailable || !i.inStockEnough);
+    final double itemTotal = _selectedSubtotal(vm);
+    final double discount = _effectiveDiscount(vm, couponVm);
+    final double payable = (itemTotal - discount).clamp(0, double.infinity);
+
+    final bool canProceed = selectedItems.isNotEmpty && !hasBlockingIssue;
 
     return SafeArea(
       top: false,
@@ -640,12 +1014,12 @@ class _CartScreenState extends State<CartScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextContext(
-                    text: AppUtils.formatCurrency(vm.subtotal),
+                    text: AppUtils.formatCurrency(payable),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
                   TextContext(
-                    text: "${vm.itemCount} item${vm.itemCount == 1 ? '' : 's'}",
+                    text: "${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} selected",
                     fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     color: ColorConstant.labelTextColor,
@@ -657,17 +1031,36 @@ class _CartScreenState extends State<CartScreen> {
             Expanded(
               flex: 6,
               child: CustomButton(
-                text: hasBlockingIssue ? "Review Cart" : "Proceed to Checkout",
+                text: selectedItems.isEmpty
+                    ? "Select Items"
+                    : hasBlockingIssue
+                    ? "Review Cart"
+                    : "Proceed to Checkout",
                 height: 49,
                 fontSize: 14,
                 icon: Icons.arrow_forward_rounded,
                 iconSize: 18,
-                onTap: hasBlockingIssue
-                    ? () => AppUtils.warning(
-                  context,
-                  "Please remove unavailable / out-of-stock items to continue",
-                )
-                    : () => Navigator.pushNamed(context, RouteName.checkoutAddress),
+                onTap: !canProceed
+                    ? () {
+                  AppUtils.warning(
+                    context,
+                    selectedItems.isEmpty
+                        ? "Select at least one item to continue"
+                        : "Please remove unavailable / out-of-stock items to continue",
+                  );
+                }
+                    : () {
+                  Navigator.pushNamed(
+                    context,
+                    RouteName.checkoutAddress,
+                    arguments: {
+                      'itemIds': selectedItems.map((e) => e.id).toList(),
+                      'couponCode': _effectiveDiscount(vm, couponVm) > 0
+                          ? couponVm.appliedCoupon?.code
+                          : null,
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -688,7 +1081,9 @@ class _CartScreenState extends State<CartScreen> {
     );
     if (confirmed) {
       // ignore: use_build_context_synchronously
-      vm.removeItem(itemId: item.id, context: context);
+      await vm.removeItem(itemId: item.id, context: context);
+      // Removal changes the subtotal — coupon guard in build() picks
+      // this up automatically and clears a now-stale coupon.
     }
   }
 
@@ -702,7 +1097,8 @@ class _CartScreenState extends State<CartScreen> {
     );
     if (confirmed) {
       // ignore: use_build_context_synchronously
-      vm.clearCart(context: context);
+      await vm.clearCart(context: context);
+      setState(() => _selectedItemIds.clear());
     }
   }
 }
