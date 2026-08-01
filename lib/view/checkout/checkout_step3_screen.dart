@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/cart_viewmodel.dart';
+import '../../viewmodel/order_checkout_viewmodel.dart';
 import 'checkout_stepper.dart';
-
-class SavedPaymentMethod {
-  final String logo;
-  final String title;
-  final String status;
-  final bool isReady;
-
-  const SavedPaymentMethod({
-    required this.logo,
-    required this.title,
-    required this.status,
-    this.isReady = false,
-  });
-}
 
 class PaymentOptionData {
   final IconData icon;
   final String title;
+  final bool isLive; // COD abhi live hai, baaki "coming soon"
 
-  const PaymentOptionData({required this.icon, required this.title});
+  const PaymentOptionData({required this.icon, required this.title, this.isLive = false});
 }
 
 class CheckoutPaymentScreen extends StatefulWidget {
@@ -33,70 +25,87 @@ class CheckoutPaymentScreen extends StatefulWidget {
 }
 
 class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
-  int _expandedIndex = 0; // UPI expanded by default, matching design
-  final TextEditingController _upiController = TextEditingController();
-  bool _verifying = false;
-
-  static const double _amountToPay = 2384;
-
-  static const List<SavedPaymentMethod> _quickPay = [
-    SavedPaymentMethod(
-      logo: 'assets/images/gpay_logo.png',
-      title: 'GPay ••••',
-      status: 'READY',
-      isReady: true,
-    ),
-    SavedPaymentMethod(
-      logo: 'assets/images/visa_logo.png',
-      title: 'Visa •••• 4821',
-      status: 'HDFC BANK',
-    ),
-  ];
-
   static const List<PaymentOptionData> _options = [
+    PaymentOptionData(icon: Icons.payments_rounded, title: 'Cash on Delivery', isLive: true),
     PaymentOptionData(icon: Icons.account_balance_wallet_rounded, title: 'UPI'),
     PaymentOptionData(icon: Icons.credit_card_rounded, title: 'Credit / Debit Card'),
     PaymentOptionData(icon: Icons.account_balance_rounded, title: 'Net Banking'),
-    PaymentOptionData(icon: Icons.account_balance_wallet_outlined, title: 'Wallets'),
-    PaymentOptionData(icon: Icons.payments_rounded, title: 'Cash on Delivery'),
   ];
 
-  String _fmt(double v) {
-    final whole = v.toStringAsFixed(0);
-    return whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-  }
+  int _selectedIndex = 0; // COD default selected
 
-  void _onViewBillDetails() {
-    // 👉 show bill breakdown bottom sheet
-  }
+  Future<void> _onPayNow(CheckoutViewModel checkoutVm) async {
+    final selected = _options[_selectedIndex];
+    if (!selected.isLive) {
+      AppUtils.warning(context, "${selected.title} coming soon — please use Cash on Delivery for now");
+      return;
+    }
 
-  void _onQuickPayTap(SavedPaymentMethod method) {
-    // 👉 pay using this saved method
-  }
+    checkoutVm.setPaymentMethod('COD');
+    final success = await checkoutVm.placeOrder();
+    if (!mounted) return;
 
-  void _onVerifyAndPay() {
-    if (_upiController.text.trim().isEmpty) return;
-    setState(() => _verifying = true);
-    // 👉 call your UPI verify/collect-request API here
-    Future.delayed(const Duration(milliseconds: 800), () {
+    if (success) {
+      // Order request me hi cartItemIds bheja gaya tha — backend un lines
+      // ko already clear kar chuka hai. Cart ko sirf resync karo, dobara
+      // remove API call karne ki zaroorat nahi.
+      await context.read<CartViewModel>().fetchCart(showLoader: false);
       if (!mounted) return;
-      setState(() => _verifying = false);
-    });
-  }
 
-  void _onPayNow() {
-    // 👉 process final payment for the selected method
-  }
+      final orderNumber = checkoutVm.lastPlacedOrder?.orderNumber;
+      checkoutVm.reset();
 
-  @override
-  void dispose() {
-    _upiController.dispose();
-    super.dispose();
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: ColorConstant.successColor, size: 26),
+              const SizedBox(width: 10),
+              const TextContext(text: 'Order Placed!', fontSize: 16, fontWeight: FontWeight.w600),
+            ],
+          ),
+          content: TextContext(
+            text: orderNumber != null
+                ? 'Your order $orderNumber has been placed successfully.'
+                : 'Your order has been placed successfully.',
+            fontSize: 13.5,
+            fontWeight: FontWeight.w400,
+            color: ColorConstant.labelTextColor,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // close dialog
+                Navigator.pushNamedAndRemoveUntil(context, RouteName.mainWrapper, (r) => false);
+              },
+              child: const TextContext(text: 'Done', fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+            ),
+          ],
+        ),
+      );
+    } else {
+      AppUtils.error(context, checkoutVm.placeOrderError ?? 'Failed to place order');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final checkoutVm = context.watch<CheckoutViewModel>();
+
+    if (checkoutVm.items.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Checkout'), centerTitle: true),
+        body: const Center(
+          child: TextContext(text: "No items to checkout", fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+      );
+    }
+
+    final double amountToPay = checkoutVm.total;
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -109,13 +118,14 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
         child: Column(
           children: [
             const CheckoutStepper(currentStep: 3),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: size.height * 0.02),
+
                     // ---------------- AMOUNT TO PAY BANNER ----------------
                     Container(
                       width: double.infinity,
@@ -131,150 +141,37 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                           ),
                         ],
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'AMOUNT TO PAY',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withOpacity(.85),
-                                    letterSpacing: 0.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '₹${_fmt(_amountToPay)}',
-                                  style: const TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            'AMOUNT TO PAY',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(.85),
+                              letterSpacing: 0.6,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: _onViewBillDetails,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(.15),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Text(
-                                    'View bill details',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(width: 3),
-                                  Icon(Icons.chevron_right_rounded, size: 15, color: Colors.white),
-                                ],
-                              ),
+                          const SizedBox(height: 4),
+                          Text(
+                            AppUtils.formatCurrency(amountToPay),
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    SizedBox(height: size.height * 0.026),
-
-                    TextContext(
-                      text: 'Quick Pay',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                    SizedBox(height: size.height * 0.012),
-
-                    // ---------------- QUICK PAY ----------------
-                    SizedBox(
-                      height: size.height * 0.075,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _quickPay.length,
-                        separatorBuilder: (_, __) => SizedBox(width: size.width * 0.03),
-                        itemBuilder: (context, index) {
-                          final method = _quickPay[index];
-                          return GestureDetector(
-                            onTap: () => _onQuickPayTap(method),
-                            child: Container(
-                              width: size.width * 0.42,
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: ColorConstant.whiteColor,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: ColorConstant.borderColor),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 34,
-                                    width: 34,
-                                    decoration: BoxDecoration(
-                                      color: ColorConstant.fieldFillColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: Image.asset(
-                                      method.logo,
-                                      fit: BoxFit.contain,
-                                      errorBuilder: (_, __, ___) => Icon(
-                                        Icons.account_balance_wallet_rounded,
-                                        size: 16,
-                                        color: ColorConstant.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextContext(
-                                          text: method.title,
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorConstant.headlineTextColor,
-                                        ),
-                                        TextContext(
-                                          text: method.status,
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: method.isReady
-                                              ? ColorConstant.primaryColor
-                                              : ColorConstant.labelTextColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
                     SizedBox(height: size.height * 0.028),
 
                     TextContext(
-                      text: 'All Payment Options',
+                      text: 'Payment Method',
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: ColorConstant.headlineTextColor,
@@ -284,69 +181,70 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                     // ---------------- PAYMENT OPTIONS ----------------
                     ...List.generate(_options.length, (index) {
                       final option = _options[index];
-                      final isExpanded = index == _expandedIndex;
-
+                      final isSelected = index == _selectedIndex;
                       return Padding(
                         padding: EdgeInsets.only(bottom: size.height * 0.012),
-                        child: _PaymentOptionTile(
-                          option: option,
-                          isExpanded: isExpanded,
-                          onTap: () => setState(
-                                  () => _expandedIndex = isExpanded ? -1 : index),
-                          expandedChild: option.title == 'UPI'
-                              ? _UpiExpandedContent(
-                            controller: _upiController,
-                            verifying: _verifying,
-                            onVerify: _onVerifyAndPay,
-                          )
-                              : null,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: option.isLive ? () => setState(() => _selectedIndex = index) : null,
+                          child: Opacity(
+                            opacity: option.isLive ? 1 : 0.5,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: ColorConstant.whiteColor,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                                  width: isSelected ? 1.6 : 1,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                              child: Row(
+                                children: [
+                                  Icon(option.icon, size: 19, color: ColorConstant.headlineTextColor),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextContext(
+                                      text: option.title,
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorConstant.headlineTextColor,
+                                    ),
+                                  ),
+                                  if (!option.isLive)
+                                    const TextContext(
+                                      text: 'Coming soon',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: ColorConstant.placeholderColor,
+                                    )
+                                  else
+                                    Icon(
+                                      isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                                      size: 20,
+                                      color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     }),
 
                     SizedBox(height: size.height * 0.03),
 
-                    // ---------------- SECURE PAYMENTS FOOTER ----------------
                     Center(
-                      child: Column(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.lock_rounded,
-                                  size: 14, color: ColorConstant.labelTextColor),
-                              const SizedBox(width: 6),
-                              TextContext(
-                                text: '100% Secure Payments',
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w500,
-                                color: ColorConstant.labelTextColor,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: size.height * 0.012),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: ['VISA', 'MC', 'UPI', 'RuPay'].map((label) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: ColorConstant.fieldFillColor,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  label,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: ColorConstant.placeholderColor,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                          Icon(Icons.lock_rounded, size: 14, color: ColorConstant.labelTextColor),
+                          const SizedBox(width: 6),
+                          TextContext(
+                            text: '100% Secure Payments',
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: ColorConstant.labelTextColor,
                           ),
                         ],
                       ),
@@ -360,13 +258,11 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
             // ---------------- BOTTOM PAY BUTTON ----------------
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.06,
-                vertical: size.height * 0.015,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.015),
               child: CustomButton(
-                text: 'Pay ₹${_fmt(_amountToPay)}',
-                onTap: _onPayNow,
+                text: checkoutVm.isPlacingOrder ? 'Placing order...' : 'Pay ${AppUtils.formatCurrency(amountToPay)}',
+                onTap: checkoutVm.isPlacingOrder ? null : () => _onPayNow(checkoutVm),
+                loading: checkoutVm.isPlacingOrder,
                 color: ColorConstant.primaryColor,
                 icon: Icons.lock_rounded,
                 iconColor: ColorConstant.whiteColor,
@@ -375,144 +271,6 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// ---------------- EXPANDABLE PAYMENT OPTION TILE ----------------
-class _PaymentOptionTile extends StatelessWidget {
-  final PaymentOptionData option;
-  final bool isExpanded;
-  final VoidCallback onTap;
-  final Widget? expandedChild;
-
-  const _PaymentOptionTile({
-    required this.option,
-    required this.isExpanded,
-    required this.onTap,
-    this.expandedChild,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      decoration: BoxDecoration(
-        color: ColorConstant.whiteColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isExpanded ? ColorConstant.primaryColor : ColorConstant.borderColor,
-          width: isExpanded ? 1.6 : 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Row(
-                children: [
-                  Icon(option.icon, size: 19, color: ColorConstant.headlineTextColor),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextContext(
-                      text: option.title,
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                  ),
-                  Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    size: 22,
-                    color: ColorConstant.labelTextColor,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (isExpanded && expandedChild != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: expandedChild,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// ---------------- UPI EXPANDED CONTENT ----------------
-class _UpiExpandedContent extends StatelessWidget {
-  final TextEditingController controller;
-  final bool verifying;
-  final VoidCallback onVerify;
-
-  const _UpiExpandedContent({
-    required this.controller,
-    required this.verifying,
-    required this.onVerify,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: ColorConstant.fieldFillColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 13,
-                    color: ColorConstant.headlineTextColor,
-                  ),
-                  decoration: InputDecoration(
-                    isCollapsed: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                    border: InputBorder.none,
-                    hintText: 'Enter UPI ID (e.g. user@bank)',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.5,
-                      color: ColorConstant.placeholderColor,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: CustomButton(
-                  height: 47,
-                  text: 'Verify & Pay',
-                  onTap: onVerify,
-                  loading: verifying,
-                  color: ColorConstant.primaryColor,
-                  fontSize: 12.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextContext(
-          text: 'Payment will be processed via your UPI app.',
-          fontSize: 11.5,
-          fontWeight: FontWeight.w400,
-          color: ColorConstant.labelTextColor,
-        ),
-      ],
     );
   }
 }

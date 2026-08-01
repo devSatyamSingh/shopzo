@@ -5,6 +5,8 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../model/product_detail_model.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/order_checkout_viewmodel.dart';
 import '../../viewmodel/product_details_viewmodel.dart';
 import '../../viewmodel/cart_viewmodel.dart';
 
@@ -35,6 +37,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
 
   int _currentImageIndex = 0;
   bool _isWishlisted = false;
+  bool _isBuyNowLoading = false;
 
   final List<bool> _accordionExpanded = [true, false, false, false];
   final List<String> _accordionTitles = const [
@@ -110,7 +113,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.wifi_off_rounded, size: 42, color: ColorConstant.placeholderColor),
+                    Icon(
+                      Icons.wifi_off_rounded,
+                      size: 42,
+                      color: ColorConstant.placeholderColor,
+                    ),
                     const SizedBox(height: 10),
                     TextContext(
                       text: vm.errorMessage ?? 'Failed to load product',
@@ -143,7 +150,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     children: [
                       _buildImageGallery(context, size, vm),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.045,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -180,7 +189,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   /// ---------------- IMAGE GALLERY ----------------
-  Widget _buildImageGallery(BuildContext context, Size size, ProductDetailViewModel vm) {
+  Widget _buildImageGallery(
+    BuildContext context,
+    Size size,
+    ProductDetailViewModel vm,
+  ) {
     final double galleryHeight = (size.height * 0.36).clamp(260.0, 360.0);
     final images = vm.effectiveImages;
     final itemCount = images.isEmpty ? 1 : images.length;
@@ -208,8 +221,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   itemBuilder: (context, index) {
                     if (images.isEmpty) {
                       return Center(
-                        child: Icon(Icons.image_outlined,
-                            size: 64, color: ColorConstant.placeholderColor),
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 64,
+                          color: ColorConstant.placeholderColor,
+                        ),
                       );
                     }
                     return GestureDetector(
@@ -229,7 +245,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                                 child: SizedBox(
                                   height: 24,
                                   width: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               );
                             },
@@ -270,9 +288,14 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ),
                     const SizedBox(width: 10),
                     _circleIconButton(
-                      icon: _isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      iconColor: _isWishlisted ? ColorConstant.wishlistColor : ColorConstant.headlineTextColor,
-                      onTap: () => setState(() => _isWishlisted = !_isWishlisted),
+                      icon: _isWishlisted
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      iconColor: _isWishlisted
+                          ? ColorConstant.wishlistColor
+                          : ColorConstant.headlineTextColor,
+                      onTap: () =>
+                          setState(() => _isWishlisted = !_isWishlisted),
                     ),
                   ],
                 ),
@@ -294,7 +317,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                         height: 6,
                         width: active ? 16 : 6,
                         decoration: BoxDecoration(
-                          color: active ? ColorConstant.primaryColor : Colors.white.withOpacity(0.7),
+                          color: active
+                              ? ColorConstant.primaryColor
+                              : Colors.white.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       );
@@ -316,7 +341,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
-                  separatorBuilder: (_, __) => SizedBox(width: size.width * 0.025),
+                  separatorBuilder: (_, __) =>
+                      SizedBox(width: size.width * 0.025),
                   itemBuilder: (context, index) {
                     final bool isSelected = index == _currentImageIndex;
                     return GestureDetector(
@@ -334,7 +360,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                           color: ColorConstant.fieldFillColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? ColorConstant.primaryColor : Colors.transparent,
+                            color: isSelected
+                                ? ColorConstant.primaryColor
+                                : Colors.transparent,
                             width: 2,
                           ),
                         ),
@@ -419,7 +447,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.white, size: 14),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       product.avgRating.toStringAsFixed(1),
@@ -435,7 +467,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               ),
               const SizedBox(width: 8),
               TextContext(
-                text: "(${allReviews.length} rating${allReviews.length == 1 ? '' : 's'})",
+                text:
+                    "(${allReviews.length} rating${allReviews.length == 1 ? '' : 's'})",
                 fontSize: 12.5,
                 fontWeight: FontWeight.w400,
                 color: ColorConstant.labelTextColor,
@@ -502,21 +535,30 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   separatorBuilder: (_, __) => const SizedBox(width: 10),
                   itemBuilder: (context, i) {
                     final value = values[i];
-                    final bool isAvailable = vm.isAttributeValueAvailable(attrName, value);
+                    final bool isAvailable = vm.isAttributeValueAvailable(
+                      attrName,
+                      value,
+                    );
                     final bool isSelected = selectedValue == value;
 
                     return GestureDetector(
-                      onTap: isAvailable ? () => vm.toggleAttribute(attrName, value) : null,
+                      onTap: isAvailable
+                          ? () => vm.toggleAttribute(attrName, value)
+                          : null,
                       child: Container(
                         height: 44,
                         constraints: const BoxConstraints(minWidth: 44),
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? ColorConstant.primaryColor : Colors.transparent,
+                          color: isSelected
+                              ? ColorConstant.primaryColor
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                            color: isSelected
+                                ? ColorConstant.primaryColor
+                                : ColorConstant.borderColor,
                           ),
                         ),
                         child: Text(
@@ -525,7 +567,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             fontFamily: "Poppins",
-                            decoration: isAvailable ? null : TextDecoration.lineThrough,
+                            decoration: isAvailable
+                                ? null
+                                : TextDecoration.lineThrough,
                             color: isSelected
                                 ? Colors.white
                                 : isAvailable
@@ -581,18 +625,28 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ),
                     filled: true,
                     fillColor: ColorConstant.whiteColor,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 13,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: ColorConstant.borderColor),
+                      borderSide: const BorderSide(
+                        color: ColorConstant.borderColor,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: ColorConstant.borderColor),
+                      borderSide: const BorderSide(
+                        color: ColorConstant.borderColor,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: ColorConstant.primaryColor, width: 1.4),
+                      borderSide: const BorderSide(
+                        color: ColorConstant.primaryColor,
+                        width: 1.4,
+                      ),
                     ),
                   ),
                 ),
@@ -629,7 +683,10 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _qtyButton(Icons.remove_rounded, () => vm.setQuantity(vm.quantity - 1)),
+              _qtyButton(
+                Icons.remove_rounded,
+                () => vm.setQuantity(vm.quantity - 1),
+              ),
               SizedBox(
                 width: 28,
                 child: Text(
@@ -642,7 +699,10 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   ),
                 ),
               ),
-              _qtyButton(Icons.add_rounded, () => vm.setQuantity(vm.quantity + 1)),
+              _qtyButton(
+                Icons.add_rounded,
+                () => vm.setQuantity(vm.quantity + 1),
+              ),
             ],
           ),
         ),
@@ -684,7 +744,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   /// ---------------- ACCORDIONS ----------------
-  Widget _buildAccordions(Size size, ProductDetailModel product, ProductDetailViewModel vm) {
+  Widget _buildAccordions(
+    Size size,
+    ProductDetailModel product,
+    ProductDetailViewModel vm,
+  ) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: ColorConstant.borderColor),
@@ -698,9 +762,13 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           return Column(
             children: [
               InkWell(
-                onTap: () => setState(() => _accordionExpanded[index] = !isExpanded),
+                onTap: () =>
+                    setState(() => _accordionExpanded[index] = !isExpanded),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 15,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -710,7 +778,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                         fontWeight: FontWeight.w500,
                       ),
                       Icon(
-                        isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        isExpanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
                         color: ColorConstant.labelTextColor,
                       ),
                     ],
@@ -728,7 +798,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     height: 1.6,
                   ),
                 ),
-              if (!isLast) const Divider(height: 1, color: ColorConstant.dividerColor),
+              if (!isLast)
+                const Divider(height: 1, color: ColorConstant.dividerColor),
             ],
           );
         }),
@@ -736,10 +807,15 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
     );
   }
 
-  String _accordionBody(int index, ProductDetailModel product, ProductDetailViewModel vm) {
+  String _accordionBody(
+    int index,
+    ProductDetailModel product,
+    ProductDetailViewModel vm,
+  ) {
     switch (index) {
       case 0:
-        return (product.description != null && product.description!.trim().isNotEmpty)
+        return (product.description != null &&
+                product.description!.trim().isNotEmpty)
             ? product.description!
             : "No description available for this product.";
       case 1:
@@ -760,7 +836,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
     // rating distribution built from actual review data
     final Map<int, int> counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
     for (final r in reviews) {
-      if (counts.containsKey(r.rating)) counts[r.rating] = counts[r.rating]! + 1;
+      if (counts.containsKey(r.rating))
+        counts[r.rating] = counts[r.rating]! + 1;
     }
     final total = reviews.length;
 
@@ -805,7 +882,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               Expanded(
                 child: Column(
                   children: [5, 4, 3, 2, 1].map((star) {
-                    final fraction = total == 0 ? 0.0 : (counts[star] ?? 0) / total;
+                    final fraction = total == 0
+                        ? 0.0
+                        : (counts[star] ?? 0) / total;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3),
                       child: Row(
@@ -829,7 +908,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                                 value: fraction,
                                 minHeight: 6,
                                 backgroundColor: ColorConstant.borderColor,
-                                valueColor: const AlwaysStoppedAnimation(ColorConstant.primaryColor),
+                                valueColor: const AlwaysStoppedAnimation(
+                                  ColorConstant.primaryColor,
+                                ),
                               ),
                             ),
                           ),
@@ -852,7 +933,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   Widget _buildReviewCard(Size size, ProductReviewModel review) {
-    final initial = review.customerName.isNotEmpty ? review.customerName[0].toUpperCase() : '?';
+    final initial = review.customerName.isNotEmpty
+        ? review.customerName[0].toUpperCase()
+        : '?';
 
     return Container(
       padding: EdgeInsets.all(size.width * 0.04),
@@ -875,7 +958,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 alignment: Alignment.center,
                 child: Text(
                   initial,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontFamily: "Poppins"),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: "Poppins",
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -883,12 +970,16 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextContext(text: review.customerName, fontSize: 13, fontWeight: FontWeight.w500),
+                    TextContext(
+                      text: review.customerName,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                     const SizedBox(height: 2),
                     Row(
                       children: List.generate(
                         5,
-                            (i) => Icon(
+                        (i) => Icon(
                           Icons.star_rounded,
                           size: 12,
                           color: i < review.rating
@@ -934,7 +1025,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     // kyunki ye sab ek hi review ki images hain.
                     reviewInfo: List.generate(
                       review.images.length,
-                          (_) => _ReviewOverlayInfo(
+                      (_) => _ReviewOverlayInfo(
                         name: review.customerName,
                         comment: review.comment,
                         rating: review.rating,
@@ -964,93 +1055,131 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
     );
   }
 
-  /// ---------------- STICKY BOTTOM ACTION BAR ----------------
-  /// Real "Add to Cart" wiring:
-  ///  - Disabled while out of stock or variant selection incomplete
-  ///  - Shows a spinner label while the API call is in flight
-  ///    (CartViewModel.isAdding(productId))
-  ///  - Once the current productId + variantId combo is already in the
-  ///    cart, the button flips to "Go to Cart" and just navigates —
-  ///    it will NOT add a duplicate line, use the qty stepper on
-  ///    CartScreen for that instead.
   Widget _buildBottomActionBar(
-      BuildContext context, Size size, ProductDetailModel product, ProductDetailViewModel vm) {
+    BuildContext context,
+    Size size,
+    ProductDetailModel product,
+    ProductDetailViewModel vm,
+  ) {
     final cartVm = context.watch<CartViewModel>();
 
     final String? variantId = vm.selectedVariant?.id;
     final bool canAct = vm.isInStock && vm.isSelectionComplete;
-    final bool isAdding = cartVm.isAdding(product.id);
-    final bool alreadyInCart = cartVm.isInCart(product.id, variantId: variantId);
+
+    // isAdding is shared per-productId in CartViewModel, so it becomes
+    // true during Buy Now's silent add too. Only show "Adding..." on the
+    // Add to Cart button when the user actually tapped Add to Cart —
+    // not when Buy Now triggered the same underlying add-to-cart call.
+    final bool isAddingRaw = cartVm.isAdding(product.id);
+    final bool isAddToCartLoading = isAddingRaw && !_isBuyNowLoading;
+    final bool alreadyInCart = cartVm.isInCart(
+      product.id,
+      variantId: variantId,
+    );
 
     return SafeArea(
       top: false,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: size.width * 0.045, vertical: size.height * 0.014),
+        padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.045,
+          vertical: size.height * 0.014,
+        ),
         decoration: BoxDecoration(
           color: ColorConstant.whiteColor,
           boxShadow: [
-            BoxShadow(color: ColorConstant.blackColor.withOpacity(0.08), blurRadius: 14, offset: const Offset(0, -4)),
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.08),
+              blurRadius: 14,
+              offset: const Offset(0, -4),
+            ),
           ],
         ),
         child: Row(
           children: [
             Expanded(
               child: CustomButton(
-                text: isAdding
+                text: isAddToCartLoading
                     ? "Adding..."
                     : alreadyInCart
                     ? "Go to Cart"
                     : "Add to Cart",
                 outlined: !alreadyInCart,
                 height: 52,
-                icon: alreadyInCart ? Icons.shopping_cart_rounded : Icons.shopping_cart_outlined,
+                icon: alreadyInCart
+                    ? Icons.shopping_cart_rounded
+                    : Icons.shopping_cart_outlined,
                 iconSize: 18,
-                onTap: (!canAct || isAdding)
+                onTap: (!canAct || isAddingRaw || _isBuyNowLoading)
                     ? null
                     : () async {
-                  if (alreadyInCart) {
-                    Navigator.pushNamed(context, RouteName.cart);
-                    return;
-                  }
-                  await cartVm.addToCart(
-                    productId: product.id,
-                    variantId: variantId,
-                    quantity: vm.quantity,
-                    context: context,
-                  );
-                  // addToCart already shows success/error snackbar via
-                  // AppUtils — button will auto-flip to "Go to Cart"
-                  // once cartVm notifies listeners.
-                },
+                        if (alreadyInCart) {
+                          Navigator.pushNamed(context, RouteName.cart);
+                          return;
+                        }
+                        await cartVm.addToCart(
+                          productId: product.id,
+                          variantId: variantId,
+                          quantity: vm.quantity,
+                          context: context,
+                          // silent defaults to false here — success toast shows normally
+                        );
+                      },
               ),
             ),
             SizedBox(width: size.width * 0.03),
             Expanded(
               child: CustomButton(
-                text: "Buy Now",
+                text: _isBuyNowLoading ? "Please wait..." : "Buy Now",
                 height: 52,
-                onTap: (!canAct || isAdding)
+                onTap: (!canAct || isAddingRaw || _isBuyNowLoading)
                     ? null
                     : () async {
-                  // Flipkart-style: Buy Now silently ensures the item is in
-                  // the cart before going to checkout. If it's already there
-                  // (same product + variant), we don't add it again — just
-                  // proceed straight to checkout.
-                  final bool alreadyThere =
-                  cartVm.isInCart(product.id, variantId: variantId);
+                  setState(() => _isBuyNowLoading = true);
+                  try {
+                    final bool alreadyThere =
+                    cartVm.isInCart(product.id, variantId: variantId);
 
-                  if (!alreadyThere) {
-                    final added = await cartVm.addToCart(
-                      productId: product.id,
-                      variantId: variantId,
-                      quantity: vm.quantity,
-                      context: context,
-                    );
-                    if (!added) return; // stay on this screen if add failed
+                    if (!alreadyThere) {
+                      final added = await cartVm.addToCart(
+                        productId: product.id,
+                        variantId: variantId,
+                        quantity: vm.quantity,
+                        context: context,
+                        silent: true, // Buy Now: no "added to cart" toast
+                      );
+                      if (!added) return; // stay on screen if add failed
+                    } else {
+                      // already in cart — sirf quantity update kar do jo user ne select ki
+                      final existing = cartVm.cart.findItem(product.id, variantId);
+                      if (existing != null && existing.quantity != vm.quantity) {
+                        await cartVm.updateQuantity(
+                          itemId: existing.id,
+                          quantity: vm.quantity,
+                          context: context,
+                        );
+                      }
+                    }
+
+                    if (!context.mounted) return;
+
+                    // ab cart me se is product ka fresh cart-item nikal ke
+                    // CheckoutViewModel ko de do — isi cartItemId se order + cart
+                    // clear dono handle honge
+                    final cartItem = cartVm.cart.findItem(product.id, variantId);
+                    if (cartItem == null) {
+                      AppUtils.error(context, 'Something went wrong. Please try again.');
+                      return;
+                    }
+
+                    context.read<CheckoutViewModel>().startCheckout([
+                      CheckoutLineItem.fromCartItem(cartItem),
+                    ]);
+
+                    if (!context.mounted) return;
+                    Navigator.pushNamed(context, RouteName.checkoutAddress);
+                  } finally {
+                    if (mounted) setState(() => _isBuyNowLoading = false);
                   }
-
-                  if (!context.mounted) return;
-                  Navigator.pushNamed(context, RouteName.checkoutAddress);
                 },
               ),
             ),
@@ -1069,14 +1198,17 @@ class _PulsingDot extends StatefulWidget {
   State<_PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<_PulsingDot>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
-      ..repeat(reverse: true);
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -1092,7 +1224,10 @@ class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderState
       child: Container(
         height: 8,
         width: 8,
-        decoration: const BoxDecoration(color: ColorConstant.orangeColor, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: ColorConstant.orangeColor,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }
@@ -1152,7 +1287,8 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
-    final info = (widget.reviewInfo != null && widget.reviewInfo!.length > _currentIndex)
+    final info =
+        (widget.reviewInfo != null && widget.reviewInfo!.length > _currentIndex)
         ? widget.reviewInfo![_currentIndex]
         : null;
 
@@ -1179,11 +1315,17 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                         loadingBuilder: (context, child, progress) {
                           if (progress == null) return child;
                           return const Center(
-                            child: CircularProgressIndicator(color: Colors.white),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
                           );
                         },
                         errorBuilder: (_, __, ___) => const Center(
-                          child: Icon(Icons.broken_image_outlined, color: Colors.white54, size: 64),
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: Colors.white54,
+                            size: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -1197,7 +1339,11 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
               top: 8,
               left: 8,
               child: IconButton(
-                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
             ),
@@ -1208,14 +1354,21 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                 top: 14,
                 right: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black45,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     "${_currentIndex + 1} / ${widget.images.length}",
-                    style: const TextStyle(color: Colors.white, fontSize: 12.5, fontFamily: "Poppins"),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.5,
+                      fontFamily: "Poppins",
+                    ),
                   ),
                 ),
               ),
@@ -1255,16 +1408,19 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                           Row(
                             children: List.generate(
                               5,
-                                  (i) => Icon(
+                              (i) => Icon(
                                 Icons.star_rounded,
                                 size: 13,
-                                color: i < info.rating ? ColorConstant.ratingStarColor : Colors.white30,
+                                color: i < info.rating
+                                    ? ColorConstant.ratingStarColor
+                                    : Colors.white30,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      if (info.comment != null && info.comment!.trim().isNotEmpty) ...[
+                      if (info.comment != null &&
+                          info.comment!.trim().isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Text(
                           info.comment!,

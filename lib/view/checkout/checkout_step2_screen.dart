@@ -1,111 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shopzo/view/checkout/checkout_step3_screen.dart';
+import '../../model/order_preview_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
-import '../../viewmodel/coupon_viewmodel.dart';
+import '../../viewmodel/order_checkout_viewmodel.dart';
 import 'checkout_stepper.dart';
 
-class OrderItemModel {
-  final String image;
-  final String name;
-  final String variant;
-  final double price;
-  final int qty;
-
-  const OrderItemModel({
-    required this.image,
-    required this.name,
-    required this.variant,
-    required this.price,
-    required this.qty,
-  });
-}
-
-class SellerGroup {
-  final String image;
-  final String sellerName;
-  final List<OrderItemModel> items;
-
-  const SellerGroup({
-    required this.image,
-    required this.sellerName,
-    required this.items,
-  });
-}
-
-class CheckoutSummaryScreen extends StatelessWidget {
+class CheckoutSummaryScreen extends StatefulWidget {
   const CheckoutSummaryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<CouponViewModel>(
-      create: (_) => CouponViewModel(),
-      child: const _CheckoutSummaryView(),
-    );
-  }
+  State<CheckoutSummaryScreen> createState() => _CheckoutSummaryScreenState();
 }
 
-class _CheckoutSummaryView extends StatefulWidget {
-  const _CheckoutSummaryView();
+class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
+  final TextEditingController _couponController = TextEditingController();
+  static const double _platformFee = 0;
 
   @override
-  State<_CheckoutSummaryView> createState() => _CheckoutSummaryViewState();
-}
-
-class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
-  int _selectedDateIndex = 0;
-  int _selectedSlotIndex = 0;
-  bool _showBreakdown = false;
-
-  final TextEditingController _couponController = TextEditingController();
-
-  static const List<String> _dateLabels = ['Today', 'Tomorrow', 'Wed', 'Thu'];
-  static const List<String> _dateNumbers = ['18', '19', '20', '21'];
-  static const List<String> _slots = ['9AM - 12PM', '12PM - 4PM', '4PM - 8PM'];
-
-  static const List<SellerGroup> _groups = [
-    SellerGroup(
-      image: "assets/images/pro12.jpg",
-      sellerName: 'Sold by TechHub Store',
-      items: [
-        OrderItemModel(
-          image: 'assets/images/pro1.jpg',
-          name: 'Pro Sound ANC Headphones',
-          variant: 'Color: Midnight Black',
-          price: 12499,
-          qty: 1,
-        ),
-      ],
-    ),
-    SellerGroup(
-      image: "assets/images/pro10.jpg",
-      sellerName: 'Sold by UrbanWear',
-      items: [
-        OrderItemModel(
-          image: 'assets/images/pro2.jpg',
-          name: 'Essential Heavy Boxy Tee',
-          variant: 'Size: L • Color: Cream',
-          price: 1299,
-          qty: 1,
-        ),
-        OrderItemModel(
-          image: 'assets/images/pro4.jpg',
-          name: 'Classic Raw Indigo Denim',
-          variant: 'Size: 32 • Fit: Slim',
-          price: 2499,
-          qty: 1,
-        ),
-      ],
-    ),
-  ];
-
-  // TODO: replace with real cart/checkout subtotal once checkout API is wired
-  static const double _itemTotal = 16297;
-  static const double _platformFee = 10;
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<CheckoutViewModel>();
+      // agar address select hote hi preview trigger nahi hua (edge case —
+      // e.g. hot reload / direct navigation), yaha se ensure kar do
+      if (vm.items.isNotEmpty && vm.preview == null && !vm.isPreviewLoading) {
+        vm.fetchPreview();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -113,42 +39,64 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
     super.dispose();
   }
 
-  String _fmt(double v) {
-    final whole = v.toStringAsFixed(0);
-    return whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-  }
+  void _onChangeAddress() => Navigator.pop(context);
 
-  void _onChangeAddress() {
-    // 👉 pop back to Address step, or open address picker
-  }
-
-  void _onContinue() {
+  void _onContinue(CheckoutViewModel vm) {
+    if (vm.items.isEmpty || vm.hasStockIssue) return;
     Navigator.pushNamed(context, RouteName.checkoutPayment);
   }
 
-  Future<void> _applyCoupon(CouponViewModel couponVm, String code) async {
-    if (code.trim().isEmpty) {
+  Future<void> _applyCoupon(CheckoutViewModel vm) async {
+    final code = _couponController.text.trim();
+    if (code.isEmpty) {
       AppUtils.warning(context, "Please enter a coupon code");
       return;
     }
-    final ok = await couponVm.applyCoupon(code: code.trim(), subtotal: _itemTotal);
+    await vm.applyCoupon(code);
     if (!mounted) return;
-    if (ok) {
-      AppUtils.success(context, couponVm.validationMessage ?? "Coupon applied");
+
+    if (vm.hasCouponApplied) {
+      AppUtils.success(context, "Coupon applied");
       _couponController.clear();
       AppUtils.hideKeyboard(context);
     } else {
-      AppUtils.error(context, couponVm.validationMessage ?? "Invalid coupon");
+      AppUtils.error(context, vm.couponError ?? "Invalid coupon");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final couponVm = context.watch<CouponViewModel>();
+    final vm = context.watch<CheckoutViewModel>();
 
-    final double discount = couponVm.hasCouponApplied ? couponVm.discount : 0;
-    final double toPay = (_itemTotal - discount + _platformFee).clamp(0, double.infinity);
+    if (vm.items.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Checkout'), centerTitle: true),
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.shopping_bag_outlined, size: 46, color: ColorConstant.placeholderColor),
+                const SizedBox(height: 14),
+                const TextContext(text: "No items to checkout", fontSize: 15, fontWeight: FontWeight.w600),
+                const SizedBox(height: 18),
+                CustomButton(
+                  text: "Go to Cart",
+                  height: 46,
+                  onTap: () => Navigator.pushNamedAndRemoveUntil(context, RouteName.cart, (r) => false),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final address = vm.selectedAddress;
+    final preview = vm.preview;
+    final bool showSkeleton = vm.isPreviewLoading && preview == null;
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -161,318 +109,288 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
         child: Column(
           children: [
             const CheckoutStepper(currentStep: 2),
-
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ---------------- DELIVER TO ----------------
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: ColorConstant.whiteColor,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ColorConstant.blackColor.withOpacity(.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 36,
-                            width: 36,
-                            decoration: BoxDecoration(
-                              color: ColorConstant.primaryLight,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Icon(Icons.location_on_rounded,
-                                size: 18, color: ColorConstant.primaryColor),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextContext(
-                                  text: 'DELIVER TO:',
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorConstant.placeholderColor,
-                                  letterSpacing: 0.5,
-                                ),
-                                TextContext(
-                                  text: 'Arjun Malhotra',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: ColorConstant.headlineTextColor,
-                                ),
-                                TextContext(
-                                  text: 'Sector 62, Noida - 201301',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: ColorConstant.labelTextColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: _onChangeAddress,
-                            child: TextContext(
-                              text: 'Change',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: ColorConstant.primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              child: RefreshIndicator(
+                color: ColorConstant.primaryColor,
+                onRefresh: () => vm.fetchPreview(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: size.height * 0.02),
 
-                    SizedBox(height: size.height * 0.025),
-
-                    TextContext(
-                      text: 'Choose Delivery Slot',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                    SizedBox(height: size.height * 0.012),
-
-                    // ---------------- DATE CHIPS ----------------
-                    Row(
-                      children: List.generate(_dateLabels.length, (index) {
-                        final selected = index == _selectedDateIndex;
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => _selectedDateIndex = index),
-                            child: Container(
-                              margin: EdgeInsets.only(
-                                right: index != _dateLabels.length - 1 ? size.width * 0.02 : 0,
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: selected ? ColorConstant.primaryColor : ColorConstant.whiteColor,
-                                borderRadius: BorderRadius.circular(12),
-                                border: selected
-                                    ? null
-                                    : Border.all(color: ColorConstant.borderColor),
-                              ),
+                      // ---------------- DELIVER TO ----------------
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: ColorConstant.whiteColor,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(color: ColorConstant.blackColor.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 4)),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 36,
+                              width: 36,
+                              decoration: BoxDecoration(color: ColorConstant.primaryLight, borderRadius: BorderRadius.circular(10)),
+                              alignment: Alignment.center,
+                              child: Icon(Icons.location_on_rounded, size: 18, color: ColorConstant.primaryColor),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    _dateLabels[index],
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      color: selected ? Colors.white : ColorConstant.labelTextColor,
-                                    ),
+                                  const TextContext(
+                                    text: 'DELIVER TO:',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: ColorConstant.placeholderColor,
+                                    letterSpacing: 0.5,
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _dateNumbers[index],
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      color: selected ? Colors.white : ColorConstant.headlineTextColor,
-                                    ),
+                                  TextContext(
+                                    text: address?.type == 'BILLING' ? 'Billing Address' : 'Shipping Address',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorConstant.headlineTextColor,
+                                  ),
+                                  TextContext(
+                                    text: address?.fullAddress ?? '',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: ColorConstant.labelTextColor,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        );
-                      }),
-                    ),
-
-                    SizedBox(height: size.height * 0.012),
-
-                    // ---------------- TIME SLOT CHIPS ----------------
-                    Wrap(
-                      spacing: size.width * 0.025,
-                      runSpacing: size.height * 0.012,
-                      children: List.generate(_slots.length, (index) {
-                        final selected = index == _selectedSlotIndex;
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedSlotIndex = index),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: ColorConstant.whiteColor,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: selected ? ColorConstant.primaryColor : ColorConstant.borderColor,
-                                width: selected ? 1.6 : 1,
-                              ),
+                            GestureDetector(
+                              onTap: _onChangeAddress,
+                              child: const TextContext(text: 'Change', fontSize: 13, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
                             ),
-                            child: Text(
-                              _slots[index],
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
-                                color: selected
-                                    ? ColorConstant.primaryColor
-                                    : ColorConstant.bodyTextColor,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-
-                    SizedBox(height: size.height * 0.028),
-
-                    TextContext(
-                      text: 'Order Items (3)',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                    SizedBox(height: size.height * 0.014),
-
-                    // ---------------- SELLER GROUPS ----------------
-                    ..._groups.map((group) => Padding(
-                      padding: EdgeInsets.only(bottom: size.height * 0.02),
-                      child: _SellerCard(group: group),
-                    )),
-
-                    // ---------------- COUPON SECTION (REAL) ----------------
-                    _buildCouponSection(size, couponVm),
-
-                    SizedBox(height: size.height * 0.02),
-
-                    // ---------------- BILL DETAILS ----------------
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: ColorConstant.whiteColor,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ColorConstant.blackColor.withOpacity(.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextContext(
-                            text: 'Bill Details',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: ColorConstant.headlineTextColor,
+
+                      SizedBox(height: size.height * 0.025),
+
+                      TextContext(
+                        text: 'Order Items (${vm.itemCount})',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: ColorConstant.headlineTextColor,
+                      ),
+                      SizedBox(height: size.height * 0.014),
+
+                      // ---------------- ITEMS ----------------
+                      if (showSkeleton)
+                        _ItemsSkeleton(size: size)
+                      else
+                        Container(
+                          decoration: BoxDecoration(
+                            color: ColorConstant.whiteColor,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(color: ColorConstant.blackColor.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 4)),
+                            ],
                           ),
-                          SizedBox(height: size.height * 0.014),
-                          _BillRow(label: 'Item Total', value: '₹${_fmt(_itemTotal)}'),
-                          _BillRow(label: 'Delivery Fee', value: 'FREE', valueColor: ColorConstant.successColor),
-                          if (discount > 0)
-                            _BillRow(
-                              label: 'Coupon Discount',
-                              value: '-₹${_fmt(discount)}',
-                              valueColor: ColorConstant.successColor,
-                            ),
-                          _BillRow(label: 'Platform Fee', value: '₹${_fmt(_platformFee)}'),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
-                            child: Divider(color: ColorConstant.dividerColor, height: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          child: Column(
+                            children: List.generate(vm.items.length, (index) {
+                              final localItem = vm.items[index];
+                              OrderPreviewItem? previewItem;
+                              if (preview != null) {
+                                final matches = preview.items.where(
+                                      (p) => p.productId == localItem.productId && p.variantId == localItem.variantId,
+                                );
+                                previewItem = matches.isNotEmpty ? matches.first : null;
+                              }
+
+                              final name = previewItem?.productName ?? localItem.productName;
+                              final image = previewItem?.image ?? localItem.image;
+                              final price = previewItem?.price ?? localItem.unitPrice;
+                              final qty = previewItem?.quantity ?? localItem.quantity;
+                              final outOfStock = previewItem != null && !previewItem.inStock;
+                              final isLast = index == vm.items.length - 1;
+
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: (image != null && image.isNotEmpty)
+                                              ? Image.network(
+                                            image,
+                                            height: 56,
+                                            width: 56,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => _imgFallback(),
+                                          )
+                                              : _imgFallback(),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              TextContext(
+                                                text: name,
+                                                fontSize: 13.5,
+                                                fontWeight: FontWeight.w600,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                color: ColorConstant.headlineTextColor,
+                                              ),
+                                              if (outOfStock) ...[
+                                                const SizedBox(height: 4),
+                                                const TextContext(
+                                                  text: "Out of stock",
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: ColorConstant.errorColor,
+                                                ),
+                                              ],
+                                              const SizedBox(height: 8),
+                                              TextContext(
+                                                text: AppUtils.formatCurrency(price),
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: ColorConstant.headlineTextColor,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(8)),
+                                          child: Text(
+                                            'Qty: $qty',
+                                            style: TextStyle(fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w500, color: ColorConstant.bodyTextColor),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (!isLast) Divider(color: ColorConstant.dividerColor, height: 1),
+                                ],
+                              );
+                            }),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        ),
+
+                      if (vm.hasStockIssue) ...[
+                        SizedBox(height: size.height * 0.012),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(color: ColorConstant.orangeLight, borderRadius: BorderRadius.circular(14)),
+                          child: Row(
                             children: [
-                              TextContext(
-                                text: 'To Pay',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: ColorConstant.headlineTextColor,
-                              ),
-                              TextContext(
-                                text: '₹${_fmt(toPay)}',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: ColorConstant.primaryColor,
+                              Icon(Icons.error_rounded, color: ColorConstant.orangeColor, size: 18),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: TextContext(
+                                  text: "Some items are out of stock. Please go back and update your cart.",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorConstant.orangeDark,
+                                ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      ],
 
-                    SizedBox(height: size.height * 0.02),
-                  ],
+                      SizedBox(height: size.height * 0.02),
+
+                      // ---------------- COUPON ----------------
+                      _buildCouponSection(size, vm),
+
+                      SizedBox(height: size.height * 0.02),
+
+                      // ---------------- BILL DETAILS ----------------
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: ColorConstant.whiteColor,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(color: ColorConstant.blackColor.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 4)),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const TextContext(text: 'Bill Details', fontSize: 15, fontWeight: FontWeight.w600, color: ColorConstant.headlineTextColor),
+                            SizedBox(height: size.height * 0.014),
+                            if (showSkeleton)
+                              _BillSkeleton()
+                            else ...[
+                              _BillRow(label: 'Item Total', value: AppUtils.formatCurrency(vm.subtotal)),
+                              _BillRow(label: 'Tax', value: AppUtils.formatCurrency(vm.tax)),
+                              _BillRow(label: 'Delivery Fee', value: 'FREE', valueColor: ColorConstant.successColor),
+                              if (vm.discount > 0)
+                                _BillRow(
+                                  label: 'Coupon Discount',
+                                  value: '-${AppUtils.formatCurrency(vm.discount)}',
+                                  valueColor: ColorConstant.successColor,
+                                ),
+                              _BillRow(label: 'Platform Fee', value: AppUtils.formatCurrency(_platformFee)),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
+                                child: Divider(color: ColorConstant.dividerColor, height: 1),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const TextContext(text: 'To Pay', fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.headlineTextColor),
+                                  TextContext(text: AppUtils.formatCurrency(vm.total), fontSize: 15, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: size.height * 0.02),
+                    ],
+                  ),
                 ),
               ),
             ),
 
             // ---------------- BOTTOM BAR ----------------
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.06,
-                vertical: size.height * 0.015,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.015),
               decoration: BoxDecoration(
                 color: ColorConstant.whiteColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: ColorConstant.blackColor.withOpacity(.06),
-                    blurRadius: 12,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(.06), blurRadius: 12, offset: const Offset(0, -4))],
               ),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => setState(() => _showBreakdown = !_showBreakdown),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextContext(
-                          text: '₹${_fmt(toPay)}',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: ColorConstant.primaryColor,
-                        ),
-                        Row(
-                          children: [
-                            TextContext(
-                              text: 'View breakdown',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: ColorConstant.labelTextColor,
-                            ),
-                            Icon(
-                              _showBreakdown
-                                  ? Icons.keyboard_arrow_down_rounded
-                                  : Icons.keyboard_arrow_up_rounded,
-                              size: 16,
-                              color: ColorConstant.labelTextColor,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextContext(text: AppUtils.formatCurrency(vm.total), fontSize: 16, fontWeight: FontWeight.w500, color: ColorConstant.primaryColor),
+                      TextContext(text: '${vm.itemCount} item${vm.itemCount == 1 ? '' : 's'}', fontSize: 11, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
+                    ],
                   ),
-
                   Expanded(
                     child: SizedBox(
                       width: size.width * 0.44,
                       child: CustomButton(
                         text: 'Continue To Payment',
-                        onTap: _onContinue,
+                        onTap: (address == null || showSkeleton || vm.hasStockIssue) ? null : () => _onContinue(vm),
                         color: ColorConstant.primaryColor,
                         icon: Icons.arrow_forward,
                         iconColor: ColorConstant.whiteColor,
@@ -489,25 +407,26 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
     );
   }
 
-  /// ---------------- COUPON SECTION (real, wired to CouponViewModel) ----------------
-  Widget _buildCouponSection(Size size, CouponViewModel couponVm) {
-    if (couponVm.hasCouponApplied) {
+  Widget _imgFallback() => Container(
+    height: 56,
+    width: 56,
+    color: ColorConstant.fieldFillColor,
+    alignment: Alignment.center,
+    child: Icon(Icons.image_outlined, size: 20, color: ColorConstant.placeholderColor),
+  );
+
+  Widget _buildCouponSection(Size size, CheckoutViewModel vm) {
+    if (vm.hasCouponApplied) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: ColorConstant.successColor.withOpacity(.1),
-          borderRadius: BorderRadius.circular(14),
-        ),
+        decoration: BoxDecoration(color: ColorConstant.successColor.withOpacity(.1), borderRadius: BorderRadius.circular(14)),
         child: Row(
           children: [
             Container(
               height: 30,
               width: 30,
-              decoration: const BoxDecoration(
-                color: ColorConstant.successColor,
-                shape: BoxShape.circle,
-              ),
+              decoration: const BoxDecoration(color: ColorConstant.successColor, shape: BoxShape.circle),
               alignment: Alignment.center,
               child: const Icon(Icons.sell_rounded, size: 14, color: Colors.white),
             ),
@@ -516,36 +435,21 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextContext(
-                    text: '${couponVm.appliedCoupon!.code} Applied',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: ColorConstant.successColor,
-                  ),
-                  TextContext(
-                    text: 'You saved ₹${_fmt(couponVm.discount)} with this coupon',
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w400,
-                    color: ColorConstant.successColor,
-                  ),
+                  TextContext(text: '${vm.preview!.couponApplied} Applied', fontSize: 13, fontWeight: FontWeight.w500, color: ColorConstant.successColor),
+                  TextContext(text: 'You saved ${AppUtils.formatCurrency(vm.discount)}', fontSize: 11.5, fontWeight: FontWeight.w400, color: ColorConstant.successColor),
                 ],
               ),
             ),
             GestureDetector(
-              onTap: couponVm.removeCoupon,
-              child: const TextContext(
-                text: 'Remove',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: ColorConstant.errorColor,
-              ),
+              onTap: () => vm.removeCoupon(),
+              child: const TextContext(text: 'Remove', fontSize: 12, fontWeight: FontWeight.w600, color: ColorConstant.errorColor),
             ),
           ],
         ),
       );
     }
 
-    final bool isValidating = couponVm.isValidating;
+    final bool isValidating = vm.isPreviewLoading;
 
     return Container(
       width: double.infinity,
@@ -553,22 +457,12 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: ColorConstant.blackColor.withOpacity(.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TextContext(
-            text: "Have a coupon code?",
-            fontSize: 13.5,
-            fontWeight: FontWeight.w600,
-          ),
+          const TextContext(text: "Have a coupon code?", fontSize: 13.5, fontWeight: FontWeight.w600),
           SizedBox(height: size.height * 0.01),
           Row(
             children: [
@@ -576,10 +470,7 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
                 child: Container(
                   height: 44,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: ColorConstant.fieldFillColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(10)),
                   child: TextField(
                     controller: _couponController,
                     textCapitalization: TextCapitalization.characters,
@@ -603,19 +494,14 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
                   height: 44,
                   fontSize: 13,
                   borderRadius: BorderRadius.circular(10),
-                  onTap: isValidating ? null : () => _applyCoupon(couponVm, _couponController.text),
+                  onTap: isValidating ? null : () => _applyCoupon(vm),
                 ),
               ),
             ],
           ),
-          if (couponVm.validationMessage != null && !couponVm.lastAttemptSucceeded) ...[
+          if (vm.couponError != null && vm.couponCode != null) ...[
             const SizedBox(height: 6),
-            TextContext(
-              text: couponVm.validationMessage!,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
-              color: ColorConstant.errorColor,
-            ),
+            TextContext(text: vm.couponError!, fontSize: 11.5, fontWeight: FontWeight.w500, color: ColorConstant.errorColor),
           ],
         ],
       ),
@@ -623,141 +509,10 @@ class _CheckoutSummaryViewState extends State<_CheckoutSummaryView> {
   }
 }
 
-/// ---------------- SELLER CARD (group of items) ----------------
-class _SellerCard extends StatelessWidget {
-  final SellerGroup group;
-  const _SellerCard({required this.group});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                group.image,
-                height: 24,
-                width: 24,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 6),
-            TextContext(
-              text: group.sellerName,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.labelTextColor,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: ColorConstant.whiteColor,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: ColorConstant.blackColor.withOpacity(.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Column(
-            children: List.generate(group.items.length, (index) {
-              final item = group.items[index];
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            item.image,
-                            height: 56,
-                            width: 56,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              height: 56,
-                              width: 56,
-                              color: ColorConstant.fieldFillColor,
-                              alignment: Alignment.center,
-                              child: Icon(Icons.image_outlined,
-                                  size: 20, color: ColorConstant.placeholderColor),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextContext(
-                                text: item.name,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w600,
-                                color: ColorConstant.headlineTextColor,
-                              ),
-                              TextContext(
-                                text: item.variant,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: ColorConstant.labelTextColor,
-                              ),
-                              const SizedBox(height: 8),
-                              TextContext(
-                                text: '₹${item.price.toStringAsFixed(0)}',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: ColorConstant.headlineTextColor,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: ColorConstant.fieldFillColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'Qty: ${item.qty}',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: ColorConstant.bodyTextColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (index != group.items.length - 1)
-                    Divider(color: ColorConstant.dividerColor, height: 1),
-                ],
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// ---------------- BILL ROW ----------------
 class _BillRow extends StatelessWidget {
   final String label;
   final String value;
   final Color? valueColor;
-
   const _BillRow({required this.label, required this.value, this.valueColor});
 
   @override
@@ -767,20 +522,40 @@ class _BillRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextContext(
-            text: label,
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: ColorConstant.labelTextColor,
-          ),
-          TextContext(
-            text: value,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: valueColor ?? ColorConstant.headlineTextColor,
-          ),
+          TextContext(text: label, fontSize: 13, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+          TextContext(text: value, fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? ColorConstant.headlineTextColor),
         ],
       ),
+    );
+  }
+}
+
+class _BillSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        3,
+            (i) => const Padding(
+          padding: EdgeInsets.symmetric(vertical: 6),
+          child: SizedBox(height: 13),
+        ),
+      ),
+    );
+  }
+}
+
+class _ItemsSkeleton extends StatelessWidget {
+  final Size size;
+  const _ItemsSkeleton({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(color: ColorConstant.whiteColor, borderRadius: BorderRadius.circular(14)),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(color: ColorConstant.primaryColor, strokeWidth: 2),
     );
   }
 }

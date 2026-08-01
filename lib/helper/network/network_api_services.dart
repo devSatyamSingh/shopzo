@@ -237,14 +237,16 @@ class NetworkApiServices extends BaseApiServices {
   }
 
   // MULTIPART / FORM-DATA (profile photo, ID docs, product images…)
+  // getFormDataApiResponse ko replace karo:
   @override
   Future<dynamic> getFormDataApiResponse(
       String url,
       Map<String, dynamic> fields, {
         Map<String, File>? files,
+        Map<String, List<File>>? multiFiles, // ⬅️ NAYA — same field-name repeat ke liye (e.g. images[])
         String method = 'POST',
       }) async {
-    _log('FORM-DATA($method) →', '$url | fields: $fields | files: ${files?.keys}');
+    _log('FORM-DATA($method) →', '$url | fields: $fields | files: ${files?.keys} | multiFiles: ${multiFiles?.keys}');
     try {
       return await _withAuthRetry(() async {
         final request = http.MultipartRequest(method, Uri.parse(url));
@@ -256,9 +258,16 @@ class NetworkApiServices extends BaseApiServices {
 
         if (files != null) {
           for (final entry in files.entries) {
-            request.files.add(
-              await http.MultipartFile.fromPath(entry.key, entry.value.path),
-            );
+            request.files.add(await http.MultipartFile.fromPath(entry.key, entry.value.path));
+          }
+        }
+
+        // ⬅️ NAYA BLOCK — ek hi field-name (e.g. "images") ke multiple files
+        if (multiFiles != null) {
+          for (final entry in multiFiles.entries) {
+            for (final file in entry.value) {
+              request.files.add(await http.MultipartFile.fromPath(entry.key, file.path));
+            }
           }
         }
 

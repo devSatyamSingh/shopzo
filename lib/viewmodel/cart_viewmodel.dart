@@ -56,6 +56,7 @@ class CartViewModel extends ChangeNotifier {
     String? variantId,
     int quantity = 1,
     BuildContext? context,
+    bool silent = false,
   }) async {
     _addingProductIds.add(productId);
     notifyListeners();
@@ -69,7 +70,7 @@ class CartViewModel extends ChangeNotifier {
     if (response.isCompleted) {
       _cartState = response;
       _hasLoadedOnce = true;
-      AppUtils.success(context, 'Item added to cart');
+      if (!silent) AppUtils.success(context, 'Item added to cart');
     } else {
       AppUtils.error(context,
           response.message ?? 'Something went wrong while adding to cart.');

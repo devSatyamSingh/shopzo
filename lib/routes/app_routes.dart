@@ -125,7 +125,8 @@ class AppRoutes {
         return _page(const OrdersScreen());
 
       case RouteName.orderDetail:
-        return _page(const OrderDetailScreen());
+        final orderId = settings.arguments as String;
+        return MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: orderId));
 
     // ---- Account ----
       case RouteName.wishlist:
@@ -164,11 +165,6 @@ class AppRoutes {
 
       case RouteName.register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
-
-    // lib/routes/app_routes.dart
-      case RouteName.reviewRating:
-        return _page(const ReviewRatingScreen());
-
       case RouteName.subCategory:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
         return MaterialPageRoute(

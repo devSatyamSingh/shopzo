@@ -8,6 +8,7 @@ import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
 import '../../viewmodel/address/address_viewmodel.dart';
+import '../../viewmodel/order_checkout_viewmodel.dart';
 import 'checkout_stepper.dart';
 
 
@@ -53,13 +54,10 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
       orElse: () => addresses.first,
     );
 
-    Navigator.pushNamed(
-      context,
-      RouteName.checkoutSummary,
-      arguments: selected,
-    );
-  }
+    context.read<CheckoutViewModel>().setAddress(selected);
 
+    Navigator.pushNamed(context, RouteName.checkoutSummary);
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

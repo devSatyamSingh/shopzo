@@ -8,6 +8,7 @@ import '../../utils/utils.dart';
 import '../../model/cart_model.dart';
 import '../../viewmodel/cart_viewmodel.dart';
 import '../../viewmodel/coupon_viewmodel.dart';
+import '../../viewmodel/order_checkout_viewmodel.dart';
 import '../account/coupons_screen.dart'; // CouponsScreen + CouponApplyResult
 
 class CartScreen extends StatefulWidget {
@@ -1050,20 +1051,26 @@ class _CartScreenState extends State<CartScreen> {
                   );
                 }
                     : () {
-                  Navigator.pushNamed(
-                    context,
-                    RouteName.checkoutAddress,
-                    arguments: {
-                      'itemIds': selectedItems.map((e) => e.id).toList(),
-                      'couponCode': _effectiveDiscount(vm, couponVm) > 0
-                          ? couponVm.appliedCoupon?.code
-                          : null,
-                    },
-                  );
+                  // Selected cart items (1, kai, ya sab) ko checkout line items
+                  // me convert karke CheckoutViewModel me daal do
+                  final checkoutItems = selectedItems
+                      .map((item) => CheckoutLineItem.fromCartItem(item))
+                      .toList();
+
+                  final checkoutVm = context.read<CheckoutViewModel>();
+                  checkoutVm.startCheckout(checkoutItems);
+
+                  // agar cart me coupon apply tha to wahi code checkout me carry karo —
+                  // applyCoupon khud preview API se re-validate kar lega (naye items
+                  // ke against), koi discount value manually pass karne ki zaroorat nahi
+                  if (couponVm.hasCouponApplied && couponVm.appliedCoupon != null) {
+                    checkoutVm.applyCoupon(couponVm.appliedCoupon!.code);
+                  }
+
+                  Navigator.pushNamed(context, RouteName.checkoutAddress);
                 },
               ),
-            ),
-          ],
+            ),          ],
         ),
       ),
     );

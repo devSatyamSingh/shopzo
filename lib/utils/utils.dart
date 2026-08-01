@@ -181,54 +181,122 @@ class AppUtils {
         String confirmText = 'Yes',
         String cancelText = 'Cancel',
         bool isDestructive = false,
+        IconData? icon,
       }) async {
+    final Color accentColor = isDestructive ? ColorConstant.errorColor : ColorConstant.primaryColor;
+    final IconData resolvedIcon = icon ?? (isDestructive ? Icons.delete_outline_rounded : Icons.help_outline_rounded);
+
     final result = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: TextContext(
-          text: title,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: ColorConstant.headlineTextColor,
-        ),
-        content: TextContext(
-          text: message,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: ColorConstant.labelTextColor,
-          height: 1.4,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: TextContext(
-              text: cancelText,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: ColorConstant.labelTextColor,
-            ),
+      barrierColor: Colors.black.withOpacity(0.45),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 18),
+          decoration: BoxDecoration(
+            color: ColorConstant.whiteColor,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: ColorConstant.blackColor.withOpacity(.16),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: TextContext(
-              text: confirmText,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isDestructive
-                  ? ColorConstant.errorColor
-                  : ColorConstant.primaryColor,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ---- Icon badge ----
+              Container(
+                height: 56,
+                width: 56,
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(.12),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(resolvedIcon, color: accentColor, size: 28),
+              ),
+              const SizedBox(height: 16),
+
+              // ---- Title ----
+              TextContext(
+                text: title,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: ColorConstant.headlineTextColor,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              // ---- Message ----
+              TextContext(
+                text: message,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w400,
+                color: ColorConstant.labelTextColor,
+                height: 1.45,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
+
+              // ---- Actions ----
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => Navigator.pop(dialogContext, false),
+                      child: Container(
+                        height: 46,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: ColorConstant.fieldFillColor,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: TextContext(
+                          text: cancelText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.headlineTextColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => Navigator.pop(dialogContext, true),
+                      child: Container(
+                        height: 46,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: accentColor,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: TextContext(
+                          text: confirmText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.whiteColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
     return result ?? false;
   }
 
-  /// ------------------------------------------------------------
-  /// VALIDATORS
-  /// ------------------------------------------------------------
+
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) return 'Email is required';
     final regex = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[\w\-]{2,4}$');
@@ -252,13 +320,11 @@ class AppUtils {
   static String? validatePhone(String? value, {int minLength = 7}) {
     if (value == null || value.trim().isEmpty) return 'Mobile number is required';
     final digits = value.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < minLength) return 'Enter a valid mobile number';
+    if (digits.length < minLength) return 'En ter a valid mobile number';
     return null;
   }
 
-  /// ------------------------------------------------------------
-  /// FORMATTERS
-  /// ------------------------------------------------------------
+
   static String formatCurrency(num amount, {String symbol = '₹'}) {
     final parts = amount.toStringAsFixed(2).split('.');
     final whole = parts[0].replaceAllMapped(

@@ -1,598 +1,293 @@
-// lib/view/review/review_rating_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
-import '../../res/button_context.dart';
+import '../../utils/app_storage.dart';
+import '../../viewmodel/review_viewmodel.dart';
 
-class ReviewRatingScreen extends StatefulWidget {
-  const ReviewRatingScreen({super.key});
-
-  @override
-  State<ReviewRatingScreen> createState() => _ReviewRatingScreenState();
+/// Order Detail screen ke andar se call karo:
+///   showReviewBottomSheet(context, productId: item.productId, productName: item.displayName);
+void showReviewBottomSheet(BuildContext context, {required String productId, required String productName}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => ChangeNotifierProvider.value(
+      value: context.read<ReviewViewModel>(),
+      child: _ReviewSheetContent(productId: productId, productName: productName),
+    ),
+  );
 }
 
-class _ReviewRatingScreenState extends State<ReviewRatingScreen> {
-  double _rating = 0;
-  int _hoveredRating = 0;
-  final List<String> _selectedFeatures = [];
-  final TextEditingController _reviewController = TextEditingController();
-  final List<XFile> _selectedImages = [];
-  final ImagePicker _imagePicker = ImagePicker();
+class _ReviewSheetContent extends StatefulWidget {
+  final String productId;
+  final String productName;
+  const _ReviewSheetContent({required this.productId, required this.productName});
 
-  final List<Map<String, dynamic>> _features = [
-    {'icon': Icons.high_quality_outlined, 'label': 'Quality Material'},
-    {'icon': Icons.local_shipping_rounded, 'label': 'Fast Delivery'},
-    {'icon': Icons.check_circle_rounded, 'label': 'Perfect Fit'},
-    {'icon': Icons.attach_money_rounded, 'label': 'Value for Money'},
-    {'icon': Icons.star_rounded, 'label': 'Premium Feel'},
-  ];
+  @override
+  State<_ReviewSheetContent> createState() => _ReviewSheetContentState();
+}
+
+class _ReviewSheetContentState extends State<_ReviewSheetContent> {
+  double _rating = 0;
+  final TextEditingController _commentController = TextEditingController();
+  final List<XFile> _images = [];
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReviewViewModel>().fetchReviews(widget.productId);
+    });
+  }
 
   @override
   void dispose() {
-    _reviewController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
   Future<void> _pickImages() async {
-    if (_selectedImages.length >= 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Maximum 5 images allowed'),
-          backgroundColor: ColorConstant.errorColor,
-        ),
-      );
-      return;
-    }
-
-    try {
-      final List<XFile> images = await _imagePicker.pickMultiImage(
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-      );
-
-      if (images.isNotEmpty) {
-        setState(() {
-          _selectedImages.addAll(images);
-        });
-      }
-    } catch (e) {
-      // Handle error
-    }
+    if (_images.length >= 5) return;
+    final picked = await _picker.pickMultiImage(maxWidth: 1024, maxHeight: 1024, imageQuality: 80);
+    if (picked.isNotEmpty) setState(() => _images.addAll(picked.take(5 - _images.length)));
   }
 
-  Future<void> _takePhoto() async {
-    if (_selectedImages.length >= 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Maximum 5 images allowed'),
-          backgroundColor: ColorConstant.errorColor,
-        ),
-      );
-      return;
-    }
-
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 80,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImages.add(image);
-        });
-      }
-    } catch (e) {
-      // Handle error
-    }
-  }
-
-  void _removeImage(int index) {
-    setState(() {
-      _selectedImages.removeAt(index);
-    });
-  }
-
-  void _toggleFeature(String feature) {
-    setState(() {
-      if (_selectedFeatures.contains(feature)) {
-        _selectedFeatures.remove(feature);
-      } else {
-        _selectedFeatures.add(feature);
-      }
-    });
-  }
-
-  void _submitReview() {
+  Future<void> _submit() async {
     if (_rating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please rate the product'),
-          backgroundColor: ColorConstant.errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please rate the product'), backgroundColor: ColorConstant.errorColor));
       return;
     }
-
-    if (_reviewController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please write a review'),
-          backgroundColor: ColorConstant.errorColor,
-        ),
-      );
-      return;
-    }
-
-    // Submit review logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Review submitted successfully!'),
-        backgroundColor: ColorConstant.successColor,
-      ),
+    final vm = context.read<ReviewViewModel>();
+    final ok = await vm.submitReview(
+      productId: widget.productId,
+      rating: _rating.toInt(),
+      comment: _commentController.text.trim(),
+      images: _images.map((x) => File(x.path)).toList(),
     );
 
-    // Navigate back after submission
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context);
-    });
+    if (!mounted) return;
+
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Review submitted! It'll be visible once approved."), backgroundColor: ColorConstant.successColor),
+      );
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(vm.submitError ?? 'Failed to submit review'), backgroundColor: ColorConstant.errorColor),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final currentCustomerId = AppStorage.getCustomer()?['id']?.toString();
+    return Consumer<ReviewViewModel>(
+      builder: (context, vm, _) {
+        final alreadyReviewed = vm.hasUserReviewed(widget.productId, currentCustomerId);
+        final pending = vm.isPendingApproval(widget.productId);
 
-    return Scaffold(
-      backgroundColor: ColorConstant.scaffoldBgColor,
-      appBar: AppBar(
-        backgroundColor: ColorConstant.whiteColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.close_rounded,
-              color: ColorConstant.headlineTextColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: TextContext(
-          text: 'Rate your Experience',
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: ColorConstant.headlineTextColor,
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: size.width * 0.06,
-          vertical: size.height * 0.02,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ---------------- Verified Purchase Badge ----------------
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: ColorConstant.successColor.withOpacity(.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(color: ColorConstant.whiteColor, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
                 children: [
-                  Icon(Icons.verified_rounded,
-                      color: ColorConstant.successColor, size: 16),
-                  const SizedBox(width: 6),
-                  TextContext(
-                    text: 'VERIFIED PURCHASE',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: ColorConstant.successColor,
-                  ),
-                ],
-              ),
-            ),
+                  Center(child: Container(height: 4, width: 40, decoration: BoxDecoration(color: ColorConstant.borderColor, borderRadius: BorderRadius.circular(10)))),
+                  const SizedBox(height: 16),
+                  TextContext(text: widget.productName, fontSize: 16, fontWeight: FontWeight.w700, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 16),
 
-            SizedBox(height: size.height * 0.012),
-
-            // ---------------- Product Info ----------------
-            Row(
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: ColorConstant.fieldFillColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(Icons.watch_rounded,
-                      color: ColorConstant.placeholderColor, size: 28),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextContext(
-                        text: 'Vanguard Chrono - Silver Edition',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.headlineTextColor,
+                  if (pending || alreadyReviewed) ...[
+                    _buildPendingOrDoneBanner(pending),
+                    const SizedBox(height: 16),
+                  ] else ...[
+                    const TextContext(text: 'How would you rate this product?', fontSize: 14.5, fontWeight: FontWeight.w600),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(5, (i) {
+                          final starIndex = i + 1;
+                          return GestureDetector(
+                            onTap: () => setState(() => _rating = starIndex.toDouble()),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(
+                                _rating >= starIndex ? Icons.star_rounded : Icons.star_border_rounded,
+                                size: 38,
+                                color: _rating >= starIndex ? ColorConstant.ratingStarColor : ColorConstant.borderColor,
+                              ),
+                            ),
+                          );
+                        }),
                       ),
-                      TextContext(
-                        text: 'Delivered on Oct 24, 2023',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: ColorConstant.labelTextColor,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: size.height * 0.025),
-
-            // ---------------- Rating Section ----------------
-            TextContext(
-              text: 'How would you rate this product?',
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.headlineTextColor,
-            ),
-
-            SizedBox(height: size.height * 0.015),
-
-            // Rating Stars
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  final starIndex = index + 1;
-                  return GestureDetector(
-                    onTap: () => setState(() => _rating = starIndex.toDouble()),
-                    child: MouseRegion(
-                      onEnter: (_) => setState(() => _hoveredRating = starIndex),
-                      onExit: (_) => setState(() => _hoveredRating = 0),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(
-                          _rating >= starIndex || _hoveredRating >= starIndex
-                              ? Icons.star_rounded
-                              : Icons.star_border_rounded,
-                          size: 42,
-                          color: _rating >= starIndex || _hoveredRating >= starIndex
-                              ? ColorConstant.ratingStarColor
-                              : ColorConstant.borderColor,
+                    ),
+                    const SizedBox(height: 16),
+                    const TextContext(text: 'Write your review', fontSize: 14.5, fontWeight: FontWeight.w600),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(14), border: Border.all(color: ColorConstant.borderColor)),
+                      child: TextField(
+                        controller: _commentController,
+                        maxLines: 4,
+                        maxLength: 500,
+                        style: const TextStyle(fontFamily: 'Poppins', fontSize: 13.5),
+                        decoration: const InputDecoration(
+                          hintText: 'Share your experience...',
+                          hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: ColorConstant.placeholderColor),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(14),
+                          counterText: '',
                         ),
                       ),
                     ),
-                  );
-                }),
-              ),
-            ),
-
-            // Rating Label
-            Center(
-              child: TextContext(
-                text: _getRatingLabel(_rating),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: _rating > 0
-                    ? ColorConstant.primaryColor
-                    : ColorConstant.placeholderColor,
-              ),
-            ),
-
-            SizedBox(height: size.height * 0.025),
-
-            // ---------------- Features Section ----------------
-            TextContext(
-              text: 'What did you like most?',
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.headlineTextColor,
-            ),
-
-            SizedBox(height: size.height * 0.012),
-
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _features.map((feature) {
-                final isSelected = _selectedFeatures.contains(feature['label']);
-                return GestureDetector(
-                  onTap: () => _toggleFeature(feature['label']),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? ColorConstant.primaryColor
-                          : ColorConstant.whiteColor,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: isSelected
-                            ? ColorConstant.primaryColor
-                            : ColorConstant.borderColor,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          feature['icon'] as IconData,
-                          size: 16,
-                          color: isSelected
-                              ? Colors.white
-                              : ColorConstant.bodyTextColor,
-                        ),
-                        const SizedBox(width: 6),
-                        TextContext(
-                          text: feature['label'] as String,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? Colors.white
-                              : ColorConstant.bodyTextColor,
-                        ),
+                        const TextContext(text: 'Add Photos', fontSize: 14.5, fontWeight: FontWeight.w600),
+                        TextContext(text: '${_images.length}/5', fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.placeholderColor),
                       ],
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-
-            SizedBox(height: size.height * 0.025),
-
-            // ---------------- Review Text Area ----------------
-            TextContext(
-              text: 'Tell us more',
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.headlineTextColor,
-            ),
-
-            SizedBox(height: size.height * 0.012),
-
-            Container(
-              decoration: BoxDecoration(
-                color: ColorConstant.whiteColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: ColorConstant.borderColor),
-              ),
-              child: TextField(
-                controller: _reviewController,
-                maxLines: 4,
-                maxLength: 500,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  color: ColorConstant.headlineTextColor,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Write your detailed review here...',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    color: ColorConstant.placeholderColor,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                  counterText: '',
-                ),
-              ),
-            ),
-
-            SizedBox(height: size.height * 0.02),
-
-            // ---------------- Add Photos/Videos ----------------
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextContext(
-                  text: 'Add Photos/Videos',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: ColorConstant.headlineTextColor,
-                ),
-                TextContext(
-                  text: '${_selectedImages.length}/5',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: ColorConstant.placeholderColor,
-                ),
-              ],
-            ),
-
-            SizedBox(height: size.height * 0.012),
-
-            // Image Grid with Add More and Camera options
-            if (_selectedImages.isNotEmpty)
-              SizedBox(
-                height: size.height * 0.15,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _selectedImages.length +
-                      (_selectedImages.length < 5 ? 1 : 0) +
-                      (_selectedImages.length < 5 ? 1 : 0), // Always show both options if less than 5
-                  separatorBuilder: (_, __) => SizedBox(width: size.width * 0.03),
-                  itemBuilder: (context, index) {
-                    // Show images first
-                    if (index < _selectedImages.length) {
-                      return _buildImageCard(index, size);
-                    }
-
-                    // Calculate which option button to show
-                    final buttonIndex = index - _selectedImages.length;
-
-                    if (buttonIndex == 0) {
-                      return _buildAddPhotoButton(size);
-                    } else if (buttonIndex == 1) {
-                      return _buildCameraButton(size);
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-              )
-            else
-            // Empty state - Show both add buttons
-              SizedBox(
-                height: size.height * 0.12,
-                child: Row(
-                  children: [
-                    _buildAddPhotoButton(size),
-                    SizedBox(width: size.width * 0.03),
-                    _buildCameraButton(size),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 78,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          for (int i = 0; i < _images.length; i++) _buildImageThumb(i),
+                          if (_images.length < 5) _buildAddPhotoButton(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      text: vm.isSubmitting ? 'Submitting...' : 'Submit Review',
+                      onTap: vm.isSubmitting ? null : _submit,
+                      icon: vm.isSubmitting ? null : Icons.send_rounded,
+                    ),
+                    const SizedBox(height: 20),
                   ],
-                ),
+
+                  const Divider(color: ColorConstant.dividerColor),
+                  const SizedBox(height: 10),
+                  TextContext(text: 'Reviews (${vm.reviewsFor(widget.productId).length})', fontSize: 14.5, fontWeight: FontWeight.w600),
+                  const SizedBox(height: 10),
+
+                  if (vm.isLoading)
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor)))
+                  else if (vm.reviewsFor(widget.productId).isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: TextContext(text: 'No reviews yet. Be the first to review!', fontSize: 13, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+                    )
+                  else
+                    for (final review in vm.reviewsFor(widget.productId)) _buildReviewTile(review),
+                ],
               ),
+            );
+          },
+        );
+      },
+    );
+  }
 
-            SizedBox(height: size.height * 0.03),
-
-            // ---------------- Submit Button ----------------
-            CustomButton(
-              text: 'Submit Review',
-              onTap: _submitReview,
-              color: ColorConstant.primaryColor,
-              icon: Icons.send_rounded,
-              iconColor: ColorConstant.whiteColor,
+  Widget _buildPendingOrDoneBanner(bool pending) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: (pending ? ColorConstant.orangeColor : ColorConstant.successColor).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(pending ? Icons.hourglass_top_rounded : Icons.check_circle_rounded,
+              color: pending ? ColorConstant.orangeColor : ColorConstant.successColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextContext(
+              text: pending
+                  ? "Your review has been submitted and is awaiting approval. It'll appear here once approved."
+                  : "You've already reviewed this product.",
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              color: pending ? ColorConstant.orangeColor : ColorConstant.successColor,
             ),
-
-            SizedBox(height: size.height * 0.02),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildImageCard(int index, Size size) {
-    return Stack(
-      children: [
-        Container(
-          height: size.height * 0.15,
-          width: size.height * 0.15,
-          decoration: BoxDecoration(
-            color: ColorConstant.fieldFillColor,
-            borderRadius: BorderRadius.circular(16),
-            image: DecorationImage(
-              image: FileImage(File(_selectedImages[index].path)),
-              fit: BoxFit.cover,
-            ),
+  Widget _buildImageThumb(int index) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(File(_images[index].path), height: 70, width: 70, fit: BoxFit.cover),
           ),
-        ),
-        Positioned(
-          top: 4,
-          right: 4,
-          child: GestureDetector(
-            onTap: () => _removeImage(index),
-            child: Container(
-              height: 24,
-              width: 24,
-              decoration: const BoxDecoration(
-                color: Colors.black54,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.close_rounded,
-                color: Colors.white,
-                size: 14,
+          Positioned(
+            top: 2, right: 2,
+            child: GestureDetector(
+              onTap: () => setState(() => _images.removeAt(index)),
+              child: Container(
+                height: 20, width: 20,
+                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: const Icon(Icons.close_rounded, color: Colors.white, size: 12),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildAddPhotoButton(Size size) {
+  Widget _buildAddPhotoButton() {
     return GestureDetector(
       onTap: _pickImages,
       child: Container(
-        height: size.height * 0.15,
-        width: size.height * 0.15,
-        decoration: BoxDecoration(
-          color: ColorConstant.whiteColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: ColorConstant.borderColor,
-            style: BorderStyle.solid,
-          ),
-        ),
+        height: 70, width: 70,
+        decoration: BoxDecoration(color: ColorConstant.whiteColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: ColorConstant.borderColor)),
         alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_photo_alternate_rounded,
-              color: ColorConstant.primaryColor,
-              size: 32,
-            ),
-            const SizedBox(height: 4),
-            TextContext(
-              text: 'Add Photos',
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: ColorConstant.primaryColor,
-            ),
-          ],
-        ),
+        child: const Icon(Icons.add_photo_alternate_rounded, color: ColorConstant.primaryColor, size: 26),
       ),
     );
   }
 
-  Widget _buildCameraButton(Size size) {
-    return GestureDetector(
-      onTap: _takePhoto,
-      child: Container(
-        height: size.height * 0.15,
-        width: size.height * 0.15,
-        decoration: BoxDecoration(
-          color: ColorConstant.whiteColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: ColorConstant.borderColor,
-            style: BorderStyle.solid,
+  Widget _buildReviewTile(review) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TextContext(text: review.customerName, fontSize: 13, fontWeight: FontWeight.w600),
+              const SizedBox(width: 8),
+              Row(children: List.generate(5, (i) => Icon(i < review.rating ? Icons.star_rounded : Icons.star_border_rounded, size: 14, color: ColorConstant.ratingStarColor))),
+            ],
           ),
-        ),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.camera_alt_rounded,
-              color: ColorConstant.primaryColor,
-              size: 32,
-            ),
+          if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
             const SizedBox(height: 4),
-            TextContext(
-              text: 'Camera',
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: ColorConstant.primaryColor,
-            ),
+            TextContext(text: review.comment!, fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
           ],
-        ),
+        ],
       ),
     );
-  }
-
-  String _getRatingLabel(double rating) {
-    if (rating == 0) return 'Tap to rate';
-    if (rating == 1) return 'Poor';
-    if (rating == 2) return 'Fair';
-    if (rating == 3) return 'Good';
-    if (rating == 4) return 'Very Good';
-    return 'Excellent';
   }
 }
