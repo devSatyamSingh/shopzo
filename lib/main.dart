@@ -6,15 +6,18 @@ import 'package:shopzo/utils/utils.dart';
 import 'package:shopzo/viewmodel/address/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
 import 'package:shopzo/viewmodel/address/address_viewmodel.dart';
-import 'package:shopzo/viewmodel/cart_viewmodel.dart';
+import 'package:shopzo/viewmodel/banner_viewmodel.dart';
+import 'package:shopzo/viewmodel/best_seller_viewmodel.dart';
+import 'package:shopzo/viewmodel/cart/cart_viewmodel.dart';
 import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
-import 'package:shopzo/viewmodel/coupon_viewmodel.dart';
-import 'package:shopzo/viewmodel/order_checkout_viewmodel.dart';
-import 'package:shopzo/viewmodel/orderlist_viewmodel.dart';
+import 'package:shopzo/viewmodel/coupon/coupon_viewmodel.dart';
+import 'package:shopzo/viewmodel/order_checkout/order_checkout_viewmodel.dart';
+import 'package:shopzo/viewmodel/orderview/orderlist_viewmodel.dart';
 import 'package:shopzo/viewmodel/product/product_viewmodel.dart';
-import 'package:shopzo/viewmodel/product_details_viewmodel.dart';
-import 'package:shopzo/viewmodel/product_list_viewmodel.dart';
-import 'package:shopzo/viewmodel/review_viewmodel.dart';
+import 'package:shopzo/viewmodel/productdetails_and_list/product_details_viewmodel.dart';
+import 'package:shopzo/viewmodel/productdetails_and_list/product_list_viewmodel.dart';
+import 'package:shopzo/viewmodel/review/review_viewmodel.dart';
+import 'package:shopzo/viewmodel/top_pick_viewmodel.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -38,12 +41,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryViewModel()),
         ChangeNotifierProvider(create: (_) => ProductListViewModel()),
         ChangeNotifierProvider(create: (_) => ProductDetailViewModel()),
-        ChangeNotifierProvider(create: (_) => ProductViewModel()),
+        ChangeNotifierProvider(create: (_) => CategoryProductViewModel()),
         ChangeNotifierProvider(create: (_) => CartViewModel()),
         ChangeNotifierProvider(create: (_) => CouponViewModel()),
         ChangeNotifierProvider(create: (_) => CheckoutViewModel()),
         ChangeNotifierProvider(create: (_) => OrderViewModel()),
         ChangeNotifierProvider(create: (_) => ReviewViewModel()),
+        ChangeNotifierProvider(create: (_) => BannerViewModel()),
+        ChangeNotifierProvider(create: (_) => BestSellerViewModel()),
+        ChangeNotifierProvider(create: (_) => TopPicksViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",
@@ -75,10 +81,6 @@ class MyApp extends StatelessWidget {
 
         initialRoute: RouteName.splash,
         onGenerateRoute: AppRoutes.generateRoute,
-
-        // This is what makes the No-Internet screen appear on top of
-        // whichever screen the user is currently on, without losing
-        // that screen's state (form data, scroll position, etc.).
         builder: (context, child) {
           return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
         },

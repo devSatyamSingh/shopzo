@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/product_by_category/product_model.dart';
+import '../../model/product_by_category/category_product_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
@@ -26,8 +26,8 @@ class CategoryProductListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ProductViewModel>(
-      create: (_) => ProductViewModel()..fetchProducts(categoryId: categoryId),
+    return ChangeNotifierProvider<CategoryProductViewModel>(
+      create: (_) => CategoryProductViewModel()..fetchProducts(categoryId: categoryId),
       child: _CategoryProductListView(categoryName: categoryName),
     );
   }
@@ -55,7 +55,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
     final nearBottom =
         _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300;
     if (nearBottom) {
-      context.read<ProductViewModel>().loadMore();
+      context.read<CategoryProductViewModel>().loadMore();
     }
   }
 
@@ -66,7 +66,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
     super.dispose();
   }
 
-  void _onProductTap(ProductModel product) {
+  void _onProductTap(CategoryProductModel product) {
     Navigator.pushNamed(
       context,
       RouteName.productDetail,
@@ -93,7 +93,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
         ),
       ),
       body: SafeArea(
-        child: Consumer<ProductViewModel>(
+        child: Consumer<CategoryProductViewModel>(
           builder: (context, viewModel, _) {
             // ---------------- SKELETON (first load) ----------------
             if (viewModel.isLoading && viewModel.products.isEmpty) {
@@ -212,7 +212,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
 }
 
 class _ProductGridCard extends StatelessWidget {
-  final ProductModel product;
+  final CategoryProductModel product;
   final VoidCallback onTap;
 
   const _ProductGridCard({required this.product, required this.onTap});

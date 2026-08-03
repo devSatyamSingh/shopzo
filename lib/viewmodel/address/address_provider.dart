@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../model/address_model.dart';
+import '../../model/address/address_model.dart';
 
 /// Shopzo — holds whichever address is currently selected for delivery,
 /// shown in HomeAppBar ("Deliver to ..."). Separate from AddressViewModel

@@ -1,4 +1,3 @@
-/// Shopzo — customer object returned by register/login APIs.
 class CustomerModel {
   final String id;
   final String name;

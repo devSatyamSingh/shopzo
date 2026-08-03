@@ -9,10 +9,6 @@ import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
 
-/// Shopzo — Edit Profile screen.
-/// Opened from ProfileInformationScreen. Avatar picker (camera/gallery
-/// via ImageUploadHelper) + form fields built from the res/ reusable
-/// widgets, with validation and a sticky "Save Changes" button.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -68,8 +64,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isSaving = true);
 
     // TODO: call your update-profile API here, e.g.
-    // await profileRepo.updateProfile(name: ..., email: ..., phone: ...,
-    //   dob: ..., gender: _selectedGender, avatar: _pickedAvatar);
     await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;

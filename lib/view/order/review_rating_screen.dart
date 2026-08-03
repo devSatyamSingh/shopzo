@@ -6,10 +6,9 @@ import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../utils/app_storage.dart';
-import '../../viewmodel/review_viewmodel.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/review/review_viewmodel.dart';
 
-/// Order Detail screen ke andar se call karo:
-///   showReviewBottomSheet(context, productId: item.productId, productName: item.displayName);
 void showReviewBottomSheet(BuildContext context, {required String productId, required String productName}) {
   showModalBottomSheet(
     context: context,
@@ -36,6 +35,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
   final TextEditingController _commentController = TextEditingController();
   final List<XFile> _images = [];
   final ImagePicker _picker = ImagePicker();
+  String? _localError;
 
   @override
   void initState() {
@@ -59,9 +59,11 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
 
   Future<void> _submit() async {
     if (_rating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please rate the product'), backgroundColor: ColorConstant.errorColor));
+      setState(() => _localError = 'Please rate the product before submitting');
       return;
     }
+    setState(() => _localError = null);
+
     final vm = context.read<ReviewViewModel>();
     final ok = await vm.submitReview(
       productId: widget.productId,
@@ -73,17 +75,14 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
     if (!mounted) return;
 
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Review submitted! It'll be visible once approved."), backgroundColor: ColorConstant.successColor),
-      );
       Navigator.of(context).pop();
+      AppUtils.success(null, "It'll be visible once approved.", title: "Review Submitted!");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(vm.submitError ?? 'Failed to submit review'), backgroundColor: ColorConstant.errorColor),
-      );
+      // backend ka exact message yaha inline dikhega — bottomsheet ke andar,
+      // SnackBar ki tarah peeche nahi chhupega
+      setState(() => _localError = vm.submitError ?? 'Failed to submit review');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final currentCustomerId = AppStorage.getCustomer()?['id']?.toString();
@@ -173,6 +172,33 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    if (_localError != null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: ColorConstant.errorColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: ColorConstant.errorColor.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.error_outline_rounded, color: ColorConstant.errorColor, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextContext(
+                                text: _localError!,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                                color: ColorConstant.errorColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
                     CustomButton(
                       text: vm.isSubmitting ? 'Submitting...' : 'Submit Review',
                       onTap: vm.isSubmitting ? null : _submit,
@@ -270,6 +296,8 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
   }
 
   Widget _buildReviewTile(review) {
+    final List<String> images = (review.images as List?)?.cast<String>() ?? [];
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -286,6 +314,146 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
             const SizedBox(height: 4),
             TextContext(text: review.comment!, fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
           ],
+          if (images.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 64,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: images.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  return GestureDetector(
+                    onTap: () => _openFullScreenGallery(context, images, i),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        images[i],
+                        height: 64,
+                        width: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 64,
+                          width: 64,
+                          color: ColorConstant.fieldFillColor,
+                          child: const Icon(Icons.image_not_supported_outlined, size: 18, color: ColorConstant.placeholderColor),
+                        ),
+                        loadingBuilder: (context, child, progress) => progress == null
+                            ? child
+                            : Container(
+                          height: 64,
+                          width: 64,
+                          color: ColorConstant.fieldFillColor,
+                          alignment: Alignment.center,
+                          child: const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _openFullScreenGallery(BuildContext context, List<String> images, int initialIndex) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (_, __, ___) => _FullScreenImageViewer(images: images, initialIndex: initialIndex),
+      ),
+    );
+  }}
+
+class _FullScreenImageViewer extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+  const _FullScreenImageViewer({required this.images, required this.initialIndex});
+
+  @override
+  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
+  late final PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.images.length,
+            onPageChanged: (i) => setState(() => _currentIndex = i),
+            itemBuilder: (context, index) {
+              return InteractiveViewer(
+                minScale: 1,
+                maxScale: 4,
+                child: Center(
+                  child: Image.network(
+                    widget.images[index],
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported_outlined, color: Colors.white54, size: 48),
+                    loadingBuilder: (context, child, progress) => progress == null
+                        ? child
+                        : const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  ),
+                ),
+              );
+            },
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (widget.images.length > 1)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20)),
+                      child: Text(
+                        '${_currentIndex + 1} / ${widget.images.length}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
+                      ),
+                    )
+                  else
+                    const SizedBox.shrink(),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      height: 36,
+                      width: 36,
+                      decoration: const BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

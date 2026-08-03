@@ -5,11 +5,11 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
-import '../../model/cart_model.dart';
-import '../../viewmodel/cart_viewmodel.dart';
-import '../../viewmodel/coupon_viewmodel.dart';
-import '../../viewmodel/order_checkout_viewmodel.dart';
-import '../account/coupons_screen.dart'; // CouponsScreen + CouponApplyResult
+import '../../model/cart/cart_model.dart';
+import '../../viewmodel/cart/cart_viewmodel.dart';
+import '../../viewmodel/coupon/coupon_viewmodel.dart';
+import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
+import '../account/coupons_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -19,15 +19,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // ---- Item selection state (which lines proceed to checkout) ----
   final Set<String> _selectedItemIds = {};
   Set<String> _knownItemIds = {};
-
   final TextEditingController _couponController = TextEditingController();
-
-  // Prevents scheduling multiple coupon-invalidation callbacks for the
-  // same drift event (build() can run several times before the first
-  // post-frame callback fires).
   bool _invalidationScheduled = false;
 
   @override
@@ -44,10 +38,6 @@ class _CartScreenState extends State<CartScreen> {
     super.dispose();
   }
 
-  /// Keeps _selectedItemIds in sync with the live cart:
-  ///  - newly-seen items (first load, or items just added) get
-  ///    auto-selected by default
-  ///  - items removed from the cart get dropped from the selection
   void _syncSelection(CartViewModel vm) {
     final currentIds = vm.cart.items
         .where((i) => !i.isUnavailable)
@@ -71,11 +61,6 @@ class _CartScreenState extends State<CartScreen> {
   double _selectedSubtotal(CartViewModel vm) =>
       _selectedItems(vm).fold(0.0, (sum, item) => sum + item.lineTotal);
 
-  /// The discount that is SAFE to show right now. Even if the coupon
-  /// object hasn't been cleared from CouponViewModel yet (invalidation
-  /// runs one frame later via addPostFrameCallback), this guarantees the
-  /// UI never displays a discount that doesn't match the current
-  /// selection — no negative totals, no stale numbers, ever.
   double _effectiveDiscount(CartViewModel vm, CouponViewModel couponVm) {
     if (!couponVm.hasCouponApplied) return 0;
     final currentSubtotal = _selectedSubtotal(vm);
@@ -86,11 +71,6 @@ class _CartScreenState extends State<CartScreen> {
     }
     return couponVm.discount;
   }
-
-  /// Runs once per drift event: if the coupon's applied-subtotal no
-  /// longer matches the currently-selected subtotal (item removed,
-  /// checkbox unselected, quantity changed, cart refreshed from server —
-  /// any reason at all), the coupon is stale. Drop it and tell the user.
   void _guardCouponValidity(CartViewModel vm, CouponViewModel couponVm) {
     if (!couponVm.hasCouponApplied || couponVm.appliedSubtotal == null) return;
     final currentSubtotal = _selectedSubtotal(vm);
@@ -103,19 +83,19 @@ class _CartScreenState extends State<CartScreen> {
         _invalidationScheduled = false;
         if (!mounted) return;
         couponVm.removeCoupon();
-        AppUtils.warning(context, "Coupon removed — your cart selection changed");
+        AppUtils.warning(
+          context,
+          "Coupon removed — your cart selection changed",
+        );
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // CouponViewModel scoped to this screen only.
     return ChangeNotifierProvider<CouponViewModel>(
       create: (_) => CouponViewModel(),
-      child: Builder(
-        builder: (context) => _buildScaffold(context),
-      ),
+      child: Builder(builder: (context) => _buildScaffold(context)),
     );
   }
 
@@ -145,11 +125,16 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  /// ---------------- BODY SWITCH: loading / error / empty / content ----------------
   Widget _buildBody(
-      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    BuildContext context,
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+  ) {
     if (vm.isLoading && !vm.hasLoadedOnce) {
-      return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
+      return const Center(
+        child: CircularProgressIndicator(color: ColorConstant.primaryColor),
+      );
     }
 
     if (vm.isError && !vm.hasLoadedOnce) {
@@ -166,22 +151,28 @@ class _CartScreenState extends State<CartScreen> {
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
-          horizontal: size.width * 0.045,
-          vertical: size.height * 0.018,
+          horizontal: size.width * 0.04,
+          vertical: size.height * 0.01,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildAddressStrip(size),
-            SizedBox(height: size.height * 0.02),
+            // _buildAddressStrip(size),
+            // SizedBox(height: size.height * 0.02),
             _buildSelectAllRow(size, vm, couponVm),
             SizedBox(height: size.height * 0.01),
             for (final item in vm.cart.items) ...[
               _buildCartItemCard(context, size, vm, couponVm, item),
               if (item.isLowStock && !item.isUnavailable)
-                _buildLowStockBanner(size, "Only ${item.availableStock} left in stock — order soon"),
+                _buildLowStockBanner(
+                  size,
+                  "Only ${item.availableStock} left in stock — order soon",
+                ),
               if (!item.inStockEnough && !item.isUnavailable)
-                _buildLowStockBanner(size, "Only ${item.availableStock} available. Reduce quantity to continue."),
+                _buildLowStockBanner(
+                  size,
+                  "Only ${item.availableStock} available. Reduce quantity to continue.",
+                ),
               SizedBox(height: size.height * 0.018),
             ],
             SizedBox(height: size.height * 0.006),
@@ -239,8 +230,11 @@ class _CartScreenState extends State<CartScreen> {
               onTap: () => _confirmClearCart(context, vm),
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.delete_outline_rounded,
-                    color: ColorConstant.errorColor, size: 22),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: ColorConstant.errorColor,
+                  size: 22,
+                ),
               ),
             ),
         ],
@@ -249,13 +243,23 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- SELECT ALL ROW ----------------
-  Widget _buildSelectAllRow(Size size, CartViewModel vm, CouponViewModel couponVm) {
-    final selectableItems = vm.cart.items.where((i) => !i.isUnavailable).toList();
+  Widget _buildSelectAllRow(
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+  ) {
+    final selectableItems = vm.cart.items
+        .where((i) => !i.isUnavailable)
+        .toList();
     final bool allSelected =
-        selectableItems.isNotEmpty && selectableItems.every((i) => _selectedItemIds.contains(i.id));
+        selectableItems.isNotEmpty &&
+        selectableItems.every((i) => _selectedItemIds.contains(i.id));
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.02, vertical: size.height * 0.006),
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width * 0.02,
+        vertical: size.height * 0.001,
+      ),
       child: Row(
         children: [
           Checkbox(
@@ -264,20 +268,23 @@ class _CartScreenState extends State<CartScreen> {
             onChanged: selectableItems.isEmpty
                 ? null
                 : (checked) {
-              setState(() {
-                if (checked == true) {
-                  _selectedItemIds.addAll(selectableItems.map((e) => e.id));
-                } else {
-                  _selectedItemIds.clear();
-                }
-              });
-              // Selection just changed the total — the coupon guard in
-              // build() will pick this up on the next frame and drop
-              // the coupon automatically if it no longer matches.
-            },
+                    setState(() {
+                      if (checked == true) {
+                        _selectedItemIds.addAll(
+                          selectableItems.map((e) => e.id),
+                        );
+                      } else {
+                        _selectedItemIds.clear();
+                      }
+                    });
+                    // Selection just changed the total — the coupon guard in
+                    // build() will pick this up on the next frame and drop
+                    // the coupon automatically if it no longer matches.
+                  },
           ),
           TextContext(
-            text: "Select All (${_selectedItemIds.length}/${selectableItems.length})",
+            text:
+                "Select All (${_selectedItemIds.length}/${selectableItems.length})",
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: ColorConstant.headlineTextColor,
@@ -303,8 +310,11 @@ class _CartScreenState extends State<CartScreen> {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.shopping_cart_outlined,
-                  color: ColorConstant.primaryColor, size: 46),
+              child: const Icon(
+                Icons.shopping_cart_outlined,
+                color: ColorConstant.primaryColor,
+                size: 46,
+              ),
             ),
             SizedBox(height: size.height * 0.024),
             const TextContext(
@@ -330,7 +340,7 @@ class _CartScreenState extends State<CartScreen> {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   RouteName.home,
-                      (route) => false,
+                  (route) => false,
                 );
               },
             ),
@@ -348,7 +358,11 @@ class _CartScreenState extends State<CartScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, color: ColorConstant.placeholderColor, size: 46),
+            const Icon(
+              Icons.wifi_off_rounded,
+              color: ColorConstant.placeholderColor,
+              size: 46,
+            ),
             SizedBox(height: size.height * 0.02),
             const TextContext(
               text: "Couldn't load your cart",
@@ -357,7 +371,8 @@ class _CartScreenState extends State<CartScreen> {
             ),
             SizedBox(height: size.height * 0.008),
             TextContext(
-              text: vm.errorMessage ?? "Something went wrong. Please try again.",
+              text:
+                  vm.errorMessage ?? "Something went wrong. Please try again.",
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: ColorConstant.labelTextColor,
@@ -377,70 +392,78 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- DELIVERY ADDRESS STRIP ----------------
-  Widget _buildAddressStrip(Size size) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.04,
-        vertical: size.height * 0.016,
-      ),
-      decoration: BoxDecoration(
-        color: ColorConstant.whiteColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorConstant.borderColor),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 36,
-            width: 36,
-            decoration: const BoxDecoration(
-              color: ColorConstant.primaryLight,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: const Icon(Icons.location_on_rounded,
-                color: ColorConstant.primaryColor, size: 18),
-          ),
-          SizedBox(width: size.width * 0.03),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextContext(
-                  text: "DELIVER TO",
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                  color: ColorConstant.placeholderColor,
-                ),
-                SizedBox(height: 2),
-                TextContext(
-                  text: "Select delivery address",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ],
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              // TODO: open address list / picker (RouteName.addressList)
-            },
-            child: const TextContext(
-              text: "Change",
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.primaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildAddressStrip(Size size) {
+  //   return Container(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: size.width * 0.04,
+  //       vertical: size.height * 0.016,
+  //     ),
+  //     decoration: BoxDecoration(
+  //       color: ColorConstant.whiteColor,
+  //       borderRadius: BorderRadius.circular(16),
+  //       border: Border.all(color: ColorConstant.borderColor),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           height: 36,
+  //           width: 36,
+  //           decoration: const BoxDecoration(
+  //             color: ColorConstant.primaryLight,
+  //             shape: BoxShape.circle,
+  //           ),
+  //           alignment: Alignment.center,
+  //           child: const Icon(
+  //             Icons.location_on_rounded,
+  //             color: ColorConstant.primaryColor,
+  //             size: 18,
+  //           ),
+  //         ),
+  //         SizedBox(width: size.width * 0.03),
+  //         const Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               TextContext(
+  //                 text: "DELIVER TO",
+  //                 fontSize: 10.5,
+  //                 fontWeight: FontWeight.w600,
+  //                 letterSpacing: 0.6,
+  //                 color: ColorConstant.placeholderColor,
+  //               ),
+  //               SizedBox(height: 2),
+  //               TextContext(
+  //                 text: "Select delivery address",
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         InkWell(
+  //           onTap: () {
+  //             // TODO: open address list / picker (RouteName.addressList)
+  //           },
+  //           child: const TextContext(
+  //             text: "Change",
+  //             fontSize: 13.5,
+  //             fontWeight: FontWeight.w600,
+  //             color: ColorConstant.primaryColor,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   /// ---------------- CART ITEM CARD ----------------
-  Widget _buildCartItemCard(BuildContext context, Size size, CartViewModel vm,
-      CouponViewModel couponVm, CartItemModel item) {
+  Widget _buildCartItemCard(
+    BuildContext context,
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+    CartItemModel item,
+  ) {
     final bool isUnavailable = item.isUnavailable;
     final bool isUpdating = vm.isItemUpdating(item.id);
     final bool isSelected = _selectedItemIds.contains(item.id);
@@ -453,7 +476,10 @@ class _CartScreenState extends State<CartScreen> {
           color: ColorConstant.whiteColor,
           borderRadius: BorderRadius.circular(18),
           border: isSelected && !isUnavailable
-              ? Border.all(color: ColorConstant.primaryColor.withOpacity(0.4), width: 1.2)
+              ? Border.all(
+                  color: ColorConstant.primaryColor.withOpacity(0.4),
+                  width: 1.2,
+                )
               : null,
           boxShadow: [
             BoxShadow(
@@ -492,20 +518,16 @@ class _CartScreenState extends State<CartScreen> {
                             onChanged: isUnavailable
                                 ? null
                                 : (checked) {
-                              setState(() {
-                                if (checked == true) {
-                                  _selectedItemIds.add(item.id);
-                                } else {
-                                  _selectedItemIds.remove(item.id);
-                                }
-                              });
-                              // Coupon guard in build() re-checks the
-                              // new subtotal on the next frame.
-                            },
+                                    setState(() {
+                                      if (checked == true) {
+                                        _selectedItemIds.add(item.id);
+                                      } else {
+                                        _selectedItemIds.remove(item.id);
+                                      }
+                                    });
+                                  },
                           ),
                         ),
-
-                        // ---- Thumbnail ----
                         Container(
                           height: thumbSize,
                           width: thumbSize,
@@ -516,36 +538,39 @@ class _CartScreenState extends State<CartScreen> {
                           alignment: Alignment.center,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: (item.image != null && item.image!.trim().isNotEmpty)
+                            child:
+                                (item.image != null &&
+                                    item.image!.trim().isNotEmpty)
                                 ? Image.network(
-                              item.image!,
-                              fit: BoxFit.cover,
-                              height: thumbSize,
-                              width: thumbSize,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return const Center(
-                                  child: SizedBox(
-                                    height: 18,
-                                    width: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: ColorConstant.primaryColor,
-                                    ),
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stack) => const Icon(
-                                Icons.image_not_supported_outlined,
-                                color: ColorConstant.placeholderColor,
-                                size: 26,
-                              ),
-                            )
+                                    item.image!,
+                                    fit: BoxFit.cover,
+                                    height: thumbSize,
+                                    width: thumbSize,
+                                    loadingBuilder: (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return const Center(
+                                        child: SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: ColorConstant.primaryColor,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stack) =>
+                                        const Icon(
+                                          Icons.image_not_supported_outlined,
+                                          color: ColorConstant.placeholderColor,
+                                          size: 26,
+                                        ),
+                                  )
                                 : const Icon(
-                              Icons.image_not_supported_outlined,
-                              color: ColorConstant.placeholderColor,
-                              size: 26,
-                            ),
+                                    Icons.image_not_supported_outlined,
+                                    color: ColorConstant.placeholderColor,
+                                    size: 26,
+                                  ),
                           ),
                         ),
                         SizedBox(width: size.width * 0.035),
@@ -565,7 +590,8 @@ class _CartScreenState extends State<CartScreen> {
                                     ? ColorConstant.placeholderColor
                                     : ColorConstant.headlineTextColor,
                               ),
-                              if (item.variantSku != null && item.variantSku!.isNotEmpty) ...[
+                              if (item.variantSku != null &&
+                                  item.variantSku!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 TextContext(
                                   text: item.variantSku!,
@@ -586,14 +612,17 @@ class _CartScreenState extends State<CartScreen> {
                                 Row(
                                   children: [
                                     TextContext(
-                                      text: AppUtils.formatCurrency(item.unitPrice),
+                                      text: AppUtils.formatCurrency(
+                                        item.unitPrice,
+                                      ),
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: ColorConstant.primaryColor,
                                     ),
                                     const SizedBox(width: 8),
                                     TextContext(
-                                      text: "Total: ${AppUtils.formatCurrency(item.lineTotal)}",
+                                      text:
+                                          "Total: ${AppUtils.formatCurrency(item.lineTotal)}",
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: ColorConstant.labelTextColor,
@@ -615,13 +644,18 @@ class _CartScreenState extends State<CartScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          onTap: isUpdating ? null : () => _confirmRemoveItem(context, vm, item),
+                          onTap: isUpdating
+                              ? null
+                              : () => _confirmRemoveItem(context, vm, item),
                           borderRadius: BorderRadius.circular(8),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(Icons.delete_outline_rounded,
-                                  size: 17, color: ColorConstant.errorColor),
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 17,
+                                color: ColorConstant.errorColor,
+                              ),
                               SizedBox(width: 4),
                               TextContext(
                                 text: "Remove",
@@ -635,36 +669,40 @@ class _CartScreenState extends State<CartScreen> {
                         if (!isUnavailable)
                           isUpdating
                               ? const SizedBox(
-                            height: 26,
-                            width: 70,
-                            child: Center(
-                              child: SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: ColorConstant.primaryColor,
-                                ),
-                              ),
-                            ),
-                          )
+                                  height: 26,
+                                  width: 70,
+                                  child: Center(
+                                    child: SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: ColorConstant.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                )
                               : _QuantityStepper(
-                            quantity: item.quantity,
-                            onIncrement: item.quantity < item.availableStock
-                                ? () async {
-                              await vm.incrementQuantity(item, context: context);
-                              // Quantity change moves the subtotal — the
-                              // coupon guard in build() re-checks on the
-                              // next frame and clears a now-stale coupon.
-                            }
-                                : () => AppUtils.warning(
-                              context,
-                              "Only ${item.availableStock} in stock",
-                            ),
-                            onDecrement: () async {
-                              await vm.decrementQuantity(item, context: context);
-                            },
-                          ),
+                                  quantity: item.quantity,
+                                  onIncrement:
+                                      item.quantity < item.availableStock
+                                      ? () async {
+                                          await vm.incrementQuantity(
+                                            item,
+                                            context: context,
+                                          );
+                                        }
+                                      : () => AppUtils.warning(
+                                          context,
+                                          "Only ${item.availableStock} in stock",
+                                        ),
+                                  onDecrement: () async {
+                                    await vm.decrementQuantity(
+                                      item,
+                                      context: context,
+                                    );
+                                  },
+                                ),
                       ],
                     ),
                   ],
@@ -691,7 +729,11 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_rounded, color: ColorConstant.orangeColor, size: 18),
+          const Icon(
+            Icons.error_rounded,
+            color: ColorConstant.orangeColor,
+            size: 18,
+          ),
           SizedBox(width: size.width * 0.02),
           Expanded(
             child: TextContext(
@@ -707,11 +749,18 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   /// ---------------- COUPON APPLY (manual field, above bill) ----------------
-  Widget _buildCouponSection(BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+  Widget _buildCouponSection(
+    BuildContext context,
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+  ) {
     final double selectedSubtotal = _selectedSubtotal(vm);
     final double effectiveDiscount = _effectiveDiscount(vm, couponVm);
-    final bool showAppliedBanner = couponVm.hasCouponApplied && effectiveDiscount > 0;
-    final bool isTypedCodeValidating = couponVm.isValidating &&
+    final bool showAppliedBanner =
+        couponVm.hasCouponApplied && effectiveDiscount > 0;
+    final bool isTypedCodeValidating =
+        couponVm.isValidating &&
         couponVm.validatingCode == _couponController.text.trim().toUpperCase();
 
     return Container(
@@ -736,9 +785,16 @@ class _CartScreenState extends State<CartScreen> {
                 Container(
                   height: 28,
                   width: 28,
-                  decoration: const BoxDecoration(color: ColorConstant.successColor, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                    color: ColorConstant.successColor,
+                    shape: BoxShape.circle,
+                  ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.check_rounded, size: 15, color: Colors.white),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    size: 15,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -752,7 +808,8 @@ class _CartScreenState extends State<CartScreen> {
                         color: ColorConstant.successColor,
                       ),
                       TextContext(
-                        text: "You saved ${AppUtils.formatCurrency(effectiveDiscount)}",
+                        text:
+                            "You saved ${AppUtils.formatCurrency(effectiveDiscount)}",
                         fontSize: 11.5,
                         fontWeight: FontWeight.w400,
                         color: ColorConstant.successColor,
@@ -791,13 +848,22 @@ class _CartScreenState extends State<CartScreen> {
                     child: TextField(
                       controller: _couponController,
                       textCapitalization: TextCapitalization.characters,
-                      enabled: !couponVm.isValidating && _selectedItemIds.isNotEmpty,
-                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
+                      enabled:
+                          !couponVm.isValidating && _selectedItemIds.isNotEmpty,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Poppins",
+                      ),
                       decoration: const InputDecoration(
                         isDense: true,
                         border: InputBorder.none,
                         hintText: "ENTER CODE",
-                        hintStyle: TextStyle(fontSize: 12.5, color: ColorConstant.placeholderColor, fontFamily: "Poppins"),
+                        hintStyle: TextStyle(
+                          fontSize: 12.5,
+                          color: ColorConstant.placeholderColor,
+                          fontFamily: "Poppins",
+                        ),
                       ),
                     ),
                   ),
@@ -814,22 +880,34 @@ class _CartScreenState extends State<CartScreen> {
                     onTap: (couponVm.isValidating || _selectedItemIds.isEmpty)
                         ? null
                         : () async {
-                      final code = _couponController.text.trim();
-                      if (code.isEmpty) {
-                        AppUtils.warning(context, "Please enter a coupon code");
-                        return;
-                      }
-                      final currentSubtotal = _selectedSubtotal(vm);
-                      final ok = await couponVm.applyCoupon(code: code, subtotal: currentSubtotal);
-                      if (!mounted) return;
-                      if (ok) {
-                        AppUtils.success(context, couponVm.validationMessage ?? "Coupon applied");
-                        _couponController.clear();
-                        AppUtils.hideKeyboard(context);
-                      } else {
-                        AppUtils.error(context, couponVm.validationMessage ?? "Invalid coupon");
-                      }
-                    },
+                            final code = _couponController.text.trim();
+                            if (code.isEmpty) {
+                              AppUtils.warning(
+                                context,
+                                "Please enter a coupon code",
+                              );
+                              return;
+                            }
+                            final currentSubtotal = _selectedSubtotal(vm);
+                            final ok = await couponVm.applyCoupon(
+                              code: code,
+                              subtotal: currentSubtotal,
+                            );
+                            if (!mounted) return;
+                            if (ok) {
+                              AppUtils.success(
+                                context,
+                                couponVm.validationMessage ?? "Coupon applied",
+                              );
+                              _couponController.clear();
+                              AppUtils.hideKeyboard(context);
+                            } else {
+                              AppUtils.error(
+                                context,
+                                couponVm.validationMessage ?? "Invalid coupon",
+                              );
+                            }
+                          },
                   ),
                 ),
               ],
@@ -848,25 +926,33 @@ class _CartScreenState extends State<CartScreen> {
               onTap: _selectedItemIds.isEmpty
                   ? null
                   : () async {
-                final currentSubtotal = _selectedSubtotal(vm);
-                final result = await Navigator.push<CouponApplyResult>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CouponsScreen(subtotal: currentSubtotal),
-                  ),
-                );
-                if (result != null && mounted) {
-                  // Re-validate against the *current* selected subtotal
-                  // (not the one captured before navigating), in case
-                  // anything changed while the coupon screen was open.
-                  final refreshedSubtotal = _selectedSubtotal(vm);
-                  await couponVm.applyCoupon(code: result.code, subtotal: refreshedSubtotal);
-                }
-              },
+                      final currentSubtotal = _selectedSubtotal(vm);
+                      final result = await Navigator.push<CouponApplyResult>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              CouponsScreen(subtotal: currentSubtotal),
+                        ),
+                      );
+                      if (result != null && mounted) {
+                        // Re-validate against the *current* selected subtotal
+                        // (not the one captured before navigating), in case
+                        // anything changed while the coupon screen was open.
+                        final refreshedSubtotal = _selectedSubtotal(vm);
+                        await couponVm.applyCoupon(
+                          code: result.code,
+                          subtotal: refreshedSubtotal,
+                        );
+                      }
+                    },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(Icons.local_offer_outlined, size: 15, color: ColorConstant.primaryColor),
+                  Icon(
+                    Icons.local_offer_outlined,
+                    size: 15,
+                    color: ColorConstant.primaryColor,
+                  ),
                   SizedBox(width: 6),
                   TextContext(
                     text: "View all coupons",
@@ -885,13 +971,20 @@ class _CartScreenState extends State<CartScreen> {
 
   /// ---------------- BILL DETAILS CARD ----------------
   Widget _buildBillDetailsCard(
-      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    BuildContext context,
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+  ) {
     final double itemTotal = _selectedSubtotal(vm);
     final double discount = _effectiveDiscount(vm, couponVm);
     const double deliveryFee = 0;
     const double platformFee = 0;
-    final double totalPayable = (itemTotal - discount + deliveryFee + platformFee)
-        .clamp(0, double.infinity);
+    final double totalPayable =
+        (itemTotal - discount + deliveryFee + platformFee).clamp(
+          0,
+          double.infinity,
+        );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -920,8 +1013,10 @@ class _CartScreenState extends State<CartScreen> {
                 fontWeight: FontWeight.w600,
               ),
               SizedBox(height: size.height * 0.016),
-              _billRow("Item Total (${_selectedItemIds.length} item${_selectedItemIds.length == 1 ? '' : 's'})",
-                  AppUtils.formatCurrency(itemTotal)),
+              _billRow(
+                "Item Total (${_selectedItemIds.length} item${_selectedItemIds.length == 1 ? '' : 's'})",
+                AppUtils.formatCurrency(itemTotal),
+              ),
               if (discount > 0) ...[
                 SizedBox(height: size.height * 0.012),
                 _billRow(
@@ -933,13 +1028,19 @@ class _CartScreenState extends State<CartScreen> {
               SizedBox(height: size.height * 0.012),
               _billRow(
                 "Delivery Fee",
-                deliveryFee == 0 ? "FREE" : AppUtils.formatCurrency(deliveryFee),
-                valueColor: deliveryFee == 0 ? ColorConstant.successColor : null,
+                deliveryFee == 0
+                    ? "FREE"
+                    : AppUtils.formatCurrency(deliveryFee),
+                valueColor: deliveryFee == 0
+                    ? ColorConstant.successColor
+                    : null,
               ),
               SizedBox(height: size.height * 0.012),
               _billRow(
                 "Platform Fee",
-                platformFee == 0 ? "FREE" : AppUtils.formatCurrency(platformFee),
+                platformFee == 0
+                    ? "FREE"
+                    : AppUtils.formatCurrency(platformFee),
               ),
               SizedBox(height: size.height * 0.016),
               const Divider(height: 1, color: ColorConstant.dividerColor),
@@ -957,7 +1058,12 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _billRow(String label, String value, {bool bold = false, Color? valueColor}) {
+  Widget _billRow(
+    String label,
+    String value, {
+    bool bold = false,
+    Color? valueColor,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -965,7 +1071,9 @@ class _CartScreenState extends State<CartScreen> {
           text: label,
           fontSize: bold ? 15.5 : 13.5,
           fontWeight: bold ? FontWeight.w500 : FontWeight.w400,
-          color: bold ? ColorConstant.headlineTextColor : ColorConstant.labelTextColor,
+          color: bold
+              ? ColorConstant.headlineTextColor
+              : ColorConstant.labelTextColor,
         ),
         TextContext(
           text: value,
@@ -979,10 +1087,15 @@ class _CartScreenState extends State<CartScreen> {
 
   /// ---------------- STICKY BOTTOM CHECKOUT BAR ----------------
   Widget _buildCheckoutBar(
-      BuildContext context, Size size, CartViewModel vm, CouponViewModel couponVm) {
+    BuildContext context,
+    Size size,
+    CartViewModel vm,
+    CouponViewModel couponVm,
+  ) {
     final selectedItems = _selectedItems(vm);
-    final bool hasBlockingIssue =
-    selectedItems.any((i) => i.isUnavailable || !i.inStockEnough);
+    final bool hasBlockingIssue = selectedItems.any(
+      (i) => i.isUnavailable || !i.inStockEnough,
+    );
     final double itemTotal = _selectedSubtotal(vm);
     final double discount = _effectiveDiscount(vm, couponVm);
     final double payable = (itemTotal - discount).clamp(0, double.infinity);
@@ -1020,7 +1133,8 @@ class _CartScreenState extends State<CartScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                   TextContext(
-                    text: "${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} selected",
+                    text:
+                        "${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} selected",
                     fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     color: ColorConstant.labelTextColor,
@@ -1043,34 +1157,31 @@ class _CartScreenState extends State<CartScreen> {
                 iconSize: 18,
                 onTap: !canProceed
                     ? () {
-                  AppUtils.warning(
-                    context,
-                    selectedItems.isEmpty
-                        ? "Select at least one item to continue"
-                        : "Please remove unavailable / out-of-stock items to continue",
-                  );
-                }
+                        AppUtils.warning(
+                          context,
+                          selectedItems.isEmpty
+                              ? "Select at least one item to continue"
+                              : "Please remove unavailable / out-of-stock items to continue",
+                        );
+                      }
                     : () {
-                  // Selected cart items (1, kai, ya sab) ko checkout line items
-                  // me convert karke CheckoutViewModel me daal do
-                  final checkoutItems = selectedItems
-                      .map((item) => CheckoutLineItem.fromCartItem(item))
-                      .toList();
+                        // Selected cart items (1, kai, ya sab) ko checkout line items
+                        // me convert karke CheckoutViewModel me daal do
+                        final checkoutItems = selectedItems
+                            .map((item) => CheckoutLineItem.fromCartItem(item))
+                            .toList();
 
-                  final checkoutVm = context.read<CheckoutViewModel>();
-                  checkoutVm.startCheckout(checkoutItems);
-
-                  // agar cart me coupon apply tha to wahi code checkout me carry karo —
-                  // applyCoupon khud preview API se re-validate kar lega (naye items
-                  // ke against), koi discount value manually pass karne ki zaroorat nahi
-                  if (couponVm.hasCouponApplied && couponVm.appliedCoupon != null) {
-                    checkoutVm.applyCoupon(couponVm.appliedCoupon!.code);
-                  }
-
-                  Navigator.pushNamed(context, RouteName.checkoutAddress);
-                },
+                        final checkoutVm = context.read<CheckoutViewModel>();
+                        checkoutVm.startCheckout(checkoutItems);
+                        if (couponVm.hasCouponApplied &&
+                            couponVm.appliedCoupon != null) {
+                          checkoutVm.applyCoupon(couponVm.appliedCoupon!.code);
+                        }
+                        Navigator.pushNamed(context, RouteName.checkoutAddress);
+                      },
               ),
-            ),          ],
+            ),
+          ],
         ),
       ),
     );
@@ -1078,7 +1189,10 @@ class _CartScreenState extends State<CartScreen> {
 
   /// ---------------- CONFIRM DIALOGS ----------------
   Future<void> _confirmRemoveItem(
-      BuildContext context, CartViewModel vm, CartItemModel item) async {
+    BuildContext context,
+    CartViewModel vm,
+    CartItemModel item,
+  ) async {
     final confirmed = await AppUtils.showConfirmDialog(
       context,
       title: "Remove item?",

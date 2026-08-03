@@ -7,6 +7,7 @@ import '../../res/textfiled_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
 import '../../viewmodel/category_subcategory/category_viewmodel.dart';
+import '../best_seller_screen.dart';
 import 'sub_category_screen.dart';
 import 'category_product_list.dart';
 
@@ -270,32 +271,40 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: CategoryScreen._quickChips.map((chip) {
-        return Column(
-          children: [
-            Container(
-              height: 52,
-              width: 52,
-              decoration: BoxDecoration(
-                color: chip.color.withOpacity(0.12),
-                shape: BoxShape.circle,
-                border: Border.all(color: chip.color.withOpacity(0.35), width: 1.4),
+        return GestureDetector(
+          onTap: () {
+            if (chip.label == "Best Sellers") {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const BestSellerScreen()));
+            }
+            // TODO: baaki chips (New Arrivals, Deals, Top Brands) ke liye
+            // unki respective screens/filters yahan add kar dena
+          },
+          child: Column(
+            children: [
+              Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                  color: chip.color.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: chip.color.withOpacity(0.35), width: 1.4),
+                ),
+                alignment: Alignment.center,
+                child: Icon(chip.icon, color: chip.color, size: 22),
               ),
-              alignment: Alignment.center,
-              child: Icon(chip.icon, color: chip.color, size: 22),
-            ),
-            const SizedBox(height: 8),
-            TextContext(
-              text: chip.label,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.headlineTextColor,
-            ),
-          ],
+              const SizedBox(height: 8),
+              TextContext(
+                text: chip.label,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: ColorConstant.headlineTextColor,
+              ),
+            ],
+          ),
         );
       }).toList(),
     );
   }
-
   /// ---------------- MAIN CATEGORY GRID (API-backed) ----------------
   Widget _buildCategoryGrid(Size size) {
     final double spacing = size.width * 0.026;

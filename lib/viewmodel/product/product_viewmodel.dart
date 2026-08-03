@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../model/product_by_category/product_model.dart';
-import '../../repo/product/product_repo.dart';
+import '../../model/product_by_category/category_product_model.dart';
+import '../../repo/category_product/category_product_repo.dart';
 
 enum ProductLoadStatus { idle, loading, loadingMore, loaded, error }
 
@@ -10,8 +10,8 @@ enum ProductLoadStatus { idle, loading, loadingMore, loaded, error }
 /// CategoryProductListScreen) — unlike CategoryViewModel, product lists are
 /// paginated and category-specific, so sharing one instance app-wide
 /// wouldn't make sense.
-class ProductViewModel extends ChangeNotifier {
-  final ProductRepository _repository = ProductRepository();
+class CategoryProductViewModel extends ChangeNotifier {
+  final CategoryProductRepo _repository = CategoryProductRepo();
 
   ProductLoadStatus _status = ProductLoadStatus.idle;
   ProductLoadStatus get status => _status;
@@ -21,8 +21,8 @@ class ProductViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  List<ProductModel> _products = [];
-  List<ProductModel> get products => _products;
+  List<CategoryProductModel> _products = [];
+  List<CategoryProductModel> get products => _products;
 
   String? _categoryId;
   int _currentPage = 1;

@@ -1,5 +1,3 @@
-/// Shopzo — response for POST /customer/refresh
-/// Shape: { "message", "data": { "accessToken", "refreshToken" } }
 class RefreshTokenResponseModel {
   final String accessToken;
   final String refreshToken;

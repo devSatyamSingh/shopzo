@@ -17,16 +17,17 @@ class ApiUrl {
 
   // ---- Home ----
   static const String homeData = "$baseUrl/v1/home";
-  static const String banners = "$baseUrl/v1/home/banners";
+  static const String banners = '$baseUrl/v1/website/banners';
   static const String flashDeals = "$baseUrl/v1/home/flash-deals";
-  static const String topPicks = "$baseUrl/v1/home/top-picks";
-  static const String trending = "$baseUrl/v1/home/trending";
+  static const String trendingProducts  = "$baseUrl/v1/websiteProducts/trending";
+  static const String bestSellers = "$baseUrl/v1/websiteProducts/bestsellers";
 
   // ---- Categories / Brands ----
   static String categoryProducts(String categoryId) =>
       "$baseUrl/v1/categories/$categoryId/products";
   static const String brands = "$baseUrl/v1/brands";
-  static String brandProducts(String brandId) => "$baseUrl/v1/brands/$brandId/products";
+  static String brandProducts(String brandId) =>
+      "$baseUrl/v1/brands/$brandId/products";
 
   // ---- Search ----
   static const String search = "$baseUrl/v1/search";
@@ -76,7 +77,8 @@ class ApiUrl {
   // ---- Cart ----
   static const String cart = "$baseUrl/v1/website/cart";
   static const String cartItems = "$baseUrl/v1/website/cart/items";
-  static String cartItem(String itemId) => "$baseUrl/v1/website/cart/items/$itemId";
+  static String cartItem(String itemId) =>
+      "$baseUrl/v1/website/cart/items/$itemId";
 
   // ---- Checkout ----
   static const String checkoutSummary = "$baseUrl/v1/checkout/summary";
@@ -95,10 +97,13 @@ class ApiUrl {
   static const String verifyPayment = "$baseUrl/payment/verify";
 
   // ---- Orders ----
-  static const String myOrders = "$baseUrl/v1/orders";
-  static String orderDetail(String orderId) => "$baseUrl/v1/orders/$orderId";
+  // ---- Orders ----
+  static const String orders = "$baseUrl/v1/orders";
+
+  static const String placeOnlineOrder = "$baseUrl/v1/orders/online";
+  static const String previewOrder = "$baseUrl/v1/orders/preview";
+  static String orderById(String orderId) => "$baseUrl/v1/orders/$orderId";
   static String cancelOrder(String orderId) => "$baseUrl/v1/orders/$orderId/cancel";
-  static String trackOrder(String orderId) => "$baseUrl/v1/orders/$orderId/track";
 
   // ---- Wishlist ----
   static const String wishlist = "$baseUrl/v1/wishlist";
@@ -110,6 +115,12 @@ class ApiUrl {
   static const String validateCoupon = "$baseUrl/v1/coupons/validate";
   // ---- Notifications ----
   static const String notifications = "$baseUrl/v1/notifications";
+
+  // ---- Reviews ----
+  static const String reviews = "$baseUrl/v1/reviews";
+
+  static String productReviews(String productId) =>
+      "$baseUrl/v1/reviews/product/$productId";
 
   // ---- Profile ----
   static const String profile = "$baseUrl/v1/profile";

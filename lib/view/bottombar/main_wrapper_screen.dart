@@ -10,7 +10,7 @@ import 'bottombar_screen.dart';
 import '../cart/cart_screen.dart';
 import '../home/home_screen.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodel/cart_viewmodel.dart';
+import '../../viewmodel/cart/cart_viewmodel.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});

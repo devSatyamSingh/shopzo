@@ -4,11 +4,11 @@ import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
-import '../../model/product_detail_model.dart';
+import '../../model/product/product_detail_model.dart';
 import '../../utils/utils.dart';
-import '../../viewmodel/order_checkout_viewmodel.dart';
-import '../../viewmodel/product_details_viewmodel.dart';
-import '../../viewmodel/cart_viewmodel.dart';
+import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
+import '../../viewmodel/productdetails_and_list/product_details_viewmodel.dart';
+import '../../viewmodel/cart/cart_viewmodel.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String productId;

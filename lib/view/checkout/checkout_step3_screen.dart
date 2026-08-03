@@ -5,14 +5,15 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
-import '../../viewmodel/cart_viewmodel.dart';
-import '../../viewmodel/order_checkout_viewmodel.dart';
+import '../../viewmodel/cart/cart_viewmodel.dart';
+import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import 'checkout_stepper.dart';
+import 'order_confirmation_screen.dart';
 
 class PaymentOptionData {
   final IconData icon;
   final String title;
-  final bool isLive; // COD abhi live hai, baaki "coming soon"
+  final bool isLive;
 
   const PaymentOptionData({required this.icon, required this.title, this.isLive = false});
 }
@@ -46,45 +47,16 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Order request me hi cartItemIds bheja gaya tha — backend un lines
-      // ko already clear kar chuka hai. Cart ko sirf resync karo, dobara
-      // remove API call karne ki zaroorat nahi.
       await context.read<CartViewModel>().fetchCart(showLoader: false);
       if (!mounted) return;
 
-      final orderNumber = checkoutVm.lastPlacedOrder?.orderNumber;
+      final placedOrder = checkoutVm.lastPlacedOrder!;
       checkoutVm.reset();
 
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: Row(
-            children: [
-              Icon(Icons.check_circle_rounded, color: ColorConstant.successColor, size: 26),
-              const SizedBox(width: 10),
-              const TextContext(text: 'Order Placed!', fontSize: 16, fontWeight: FontWeight.w600),
-            ],
-          ),
-          content: TextContext(
-            text: orderNumber != null
-                ? 'Your order $orderNumber has been placed successfully.'
-                : 'Your order has been placed successfully.',
-            fontSize: 13.5,
-            fontWeight: FontWeight.w400,
-            color: ColorConstant.labelTextColor,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // close dialog
-                Navigator.pushNamedAndRemoveUntil(context, RouteName.mainWrapper, (r) => false);
-              },
-              child: const TextContext(text: 'Done', fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
-            ),
-          ],
-        ),
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => OrderConfirmationScreen(order: placedOrder)),
+            (route) => route.settings.name == RouteName.mainWrapper || route.isFirst,
       );
     } else {
       AppUtils.error(context, checkoutVm.placeOrderError ?? 'Failed to place order');

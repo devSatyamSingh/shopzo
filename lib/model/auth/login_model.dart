@@ -1,4 +1,3 @@
-/// Shopzo — request body for POST /customer/login
 class LoginRequestModel {
   final String phone;
   final String password;

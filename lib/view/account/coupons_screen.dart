@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
-import '../../model/coupon_model.dart';
-import '../../viewmodel/coupon_viewmodel.dart';
+import '../../model/coupons/coupon_model.dart';
+import '../../viewmodel/coupon/coupon_viewmodel.dart';
 import '../../utils/utils.dart';
 
 /// Kept for backward compatibility with any code that still imports it,

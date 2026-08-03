@@ -4,11 +4,11 @@ class ColorConstant {
   ColorConstant._();
 
   /// ---------------- BRAND COLORS ----------------
-  static const Color primaryColor = Color(0xFF4F46E5); // "Shop"
+  static const Color primaryColor = Color(0xFF4F46E5);
   static const Color primaryDark = Color(0xFF3730A3);
   static const Color primaryLight = Color(0xFFEEF0FF);
 
-  static const Color orangeColor = Color(0xFFF97316); // "zo" accent
+  static const Color orangeColor = Color(0xFFF97316);
   static const Color orangeDark = Color(0xFFC2410C);
   static const Color orangeLight = Color(0xFFFFF1E6);
 

@@ -10,7 +10,7 @@ import '../../routes/route_name.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/utils.dart';
 import '../app_exception.dart';
-
+import 'package:http_parser/http_parser.dart';
 import 'base_api_services.dart';
 
 class NetworkApiServices extends BaseApiServices {
@@ -238,12 +238,13 @@ class NetworkApiServices extends BaseApiServices {
 
   // MULTIPART / FORM-DATA (profile photo, ID docs, product images…)
   // getFormDataApiResponse ko replace karo:
+// MULTIPART / FORM-DATA (profile photo, ID docs, product images…)
   @override
   Future<dynamic> getFormDataApiResponse(
       String url,
       Map<String, dynamic> fields, {
         Map<String, File>? files,
-        Map<String, List<File>>? multiFiles, // ⬅️ NAYA — same field-name repeat ke liye (e.g. images[])
+        Map<String, List<File>>? multiFiles,
         String method = 'POST',
       }) async {
     _log('FORM-DATA($method) →', '$url | fields: $fields | files: ${files?.keys} | multiFiles: ${multiFiles?.keys}');
@@ -258,15 +259,14 @@ class NetworkApiServices extends BaseApiServices {
 
         if (files != null) {
           for (final entry in files.entries) {
-            request.files.add(await http.MultipartFile.fromPath(entry.key, entry.value.path));
+            request.files.add(await _buildMultipartFile(entry.key, entry.value));
           }
         }
 
-        // ⬅️ NAYA BLOCK — ek hi field-name (e.g. "images") ke multiple files
         if (multiFiles != null) {
           for (final entry in multiFiles.entries) {
             for (final file in entry.value) {
-              request.files.add(await http.MultipartFile.fromPath(entry.key, file.path));
+              request.files.add(await _buildMultipartFile(entry.key, file));
             }
           }
         }
@@ -289,6 +289,27 @@ class NetworkApiServices extends BaseApiServices {
       _log('FORM-DATA ✗', e);
       throw FetchDataException(e.toString());
     }
+  }
+
+
+  Future<http.MultipartFile> _buildMultipartFile(String field, File file) async {
+    final path = file.path;
+    final ext = path.contains('.') ? path.split('.').last.toLowerCase() : '';
+    final mimeType = switch (ext) {
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      'heic' => 'image/heic',
+      _ => 'image/jpeg',
+    };
+    final fileName = 'upload_${DateTime.now().millisecondsSinceEpoch}.${ext.isNotEmpty ? ext : 'jpg'}';
+
+    return http.MultipartFile.fromPath(
+      field,
+      path,
+      filename: fileName,
+      contentType: MediaType.parse(mimeType),
+    );
   }
 
   // SHARED RESPONSE HANDLING

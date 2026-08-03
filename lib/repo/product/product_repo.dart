@@ -1,24 +1,21 @@
 import '../../helper/app_exception.dart';
 import '../../helper/network/network_api_services.dart';
 import '../../helper/response/api_response.dart';
-import '../../model/product_by_category/product_model.dart';
+import '../../model/product/product_detail_model.dart';
+import '../../model/product/product_list_model.dart';
 import '../../res/api_urls.dart';
 
-/// Shopzo — Product Repository.
 class ProductRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();
 
-  /// Category filtering works for ANY level — pass a leaf category's id
-  /// (e.g. Jeans, Skincare) and the backend returns only that category's
-  /// products, since every product already carries its own categoryId.
-  Future<ApiResponse<ProductListResult>> getProducts({
-    required int page,
+  Future<ApiResponse<List<ProductListModel>>> getWebsiteProducts({
+    int page = 1,
     int limit = 20,
     String? categoryId,
     String? search,
   }) async {
     try {
-      final url = ApiUrl.products(
+      final url = ApiUrl.websiteProducts(
         page: page,
         limit: limit,
         categoryId: categoryId,
@@ -26,16 +23,33 @@ class ProductRepository {
       );
       final response = await _apiServices.getGetApiResponse(url);
       final map = response as Map<String, dynamic>;
+      final dynamic rawData = map['data'];
 
-      final list = (map['data'] as List<dynamic>? ?? [])
-          .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-      final pagination =
-      PaginationModel.fromJson(map['pagination'] as Map<String, dynamic>? ?? {});
+      List<dynamic> rawList;
+      if (rawData is List) {
+        rawList = rawData;
+      } else if (rawData is Map && rawData['products'] is List) {
+        rawList = rawData['products'] as List<dynamic>;
+      } else {
+        rawList = const [];
+      }
 
-      return ApiResponse.completed(
-        ProductListResult(products: list, pagination: pagination),
-      );
+      final products =
+      rawList.map((e) => ProductListModel.fromJson(e as Map<String, dynamic>)).toList();
+      return ApiResponse.completed(products);
+    } on AppException catch (e) {
+      return ApiResponse.error(e.message.isNotEmpty ? e.message : e.toString());
+    } catch (e) {
+      return ApiResponse.error('Something went wrong. Please try again.');
+    }
+  }
+
+  /// GET /products/:id — full detail with variants + attributes + reviews.
+  Future<ApiResponse<ProductDetailModel>> getProductById(String id) async {
+    try {
+      final response = await _apiServices.getGetApiResponse(ApiUrl.productById(id));
+      final data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>? ?? {};
+      return ApiResponse.completed(ProductDetailModel.fromJson(data));
     } on AppException catch (e) {
       return ApiResponse.error(e.message.isNotEmpty ? e.message : e.toString());
     } catch (e) {

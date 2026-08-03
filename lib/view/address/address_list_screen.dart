@@ -3,7 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/address/add_address_screen.dart';
-import '../../model/address_model.dart';
+import '../../model/address/address_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../res/button_context.dart';

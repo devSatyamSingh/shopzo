@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/order_model.dart';
+import '../../model/order/order_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
-import '../../viewmodel/orderlist_viewmodel.dart';
+import '../../viewmodel/orderview/orderlist_viewmodel.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/order/review_rating_screen.dart';
-import '../../model/order_model.dart';
+import '../../model/order/order_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
-import '../../viewmodel/order_details_viewmodel.dart';
-import '../../viewmodel/orderlist_viewmodel.dart';
+import '../../viewmodel/orderview/order_details_viewmodel.dart';
+import '../../viewmodel/orderview/orderlist_viewmodel.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;

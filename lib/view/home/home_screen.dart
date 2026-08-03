@@ -7,14 +7,15 @@ import 'package:shopzo/view/shop_by_brand/shop_by_brand_screen.dart';
 import 'package:shopzo/view/top_picks/top_picks_section.dart';
 import 'package:shopzo/view/trending_now/trending_now_section.dart';
 import 'package:shopzo/view/top_picks/top_picks_screen.dart';
-import '../../model/address_model.dart';
-import '../../model/product_model.dart';
+import '../../model/address/address_model.dart';
+import '../../model/product/product_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
 import '../../viewmodel/address/address_provider.dart';
-import '../../viewmodel/product_list_viewmodel.dart';
+import '../../viewmodel/banner_viewmodel.dart';
+import '../../viewmodel/productdetails_and_list/product_list_viewmodel.dart';
 import '../address/address_list_screen.dart';
 import '../filter_model.dart';
 import '../notification/notification_screen.dart';
@@ -48,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductListViewModel>().fetchProducts();
+      context.read<BannerViewModel>().fetchBanners();
     });
   }
 
@@ -211,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => TopPicksScreen(products: apiProducts),
+                                  builder: (context) => TopPicksScreen(),
                                 ),
                               );
                             },

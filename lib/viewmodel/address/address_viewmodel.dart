@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../model/address_model.dart';
-import '../../repo/address_repo.dart';
+import '../../model/address/address_model.dart';
+import '../../repo/address/address_repo.dart';
 
 enum AddressLoadStatus { idle, loading, loaded, error }
 

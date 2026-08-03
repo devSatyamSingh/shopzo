@@ -1,5 +1,3 @@
-/// Shopzo — request body for POST /customer/register
-/// `email` is optional per the API — send an empty string if not provided.
 class RegisterRequestModel {
   final String name;
   final String phone;
