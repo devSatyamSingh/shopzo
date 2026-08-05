@@ -15,7 +15,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late final AnimationController _logoController;
   late final AnimationController _textController;
   late final AnimationController _bounceController;
-
   late final Animation<double> _logoScale;
   late final Animation<double> _logoFade;
   late final Animation<double> _textFade;
@@ -25,21 +24,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-
     _logoController = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
     _logoScale = CurvedAnimation(parent: _logoController, curve: Curves.elasticOut);
     _logoFade = CurvedAnimation(parent: _logoController, curve: const Interval(0.0, 0.6, curve: Curves.easeIn));
-
     _textController = AnimationController(vsync: this, duration: const Duration(milliseconds: 700));
     _textFade = CurvedAnimation(parent: _textController, curve: Curves.easeIn);
-    _textSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic));
-
-    _bounceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
-      ..repeat(reverse: true);
-    _bounce = Tween<double>(begin: 0, end: -8)
-        .animate(CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut));
-
+    _textSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic));
+    _bounceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
+    _bounce = Tween<double>(begin: 0, end: -8).animate(CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut));
     _startSequence();
   }
 
@@ -47,7 +39,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     await _logoController.forward();
     await _textController.forward();
     await Future.delayed(const Duration(milliseconds: 2800));
-
     if (!mounted) return;
 
 

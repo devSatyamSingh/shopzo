@@ -1,6 +1,4 @@
-/// Shopzo — typed exceptions thrown by the network layer.
-/// Repositories catch these and map them to user-facing messages
-/// (via AppUtils.error) instead of leaking raw HTTP/parsing errors.
+
 class AppException implements Exception {
   final String message;
   final String prefix;

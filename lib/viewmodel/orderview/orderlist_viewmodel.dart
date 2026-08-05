@@ -19,8 +19,6 @@ class OrderViewModel extends ChangeNotifier {
 
   bool get isEmpty => _hasLoadedOnce && _orders.isEmpty;
 
-  /// Filter tabs (All / Processing / Shipped / Delivered wagera) ke liye —
-  /// null pass karo to sab orders milenge
   List<OrderModel> ordersByStatus(OrderStatus? status) {
     if (status == null) return orders;
     return _orders.where((o) => o.status == status).toList();
@@ -45,8 +43,5 @@ class OrderViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
-  /// Naya order place hone ke turant baad list ko refresh karne ke liye
-  /// (e.g. checkout success ke baad OrdersScreen pe aaye to fresh dikhe)
   Future<void> refresh() => fetchOrders(showLoader: false);
 }

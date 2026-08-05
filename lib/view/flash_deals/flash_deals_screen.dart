@@ -5,6 +5,7 @@ import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/model/product/product_model.dart';
 import '../../../../res/color_constant.dart';
 import '../../../../res/text_context.dart';
+import '../../routes/route_name.dart';
 
 class FlashDealsScreen extends StatefulWidget {
   final List<ProductModel> products;
@@ -157,7 +158,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
             crossAxisCount: 2,
             mainAxisSpacing: size.height * 0.02,
             crossAxisSpacing: size.width * 0.04,
-            childAspectRatio: cardWidth / (size.height * 0.28),
+            childAspectRatio: cardWidth / (size.height * 0.26),
           ),
           itemCount: widget.products.length,
           itemBuilder: (context, index) {
@@ -167,8 +168,11 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
               width: cardWidth,
               variant: ProductCardVariant.deal,
               onTap: () {
-                // Navigate to product details
-                // Navigator.pushNamed(context, RouteName.productDetail);
+                Navigator.pushNamed(
+                  context,
+                  RouteName.productDetail,
+                  arguments: {'productId': product.id},
+                );
               },
             );
           },

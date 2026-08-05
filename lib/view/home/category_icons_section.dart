@@ -114,10 +114,10 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
                       height: circleSize,
                       width: circleSize,
                       decoration: BoxDecoration(
-                        color: isActive ? ColorConstant.primaryLight : tint,
+                        color: isActive ? ColorConstant.whiteColor : tint,
                         shape: BoxShape.circle,
                         border: isActive
-                            ? Border.all(color: ColorConstant.primaryColor, width: 1.6)
+                            ? Border.all(color: ColorConstant.whiteColor, width: 1.6)
                             : null,
                       ),
                       clipBehavior: Clip.antiAlias,

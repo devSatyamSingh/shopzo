@@ -4,12 +4,6 @@ import '../../repo/category_product/category_product_repo.dart';
 
 enum ProductLoadStatus { idle, loading, loadingMore, loaded, error }
 
-/// Shopzo — Product ViewModel, scoped to ONE category's product list.
-///
-/// This is created fresh per screen (via a local ChangeNotifierProvider in
-/// CategoryProductListScreen) — unlike CategoryViewModel, product lists are
-/// paginated and category-specific, so sharing one instance app-wide
-/// wouldn't make sense.
 class CategoryProductViewModel extends ChangeNotifier {
   final CategoryProductRepo _repository = CategoryProductRepo();
 
@@ -31,7 +25,6 @@ class CategoryProductViewModel extends ChangeNotifier {
 
   static const int _pageSize = 20;
 
-  /// First load (or pull-to-refresh with forceRefresh: true) for a category.
   Future<void> fetchProducts({required String categoryId, bool forceRefresh = false}) async {
     if (_categoryId == categoryId && _status == ProductLoadStatus.loaded && !forceRefresh) {
       return;
@@ -61,8 +54,6 @@ class CategoryProductViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Called by the screen's scroll listener when the user nears the
-  /// bottom of the grid — appends the next page instead of replacing.
   Future<void> loadMore() async {
     if (!_hasMore || _status == ProductLoadStatus.loadingMore || _categoryId == null) return;
 
@@ -81,8 +72,7 @@ class CategoryProductViewModel extends ChangeNotifier {
       _currentPage = nextPage;
       _hasMore = result.data!.pagination.hasMore;
     }
-    // On failure, silently stop the loader — the products already shown
-    // stay put, and scrolling near the bottom again will retry loadMore().
+
     _status = ProductLoadStatus.loaded;
     notifyListeners();
   }

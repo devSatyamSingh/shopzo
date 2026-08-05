@@ -18,6 +18,7 @@ import 'package:shopzo/viewmodel/productdetails_and_list/product_details_viewmod
 import 'package:shopzo/viewmodel/productdetails_and_list/product_list_viewmodel.dart';
 import 'package:shopzo/viewmodel/review/review_viewmodel.dart';
 import 'package:shopzo/viewmodel/top_pick_viewmodel.dart';
+import 'package:shopzo/viewmodel/wishlist_viewmodel.dart';
 import 'res/color_constant.dart';
 import 'routes/app_routes.dart';
 import 'routes/route_name.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BannerViewModel()),
         ChangeNotifierProvider(create: (_) => BestSellerViewModel()),
         ChangeNotifierProvider(create: (_) => TopPicksViewModel()),
+        ChangeNotifierProvider(create: (_) => WishlistViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",

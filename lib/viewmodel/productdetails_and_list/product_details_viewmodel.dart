@@ -30,6 +30,18 @@ class ProductDetailViewModel extends ChangeNotifier {
   int _quantity = 1;
   int get quantity => _quantity;
 
+  bool _isDisposed = false; // ⬅️ ADD
+
+  @override
+  void dispose() {              // ⬅️ ADD
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void _safeNotify() {          // ⬅️ ADD
+    if (!_isDisposed) notifyListeners();
+  }
+
   Future<void> fetchProduct(String id) async {
     _status = ProductDetailStatus.loading;
     _productId = id;
@@ -37,16 +49,17 @@ class ProductDetailViewModel extends ChangeNotifier {
     _selectedAttributes.clear();
     _selectedVariant = null;
     _quantity = 1;
+    _safeNotify();
     notifyListeners();
 
     final result = await _repository.getProductById(id);
+    if (_isDisposed) return;
 
     if (result.isCompleted && result.data != null) {
       _product = result.data!;
       _status = ProductDetailStatus.loaded;
 
       if (_product!.hasVariants) {
-        // preselect the first in-stock variant, else just the first one
         final initial = _product!.variants.firstWhere(
               (v) => v.inStock,
           orElse: () => _product!.variants.first,
@@ -59,17 +72,13 @@ class ProductDetailViewModel extends ChangeNotifier {
       _errorMessage = result.message ?? 'Failed to load product';
       _status = ProductDetailStatus.error;
     }
-    notifyListeners();
+    _safeNotify();
   }
 
-
-  /// Same as selectAttribute, but if the tapped value is already selected,
-  /// it deselects and reverts that attribute back to its default value.
   void toggleAttribute(String attributeName, String value) {
     if (_product == null) return;
 
     if (_selectedAttributes[attributeName] == value) {
-      // Already selected -> tap again -> revert to default
       final defaultValue = _defaultAttributes[attributeName];
       if (defaultValue != null) {
         _selectedAttributes[attributeName] = defaultValue;
@@ -77,7 +86,6 @@ class ProductDetailViewModel extends ChangeNotifier {
         _selectedAttributes.remove(attributeName);
       }
     } else {
-      // Not selected -> select it
       _selectedAttributes[attributeName] = value;
     }
 
@@ -91,9 +99,6 @@ class ProductDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Called when the user taps an attribute chip (e.g. "600ml" under
-  /// "Net Quantity"). Re-resolves the matching variant, if any exists
-  /// for the current combination of selections.
   void selectAttribute(String attributeName, String value) {
     if (_product == null) return;
     _selectedAttributes[attributeName] = value;
@@ -108,9 +113,6 @@ class ProductDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Whether picking [value] for [attributeName], on top of the current
-  /// selections, still resolves to a real variant. Used to grey out
-  /// dead-end combinations in the UI.
   bool isAttributeValueAvailable(String attributeName, String value) {
     if (_product == null) return false;
     final trial = Map<String, String>.from(_selectedAttributes)..[attributeName] = value;
@@ -123,17 +125,14 @@ class ProductDetailViewModel extends ChangeNotifier {
   void setQuantity(int qty) {
     if (qty < 1) return;
     final max = effectiveStock;
-    if (max > 0 && qty > max) return;
+    if (max <= 0) return;
+    if (qty > max) return;
     _quantity = qty;
     notifyListeners();
   }
 
-  // ---------------- DERIVED STATE USED DIRECTLY BY THE UI ----------------
 
   bool get hasVariants => _product?.hasVariants ?? false;
-
-  /// True once the user has picked one value for every attribute group
-  /// and it resolves to a real, purchasable variant.
   bool get isSelectionComplete {
     if (!hasVariants) return true;
     final options = _product!.attributeOptions;
@@ -150,17 +149,12 @@ class ProductDetailViewModel extends ChangeNotifier {
     return '₹$withCommas';
   }
 
-  int get effectiveStock =>
-      _selectedVariant != null ? _selectedVariant!.stock : (_product?.stock ?? 0);
+  int get effectiveStock => _selectedVariant != null ? _selectedVariant!.stock : (_product?.stock ?? 0);
 
   bool get isInStock => hasVariants ? (_selectedVariant?.inStock ?? false) : effectiveStock > 0;
 
-  bool get isLowStock =>
-      effectiveStock > 0 && effectiveStock <= (_product?.lowStockThreshold ?? 0);
+  bool get isLowStock => effectiveStock > 0 && effectiveStock <= (_product?.lowStockThreshold ?? 0);
 
-  /// Images shown in the gallery: selected variant's own images if it has
-  /// any, else the product's images. Exactly as many as the API returned
-  /// — no padding, no placeholders.
   List<String> get effectiveImages {
     if (_selectedVariant != null && _selectedVariant!.images.isNotEmpty) {
       return _selectedVariant!.images;

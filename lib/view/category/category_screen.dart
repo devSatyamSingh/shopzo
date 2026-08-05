@@ -144,21 +144,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  /// ---------------- HEADER ----------------
+  /// ---------------- HEADER ---------------- 
   Widget _buildHeader(BuildContext context, Size size) {
     return Row(
       children: [
-        InkWell(
-          onTap: () {
-            // TODO: open drawer / side menu
-          },
-          borderRadius: BorderRadius.circular(10),
-          child: const Padding(
-            padding: EdgeInsets.all(4),
-            child: Icon(Icons.menu_rounded, color: ColorConstant.primaryDark, size: 24),
-          ),
-        ),
-        SizedBox(width: size.width * 0.03),
+        // InkWell(
+        //   onTap: () {
+        //     // TODO: open drawer / side menu
+        //   },
+        //   borderRadius: BorderRadius.circular(10),
+        //   child: const Padding(
+        //     padding: EdgeInsets.all(4),
+        //     child: Icon(Icons.menu_rounded, color: ColorConstant.primaryDark, size: 24),
+        //   ),
+        // ),
+        // SizedBox(width: size.width * 0.03),
         const Expanded(
           child: TextContext(
             text: "All Categories",

@@ -264,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisSpacing: MediaQuery.of(context).size.height * 0.02,
                                   crossAxisSpacing: MediaQuery.of(context).size.width * 0.04,
                                   childAspectRatio: (MediaQuery.of(context).size.width * 0.45) /
-                                      (MediaQuery.of(context).size.height * 0.30),
+                                      (MediaQuery.of(context).size.height * 0.29),
                                 ),
                                 itemBuilder: (context, index) {
                                   final product = filteredProducts[index];

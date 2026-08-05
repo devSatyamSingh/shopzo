@@ -107,7 +107,6 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Convenience wrappers for the +/- buttons in CartScreen's stepper
   Future<void> incrementQuantity(CartItemModel item, {BuildContext? context}) {
     return updateQuantity(itemId: item.id, quantity: item.quantity + 1, context: context);
   }
@@ -140,10 +139,6 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ------------------------------------------------------------
-  /// Clear the entire cart (e.g. after successful order placement,
-  /// or from a "Clear Cart" action).
-  /// ------------------------------------------------------------
   Future<void> clearCart({BuildContext? context, bool silent = false}) async {
     _cartState = ApiResponse.loading();
     notifyListeners();
@@ -160,8 +155,6 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reset local state on logout — call this from your logout flow
-  /// so the next user doesn't briefly see the previous user's cart.
   void resetOnLogout() {
     _cartState = ApiResponse.completed(CartModel.empty());
     _hasLoadedOnce = false;

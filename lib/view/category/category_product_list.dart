@@ -8,12 +8,7 @@ import '../../utils/skelton_box.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/product/product_viewmodel.dart';
 
-/// Shopzo — product list for one category (any level: Jeans, Skincare,
-/// text-boy, whatever leaf category the user tapped).
-///
-/// Filtering is entirely server-side via categoryId — this screen doesn't
-/// care whether that id belongs to a top-level or deeply nested category,
-/// the API just returns whatever products carry that categoryId.
+
 class CategoryProductListScreen extends StatelessWidget {
   final String categoryId;
   final String categoryName;

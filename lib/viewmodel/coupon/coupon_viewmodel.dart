@@ -5,7 +5,6 @@ import '../../repo/coupons/coupon_repo.dart';
 class CouponViewModel extends ChangeNotifier {
   final CouponRepository _repository = CouponRepository();
 
-  // ---- Coupon LIST state ----
   List<CouponModel> _coupons = [];
   List<CouponModel> get coupons => _coupons;
 
@@ -15,7 +14,6 @@ class CouponViewModel extends ChangeNotifier {
   String? _listError;
   String? get listError => _listError;
 
-  // ---- APPLY / VALIDATE state ----
   bool _isValidating = false;
   bool get isValidating => _isValidating;
 
@@ -61,9 +59,6 @@ class CouponViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Applies a coupon against a given subtotal.
-  /// Caller decides what subtotal means (full cart / single product /
-  /// selected items) — this function doesn't care about the source.
   Future<bool> applyCoupon({required String code, required double subtotal}) async {
     if (code.trim().isEmpty) return false;
 
@@ -114,7 +109,6 @@ class CouponViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Call this when leaving checkout / starting a fresh order
   void reset() {
     _coupons = [];
     _appliedCoupon = null;

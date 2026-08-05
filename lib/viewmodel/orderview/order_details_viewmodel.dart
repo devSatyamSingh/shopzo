@@ -53,7 +53,6 @@ class OrderDetailViewModel extends ChangeNotifier {
     final response = await _repository.cancelOrder(_order!.id, reason);
 
     if (response.isCompleted) {
-      // re-fetch to get fresh status/refund info from server
       await fetchOrder(_order!.id);
       _isCancelling = false;
       notifyListeners();

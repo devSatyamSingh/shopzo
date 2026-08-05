@@ -1,7 +1,4 @@
-/// Shopzo — address object returned by every /addresses endpoint.
-/// NOTE: receiver name/phone aren't part of the API yet — once the
-/// backend adds them, just add the two fields here + to
-/// AddressRequestModel.toJson(), nothing else needs to change.
+
 class AddressModel {
   final String id;
   final String customerId;

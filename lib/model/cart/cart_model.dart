@@ -86,6 +86,7 @@ class CartItemModel {
   bool get isUnavailable => !isActive;
 
   bool get isLowStock => availableStock > 0 && availableStock <= 3;
+  bool get isOutOfStock => availableStock <= 0;
 }
 
 class CartModel {

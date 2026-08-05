@@ -6,7 +6,6 @@ import '../../repo/review/review_repo.dart';
 class ReviewViewModel extends ChangeNotifier {
   final ReviewRepository _repository = ReviewRepository();
 
-  // productId -> approved reviews
   final Map<String, List<ReviewModel>> _reviewsByProduct = {};
   List<ReviewModel> reviewsFor(String productId) =>
       List.unmodifiable(_reviewsByProduct[productId] ?? const []);
@@ -23,17 +22,9 @@ class ReviewViewModel extends ChangeNotifier {
   String? _submitError;
   String? get submitError => _submitError;
 
-  /// Jab tak admin approve nahi karta, GET reviews API me naya review
-  /// nahi aata. Submit hone ke turant baad is productId ko yaha mark kar
-  /// dete hain — UI isse "Review submitted, pending approval" dikha sake,
-  /// screen refresh/re-navigate hone par bhi jab tak approve na ho jaaye.
   final Set<String> _pendingApprovalProductIds = {};
-  bool isPendingApproval(String productId) =>
-      _pendingApprovalProductIds.contains(productId);
+  bool isPendingApproval(String productId) => _pendingApprovalProductIds.contains(productId);
 
-  /// Current logged-in customer ne is product pe pehle se review diya hai
-  /// ya nahi — [currentCustomerId] apne AuthViewModel/AppStorage se pass
-  /// karna (jis se customerId milta ho).
   bool hasUserReviewed(String productId, String? currentCustomerId) {
     if (isPendingApproval(productId)) return true;
     if (currentCustomerId == null) return false;

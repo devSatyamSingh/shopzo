@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopzo/routes/transition_animation.dart';
 import 'package:shopzo/view/account/prevacy_securty_screen.dart';
 import '../view/cms/about_us_screen.dart';
 import '../view/account/account_screen.dart';
@@ -36,154 +37,311 @@ import '../view/cms/terms_cond_screen.dart';
 import '../view/wishlist/wishlist_screen.dart';
 import 'route_name.dart';
 
-/// Shopzo — centralized route generator.
+/// Shopzo — centralized route generator with custom animations.
 /// Set MaterialApp(onGenerateRoute: AppRoutes.generateRoute) in main.dart
 /// and navigate with Navigator.pushNamed(context, RouteName.xxx).
-///
-/// As you build more screens, add one case per RouteName constant here.
 class AppRoutes {
   AppRoutes._();
 
+  // Default transition duration
+  static const Duration _transitionDuration = Duration(milliseconds: 400);
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-    // ---- Splash / Onboarding ----
+    // ---- Splash / Onboarding (Fade transitions) ----
       case RouteName.splash:
-        return _page(const SplashScreen());
+        return _getPageRoute(
+          const SplashScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
       case RouteName.onboarding:
-        return _page(const OnboardingScreen());
+        return _getPageRoute(
+          const OnboardingScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
-    // ---- Auth ----
+    // ---- Auth (Slide up transitions) ----
       case RouteName.login:
-        return _page(const LoginScreen());
+        return _getPageRoute(
+          const LoginScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
       case RouteName.otpVerify:
         final phone = settings.arguments as String? ?? '';
-        return _page(OtpScreen(fullPhoneNumber: phone));
+        return _getPageRoute(
+          OtpScreen(fullPhoneNumber: phone),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
-    // ---- Core / Shell ----
+      case RouteName.register:
+        return _getPageRoute(
+          const RegisterScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
+
+    // ---- Core / Shell (Scale + Fade) ----
       case RouteName.mainWrapper:
-        return _page(const MainWrapper());
+        return _getPageRoute(
+          const MainWrapper(),
+          settings,
+          transitionType: TransitionType.scaleFade,
+        );
 
       case RouteName.home:
-        return _page(const HomeScreen());
+        return _getPageRoute(
+          const HomeScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
       case RouteName.categories:
-        return _page(const CategoryScreen());
+        return _getPageRoute(
+          const CategoryScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.categoryProducts:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
-        return _page(
+        return _getPageRoute(
           CategoryProductListScreen(
             categoryId: args['categoryId'] as String? ?? '',
             categoryName: args['categoryName'] as String? ?? '',
           ),
+          settings,
+          transitionType: TransitionType.slideFromRight,
         );
 
       case RouteName.search:
-        return _page(const SearchScreen());
+        return _getPageRoute(
+          const SearchScreen(),
+          settings,
+          transitionType: TransitionType.slideFromBottom,
+        );
+
       case RouteName.productDetail:
         final args = settings.arguments;
         final String productId = args is Map ? args['productId'] as String : args as String;
-        return MaterialPageRoute(
-          builder: (_) => ProductDetailScreen(productId: productId),
+        return _getPageRoute(
+          ProductDetailScreen(productId: productId),
+          settings,
+          transitionType: TransitionType.zoomIn,
         );
 
-
       case RouteName.notifications:
-        return _page(const NotificationScreen());
+        return _getPageRoute(
+          const NotificationScreen(),
+          settings,
+          transitionType: TransitionType.slideFromTop,
+        );
 
-    // ---- Cart / Checkout ----
+    // ---- Cart / Checkout (Slide up for checkout flow) ----
       case RouteName.cart:
-        return _page(const CartScreen());
+        return _getPageRoute(
+          const CartScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.checkoutAddress:
-        return _page(const CheckoutAddressScreen());
+        return _getPageRoute(
+          const CheckoutAddressScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
       case RouteName.checkoutSummary:
-        return _page(const CheckoutSummaryScreen());
+        return _getPageRoute(
+          const CheckoutSummaryScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
       case RouteName.checkoutPayment:
-        return _page(const CheckoutPaymentScreen());
+        return _getPageRoute(
+          const CheckoutPaymentScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
     // ---- Address ----
       case RouteName.addressList:
-        return _page(const SelectAddressScreen());
+        return _getPageRoute(
+          const SelectAddressScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.addEditAddress:
-        return _page(const AddAddressScreen());
+        return _getPageRoute(
+          const AddAddressScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
     // ---- Payment ----
       case RouteName.paymentMethods:
-        return _page(const PaymentMethodsScreen());
+        return _getPageRoute(
+          const PaymentMethodsScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.addPaymentMethod:
-        return _page(const AddPaymentMethodScreen());
+        return _getPageRoute(
+          const AddPaymentMethodScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
 
     // ---- Orders ----
       case RouteName.myOrders:
-        return _page(const OrdersScreen());
+        return _getPageRoute(
+          const OrdersScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.orderDetail:
         final orderId = settings.arguments as String;
-        return MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: orderId));
+        return _getPageRoute(
+          OrderDetailScreen(orderId: orderId),
+          settings,
+          transitionType: TransitionType.zoomIn,
+        );
 
     // ---- Account ----
       case RouteName.wishlist:
-        return _page(const WishlistScreen());
+        return _getPageRoute(
+          const WishlistScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.coupons:
         final args = settings.arguments;
         final double subtotal = args is Map
             ? (args['subtotal'] as num?)?.toDouble() ?? 0
             : (args is num ? args.toDouble() : 0);
-        return MaterialPageRoute(
-          builder: (_) => CouponsScreen(subtotal: subtotal),
+        return _getPageRoute(
+          CouponsScreen(subtotal: subtotal),
+          settings,
+          transitionType: TransitionType.slideFromBottom,
         );
 
       case RouteName.helpSupport:
-        return _page(const HelpCenterScreen());
+        return _getPageRoute(
+          const HelpCenterScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.profileInformation:
-        return _page(const ProfileInformationScreen());
+        return _getPageRoute(
+          const ProfileInformationScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
 
       case RouteName.editProfile:
-        return _page(const EditProfileScreen());
+        return _getPageRoute(
+          const EditProfileScreen(),
+          settings,
+          transitionType: TransitionType.slideUp,
+        );
+
       case RouteName.PrivacySecurity:
-        return _page(const PrivacySecurityScreen());
+        return _getPageRoute(
+          const PrivacySecurityScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
+        );
+
       case RouteName.aboutUs:
-        return _page(const AboutUsScreen());
+        return _getPageRoute(
+          const AboutUsScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
       case RouteName.termsConditions:
-        return _page(const TermsConditionsScreen());
+        return _getPageRoute(
+          const TermsConditionsScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
       case RouteName.privacyPolicy:
-        return _page(const PrivacyPolicyScreen());
+        return _getPageRoute(
+          const PrivacyPolicyScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
       case RouteName.returnRefund:
-        return _page(const ReturnRefundScreen());
+        return _getPageRoute(
+          const ReturnRefundScreen(),
+          settings,
+          transitionType: TransitionType.fade,
+        );
 
-      case RouteName.register:
-        return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case RouteName.subCategory:
         final args = settings.arguments as Map<String, dynamic>? ?? {};
-        return MaterialPageRoute(
-          builder: (_) => SubCategoryScreen(
+        return _getPageRoute(
+          SubCategoryScreen(
             categoryId: args['categoryId'] as String? ?? '',
             categoryName: args['categoryName'] as String? ?? '',
           ),
+          settings,
+          transitionType: TransitionType.slideFromRight,
         );
 
+      // case RouteName.reviewRating:
+      //   return _getPageRoute(
+      //     const ReviewRatingScreen(),
+      //     settings,
+      //     transitionType: TransitionType.slideUp,
+      //   );
+
       default:
-        return _page(
+        return _getPageRoute(
           Scaffold(
-            body: Center(child: Text("No route defined for ${settings.name}")),
+            body: Center(
+              child: Text("No route defined for ${settings.name}"),
+            ),
           ),
+          settings,
+          transitionType: TransitionType.fade,
         );
     }
   }
 
-  static MaterialPageRoute _page(Widget child) {
-    return MaterialPageRoute(builder: (_) => child);
+  /// Main method to create page routes with custom animations
+  static PageRoute _getPageRoute(
+      Widget child,
+      RouteSettings settings, {
+        required TransitionType transitionType,
+      }) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return TransitionAnimations.buildTransition(
+          transitionType,
+          animation,
+          secondaryAnimation,
+          child,
+        );
+      },
+      transitionDuration: _transitionDuration,
+      reverseTransitionDuration: _transitionDuration,
+    );
   }
 }

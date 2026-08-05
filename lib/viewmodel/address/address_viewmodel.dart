@@ -46,8 +46,6 @@ class AddressViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns true on success. On success, the new address is inserted at
-  /// the top of the list — no need to refetch.
   Future<bool> addAddress(AddressRequestModel request) async {
     _isSaving = true;
     _errorMessage = null;
@@ -70,7 +68,6 @@ class AddressViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// Returns true on success.
   Future<bool> updateAddress(String id, AddressRequestModel request) async {
     _isSaving = true;
     _errorMessage = null;
@@ -96,7 +93,6 @@ class AddressViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// Returns true on success.
   Future<bool> deleteAddress(String id) async {
     final result = await _repository.deleteAddress(id);
 

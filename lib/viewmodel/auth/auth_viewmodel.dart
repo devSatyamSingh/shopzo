@@ -24,8 +24,6 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns true on success. On success, session (accessToken +
-  /// refreshToken + customer) is already saved to AppStorage.
   Future<bool> login({
     required String phone,
     required String password,
@@ -55,8 +53,6 @@ class AuthViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// Returns true on success. NOTE: register does not return tokens — no
-  /// session is saved here. Screen should send the user to Login next.
   Future<bool> register({
     required String name,
     required String phone,
@@ -82,8 +78,6 @@ class AuthViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// Clears session locally regardless of whether the server call succeeds,
-  /// so the user is never stuck unable to log out because of a bad network.
   Future<void> logout() async {
     await _authRepository.logout();
     await AppStorage.logout();

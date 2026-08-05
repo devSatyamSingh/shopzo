@@ -51,8 +51,6 @@ class ApiUrl {
     return '$baseUrl/v1/products?$query';
   }
 
-  /// Public storefront product listing — used by Home sections
-  /// (Trending Now, Flash Deals, Top Picks) and category browsing.
   static String websiteProducts({
     int page = 1,
     int limit = 1000,
@@ -106,8 +104,9 @@ class ApiUrl {
   static String cancelOrder(String orderId) => "$baseUrl/v1/orders/$orderId/cancel";
 
   // ---- Wishlist ----
-  static const String wishlist = "$baseUrl/v1/wishlist";
-  static String toggleWishlist(String productId) => "$baseUrl/v1/wishlist/$productId";
+  static const String wishlist = '$baseUrl/v1/website/wishlist';
+  static const String wishlistToggle = '$baseUrl/v1/website/wishlist/toggle';
+  static String wishlistMoveToCart(String id) => '$baseUrl/v1/website/wishlist/$id/move-to-cart';
 
   // ---- Coupons ----
   static const String coupons = "$baseUrl/v1/coupons";

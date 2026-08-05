@@ -9,6 +9,7 @@ import '../../utils/utils.dart';
 import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import '../../viewmodel/productdetails_and_list/product_details_viewmodel.dart';
 import '../../viewmodel/cart/cart_viewmodel.dart';
+import '../../viewmodel/wishlist_viewmodel.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String productId;
@@ -36,7 +37,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   final TextEditingController _pincodeController = TextEditingController();
 
   int _currentImageIndex = 0;
-  bool _isWishlisted = false;
+  bool _isTogglingWishlist = false;
   bool _isBuyNowLoading = false;
 
   final List<bool> _accordionExpanded = [true, false, false, false];
@@ -90,6 +91,17 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
         },
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final wishlistVm = context.read<WishlistViewModel>();
+      if (wishlistVm.status != WishlistStatus.loaded) {
+        wishlistVm.fetchWishlist();
+      }
+    });
   }
 
   @override
@@ -287,15 +299,43 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                       },
                     ),
                     const SizedBox(width: 10),
-                    _circleIconButton(
-                      icon: _isWishlisted
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                      iconColor: _isWishlisted
-                          ? ColorConstant.wishlistColor
-                          : ColorConstant.headlineTextColor,
-                      onTap: () =>
-                          setState(() => _isWishlisted = !_isWishlisted),
+                    Consumer<WishlistViewModel>(
+                      builder: (context, wishlistVm, _) {
+                        final variantId = vm.selectedVariant?.id;
+                        final isWishlisted = wishlistVm.isWishlisted(vm.product!.id, variantId: variantId);
+
+                        return _circleIconButton(
+                          icon: _isTogglingWishlist
+                              ? Icons.favorite_border_rounded // spinner ke waqt bhi icon jagah nahi badalti, neeche loader dikhega
+                              : (isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded),
+                          iconColor: isWishlisted ? ColorConstant.wishlistColor : ColorConstant.headlineTextColor,
+                          onTap: _isTogglingWishlist
+                              ? () {}
+                              : () async {
+                            setState(() => _isTogglingWishlist = true);
+                            final result = await wishlistVm.toggleFromProductDetail(
+                              productId: vm.product!.id,
+                              variantId: variantId,
+                              productName: vm.product!.name,
+                              variantName: vm.selectedVariant?.name,
+                              slug: vm.product!.slug,
+                              displayPrice: vm.effectivePrice,
+                              stock: vm.effectiveStock,
+                            );
+                            if (!mounted) return;
+                            setState(() => _isTogglingWishlist = false);
+
+                            if (result == null) {
+                              AppUtils.error(context, 'Failed to update wishlist. Please try again.');
+                            } else {
+                              AppUtils.success(
+                                context,
+                                result ? 'Added to wishlist' : 'Removed from wishlist',
+                              );
+                            }
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -1056,26 +1096,31 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   Widget _buildBottomActionBar(
-    BuildContext context,
-    Size size,
-    ProductDetailModel product,
-    ProductDetailViewModel vm,
-  ) {
+      BuildContext context,
+      Size size,
+      ProductDetailModel product,
+      ProductDetailViewModel vm,
+      ) {
     final cartVm = context.watch<CartViewModel>();
 
     final String? variantId = vm.selectedVariant?.id;
     final bool canAct = vm.isInStock && vm.isSelectionComplete;
 
-    // isAdding is shared per-productId in CartViewModel, so it becomes
-    // true during Buy Now's silent add too. Only show "Adding..." on the
-    // Add to Cart button when the user actually tapped Add to Cart —
-    // not when Buy Now triggered the same underlying add-to-cart call.
     final bool isAddingRaw = cartVm.isAdding(product.id);
     final bool isAddToCartLoading = isAddingRaw && !_isBuyNowLoading;
     final bool alreadyInCart = cartVm.isInCart(
       product.id,
       variantId: variantId,
     );
+
+    // 🔧 NEW — user ko batao kyu button kaam nahi kar raha
+    String? blockedReason() {
+      if (!vm.isInStock) return "This item is out of stock right now";
+      if (!vm.isSelectionComplete) return "Please select all options first";
+      return null;
+    }
+
+    final bool isBusy = isAddingRaw || _isBuyNowLoading;
 
     return SafeArea(
       top: false,
@@ -1109,21 +1154,28 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ? Icons.shopping_cart_rounded
                     : Icons.shopping_cart_outlined,
                 iconSize: 18,
-                onTap: (!canAct || isAddingRaw || _isBuyNowLoading)
+                color: (!canAct && !alreadyInCart)
+                    ? ColorConstant.placeholderColor
+                    : null,
+                onTap: isBusy
                     ? null
                     : () async {
-                        if (alreadyInCart) {
-                          Navigator.pushNamed(context, RouteName.cart);
-                          return;
-                        }
-                        await cartVm.addToCart(
-                          productId: product.id,
-                          variantId: variantId,
-                          quantity: vm.quantity,
-                          context: context,
-                          // silent defaults to false here — success toast shows normally
-                        );
-                      },
+                  final reason = blockedReason();
+                  if (reason != null) {
+                    AppUtils.warning(context, reason);
+                    return;
+                  }
+                  if (alreadyInCart) {
+                    Navigator.pushNamed(context, RouteName.cart);
+                    return;
+                  }
+                  await cartVm.addToCart(
+                    productId: product.id,
+                    variantId: variantId,
+                    quantity: vm.quantity,
+                    context: context,
+                  );
+                },
               ),
             ),
             SizedBox(width: size.width * 0.03),
@@ -1131,9 +1183,15 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               child: CustomButton(
                 text: _isBuyNowLoading ? "Please wait..." : "Buy Now",
                 height: 52,
-                onTap: (!canAct || isAddingRaw || _isBuyNowLoading)
+                color: !canAct ? ColorConstant.placeholderColor : null, // 🔧
+                onTap: isBusy
                     ? null
                     : () async {
+                  final reason = blockedReason();
+                  if (reason != null) {
+                    AppUtils.warning(context, reason);   // 🔧 message on tap
+                    return;
+                  }
                   setState(() => _isBuyNowLoading = true);
                   try {
                     final bool alreadyThere =
@@ -1145,13 +1203,14 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                         variantId: variantId,
                         quantity: vm.quantity,
                         context: context,
-                        silent: true, // Buy Now: no "added to cart" toast
+                        silent: true,
                       );
-                      if (!added) return; // stay on screen if add failed
+                      if (!added) return;
                     } else {
-                      // already in cart — sirf quantity update kar do jo user ne select ki
-                      final existing = cartVm.cart.findItem(product.id, variantId);
-                      if (existing != null && existing.quantity != vm.quantity) {
+                      final existing =
+                      cartVm.cart.findItem(product.id, variantId);
+                      if (existing != null &&
+                          existing.quantity != vm.quantity) {
                         await cartVm.updateQuantity(
                           itemId: existing.id,
                           quantity: vm.quantity,
@@ -1162,12 +1221,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
 
                     if (!context.mounted) return;
 
-                    // ab cart me se is product ka fresh cart-item nikal ke
-                    // CheckoutViewModel ko de do — isi cartItemId se order + cart
-                    // clear dono handle honge
-                    final cartItem = cartVm.cart.findItem(product.id, variantId);
+                    final cartItem =
+                    cartVm.cart.findItem(product.id, variantId);
                     if (cartItem == null) {
-                      AppUtils.error(context, 'Something went wrong. Please try again.');
+                      AppUtils.error(context,
+                          'Something went wrong. Please try again.');
                       return;
                     }
 

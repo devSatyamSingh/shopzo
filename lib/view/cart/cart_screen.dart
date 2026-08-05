@@ -168,10 +168,15 @@ class _CartScreenState extends State<CartScreen> {
                   size,
                   "Only ${item.availableStock} left in stock — order soon",
                 ),
-              if (!item.inStockEnough && !item.isUnavailable)
+              if (!item.inStockEnough && !item.isUnavailable && !item.isOutOfStock)   // 🔧 changed condition
                 _buildLowStockBanner(
                   size,
                   "Only ${item.availableStock} available. Reduce quantity to continue.",
+                ),
+              if (item.isOutOfStock && !item.isUnavailable)                          // 🔧 NEW banner
+                _buildLowStockBanner(
+                  size,
+                  "This item is out of stock. Please remove it to continue.",
                 ),
               SizedBox(height: size.height * 0.018),
             ],
@@ -604,6 +609,13 @@ class _CartScreenState extends State<CartScreen> {
                               if (isUnavailable)
                                 const TextContext(
                                   text: "Currently unavailable",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorConstant.errorColor,
+                                )
+                              else if (item.isOutOfStock)                    // 🔧 NEW branch
+                                const TextContext(
+                                  text: "Out of stock",
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.errorColor,

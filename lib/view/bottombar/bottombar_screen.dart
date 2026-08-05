@@ -75,7 +75,7 @@ class _AnimatedNotchBottomNavBarState extends State<AnimatedNotchBottomNavBar>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final barHeight = size.height * 0.037;
+    final barHeight = size.height * 0.0;
     final rowHeight = size.height * 0.05;
     final circleSize = size.width * 0.120;
     final itemCount = AnimatedNotchBottomNavBar.items.length;
@@ -114,7 +114,7 @@ class _AnimatedNotchBottomNavBarState extends State<AnimatedNotchBottomNavBar>
                             notchCenterX: notchCenterX,
                             notchRadius: notchRadius,
                             notchDepth: notchRadius * 1.05,
-                            color: ColorConstant.primaryColor,
+                            color: ColorConstant.whiteColor,
                           ),
                         ),
                       ),
@@ -276,7 +276,7 @@ class _NotchPainter extends CustomPainter {
     final paint = Paint()..color = color;
     final path = Path();
 
-    const double topRadius = 22;
+    const double topRadius = 20;
     final double curveWidth = notchRadius * 1.7;
     final double left = notchCenterX - curveWidth;
     final double right = notchCenterX + curveWidth;

@@ -33,7 +33,6 @@ class CouponModel {
 
   bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
 
-  /// Only shows a badge if expiry is within 3 days, else null (no clutter)
   String? get expiryLabel {
     if (expiresAt == null) return null;
     final diff = expiresAt!.difference(DateTime.now());

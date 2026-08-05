@@ -62,10 +62,10 @@ class TopPicksSection extends StatelessWidget {
         SizedBox(height: size.height * 0.015),
 
         SizedBox(
-          height: size.height * 0.27,
+          height: size.height * 0.26,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.045),
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
             itemCount: products.length,
             separatorBuilder: (_, __) => SizedBox(width: size.width * 0.03),
             itemBuilder: (context, index) {

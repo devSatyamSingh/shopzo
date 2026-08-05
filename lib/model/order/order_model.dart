@@ -163,8 +163,11 @@ class OrderItemModel {
   final double sgstAmount;
   final double igstAmount;
   final double subtotal;
-  final OrderLineProduct? product; // sirf order-detail API me aata hai
-  final OrderLineVariant? variant; // sirf order-detail API me aata hai
+  final String? productNameFlat;
+  final String? variantNameFlat;
+  final String? imageFlat;
+  final OrderLineProduct? product;
+  final OrderLineVariant? variant;
 
   const OrderItemModel({
     required this.id,
@@ -178,20 +181,28 @@ class OrderItemModel {
     required this.sgstAmount,
     required this.igstAmount,
     required this.subtotal,
+    this.productNameFlat,
+    this.variantNameFlat,
+    this.imageFlat,
     this.product,
     this.variant,
   });
 
-  /// UI ke liye ready-made display fields — variant image/name available
-  /// ho to wahi priority, warna product level se le lo.
-  String get displayName => variant?.name != null && product != null
-      ? '${product!.name} (${variant!.name})'
-      : (product?.name ?? 'Product');
+  String get displayName {
+    final name = product?.name ?? productNameFlat;
+    final variantLabel = variant?.name ?? variantNameFlat;
+    if (name == null) return 'Product';
+    if (variantLabel != null && variantLabel.isNotEmpty) {
+      return '$name ($variantLabel)';
+    }
+    return name;
+  }
 
-  String? get displayImage => variant?.thumbnail ?? product?.thumbnail;
+  String? get displayImage => variant?.thumbnail ?? product?.thumbnail ?? imageFlat;
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     double num_(dynamic v) => double.tryParse(v?.toString() ?? '0') ?? 0;
+    final rawImage = json['image']?.toString();
     return OrderItemModel(
       id: json['id']?.toString() ?? '',
       productId: json['productId']?.toString() ?? '',
@@ -204,6 +215,9 @@ class OrderItemModel {
       sgstAmount: num_(json['sgstAmount']),
       igstAmount: num_(json['igstAmount']),
       subtotal: num_(json['subtotal']),
+      productNameFlat: json['productName']?.toString(),
+      variantNameFlat: json['variantName']?.toString(),
+      imageFlat: (rawImage != null && rawImage.isNotEmpty) ? _resolveImageUrl(rawImage) : null,
       product: json['product'] != null
           ? OrderLineProduct.fromJson(json['product'] as Map<String, dynamic>)
           : null,

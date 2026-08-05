@@ -70,38 +70,26 @@ class CheckoutViewModel extends ChangeNotifier {
   PreviewStatus get previewStatus => _previewStatus;
   bool get isPreviewLoading => _previewStatus == PreviewStatus.loading;
   bool get hasPreviewLoadedOnce => _preview != null;
-
   String? _previewError;
   String? get previewError => _previewError;
-
   bool get hasCouponApplied => _preview?.hasCouponApplied ?? false;
   String? get couponError => _preview?.couponError;
   bool get hasStockIssue => _preview?.hasStockIssue ?? false;
-
-  // Bill totals — sab preview se aate hain. Preview load hone se pehle
-  // items ke apne unitPrice se ek rough estimate dikhate hain taaki UI
-  // khaali na dikhe, but final numbers hamesha server ke hi authoritative hain.
   double get subtotal => _preview?.subtotal ?? _items.fold(0.0, (s, i) => s + i.lineTotal);
   double get discount => _preview?.discount ?? 0;
   double get tax => _preview?.tax ?? 0;
   double get total => _preview?.total ?? (subtotal - discount).clamp(0, double.infinity);
-
   int get itemCount => _items.length;
   bool get hasItems => _items.isNotEmpty;
-
   PlaceOrderStatus _placeOrderStatus = PlaceOrderStatus.idle;
   PlaceOrderStatus get placeOrderStatus => _placeOrderStatus;
   bool get isPlacingOrder => _placeOrderStatus == PlaceOrderStatus.placing;
-
   String? _placeOrderError;
   String? get placeOrderError => _placeOrderError;
-
   OrderModel? _lastPlacedOrder;
   OrderModel? get lastPlacedOrder => _lastPlacedOrder;
 
-  /// Cart (multi-select) ya Product Detail (Buy Now) se checkout shuru
-  /// karne se pehle call karo. Purani in-progress checkout state replace
-  /// ho jaati hai.
+
   void startCheckout(List<CheckoutLineItem> items) {
     _items = List.of(items);
     _selectedAddress = null;
@@ -116,17 +104,12 @@ class CheckoutViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Address select hote hi preview automatically refresh ho jaata hai
-  /// (tax type — CGST/SGST vs IGST — address ke state par depend karta hai).
   void setAddress(AddressModel address) {
     _selectedAddress = address;
     notifyListeners();
     fetchPreview();
   }
 
-  /// Coupon apply/re-validate karta hai — seedha preview API se. Result
-  /// [hasCouponApplied] / [couponError] getters se check karo, isme koi
-  /// bool return nahi hota kyunki server hi decide karta hai.
   Future<void> applyCoupon(String code) async {
     if (code.trim().isEmpty) return;
     _couponCode = code.trim();
@@ -138,13 +121,8 @@ class CheckoutViewModel extends ChangeNotifier {
     fetchPreview();
   }
 
-  /// Items/address/coupon — jo bhi current state hai, usi ke hisaab se
-  /// server se fresh summary (price, tax, discount, total, coupon status)
-  /// mangwata hai. Address abhi select nahi hua ho tab bhi call ho sakta
-  /// hai (addressId optional hai request me).
   Future<void> fetchPreview() async {
     if (_items.isEmpty) return;
-
     _previewStatus = PreviewStatus.loading;
     _previewError = null;
     notifyListeners();
@@ -154,8 +132,7 @@ class CheckoutViewModel extends ChangeNotifier {
       productId: i.productId,
       variantId: i.variantId,
       quantity: i.quantity,
-    ))
-        .toList();
+    )).toList();
 
     final result = await _repository.previewOrder(
       items: requestItems,
@@ -207,8 +184,6 @@ class CheckoutViewModel extends ChangeNotifier {
     final result = await _repository.placeOrder(
       items: requestItems,
       addressId: _selectedAddress!.id,
-      // preview me jo coupon successfully apply hua tha wahi bhejo —
-      // agar coupon invalid tha to null bhej ke normal price pe order karo
       couponCode: hasCouponApplied ? _couponCode : null,
       cartItemIds: cartItemIds,
       paymentMethod: _paymentMethod,
@@ -232,8 +207,7 @@ class CheckoutViewModel extends ChangeNotifier {
       .map((i) => i.cartItemId!)
       .toList();
 
-  /// Successful order + cart resync ke baad, ya checkout flow se bina
-  /// order kiye bahar nikalne par call karo — cart ko touch nahi karta.
+
   void reset() {
     _items = [];
     _selectedAddress = null;
