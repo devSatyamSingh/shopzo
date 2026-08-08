@@ -259,12 +259,39 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
                                                 ),
                                               ],
                                               const SizedBox(height: 8),
-                                              TextContext(
-                                                text: AppUtils.formatCurrency(price),
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: ColorConstant.headlineTextColor,
+                                              Row(
+                                                children: [
+                                                  TextContext(
+                                                    text: AppUtils.formatCurrency(price),
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: ColorConstant.headlineTextColor,
+                                                  ),
+                                                  if (previewItem != null && previewItem.taxAmount > 0) ...[
+                                                    const SizedBox(width: 6),
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        color: ColorConstant.infoColor.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(6),
+                                                      ),
+                                                      child: Text(
+                                                        '+${AppUtils.formatCurrency(previewItem.taxAmount)} tax',
+                                                        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, fontFamily: "Poppins", color: ColorConstant.infoColor),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
                                               ),
+                                              if (previewItem != null && previewItem.taxBreakdown.isNotEmpty) ...[
+                                                const SizedBox(height: 3),
+                                                TextContext(
+                                                  text: previewItem.taxBreakdownLabel,
+                                                  fontSize: 10.5,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: ColorConstant.labelTextColor,
+                                                ),
+                                              ],
                                             ],
                                           ),
                                         ),

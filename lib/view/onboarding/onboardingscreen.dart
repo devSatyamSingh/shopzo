@@ -5,6 +5,7 @@ import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/app_storage.dart';
 import '../auth/login_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 enum OnboardingBgShape { blob, circle, none }
 
@@ -41,23 +42,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final List<OnboardingData> _pages = const [
     OnboardingData(
       image: 'assets/images/onboarding1.png',
-      title: 'Discover Amazing Products',
-      description:
-      'Explore thousands of products from top-rated vendors at your fingertips.',
+      title: 'onboarding.title1',
+      description: 'onboarding.desc1',
       bgShape: OnboardingBgShape.blob,
     ),
     OnboardingData(
       image: 'assets/images/onboarding2.png',
-      title: 'Secure & Easy Payments',
-      description:
-      'Your security is our priority. Enjoy multiple safe payment options for a worry-free shop.',
+      title: 'onboarding.title2',
+      description: 'onboarding.desc2',
       bgShape: OnboardingBgShape.blob,
     ),
     OnboardingData(
       image: 'assets/images/onboarding3.png',
-      title: 'Fast & Reliable Delivery',
-      description:
-      'Track your orders in real-time and get them delivered to your doorstep swiftly.',
+      title: 'onboarding.title3',
+      description: 'onboarding.desc3',
       bgShape: OnboardingBgShape.circle,
     ),
   ];
@@ -182,7 +180,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ),
               child: isLastPage
                   ? CustomButton(
-                text: 'Get Started',
+                text: 'onboarding.get_started'.tr(),
                 onTap: _onGetStarted,
                 color: ColorConstant.primaryColor,
                 icon: Icons.arrow_forward,
@@ -194,7 +192,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   GestureDetector(
                     onTap: _onSkip,
                     child: TextContext(
-                      text: 'Skip',
+                      text: 'onboarding.skip'.tr(),
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: ColorConstant.labelTextColor,
@@ -203,7 +201,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   SizedBox(
                     width: size.width * 0.4,
                     child: CustomButton(
-                      text: 'Next',
+                      text: 'onboarding.next'.tr(),
                       onTap: _onNext,
                       color: ColorConstant.primaryColor,
                       icon: Icons.arrow_forward,
@@ -312,7 +310,7 @@ class _OnboardingPage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
             child: TextContext(
-              text: data.title,
+              text: data.title.tr(),
               fontSize: 22,
               fontWeight: FontWeight.w600,
               textAlign: TextAlign.center,
@@ -326,7 +324,7 @@ class _OnboardingPage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
             child: TextContext(
-              text: data.description,
+              text: data.description.tr(),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               textAlign: TextAlign.center,

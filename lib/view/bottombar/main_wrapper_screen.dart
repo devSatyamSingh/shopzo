@@ -11,6 +11,7 @@ import '../cart/cart_screen.dart';
 import '../home/home_screen.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodel/cart/cart_viewmodel.dart';
+import '../../localization/language_provider.dart'; // apna actual path check karo
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -22,23 +23,21 @@ class MainWrapper extends StatefulWidget {
 class _MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
 
-  //  replace with your real cart count (from provider/bloc/state mgmt)
   int _cartCount = 2;
 
-  // tracks the last time back was pressed while on the Home tab
   DateTime? _lastBackPressTime;
 
   // controls the custom "press again to exit" toast
   bool _showExitToast = false;
   Timer? _toastTimer;
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const CategoryScreen(),
-    const CartScreen(),
-    const OrdersScreen(),
-    const ProfileScreen(),
-  ];
+  // final List<Widget> _screens = [
+  //   const HomeScreen(),
+  //   const CategoryScreen(),
+  //   const CartScreen(),
+  //   const OrdersScreen(),
+  //   const ProfileScreen(),
+  // ];
 
   void _onTabTap(int index) {
     setState(() => _currentIndex = index);
@@ -93,7 +92,16 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final cartCount = context.watch<CartViewModel>().itemCount;   // <-- real count
+    context.watch<LanguageProvider>(); // 👈 language badalte hi MainWrapper rebuild hoga
+    final cartCount = context.watch<CartViewModel>().itemCount;
+
+    final List<Widget> screens = [
+      const HomeScreen(),
+      const CategoryScreen(),
+      const CartScreen(),
+      const OrdersScreen(),
+      const ProfileScreen(),
+    ];
 
     return PopScope(
       canPop: false,
@@ -107,10 +115,8 @@ class _MainWrapperState extends State<MainWrapper> {
           children: [
             IndexedStack(
               index: _currentIndex,
-              children: _screens,
+              children: screens, // 👈 field ki jagah local variable
             ),
-
-            // ---------------- CUSTOM EXIT TOAST ----------------
             _ExitToast(visible: _showExitToast),
           ],
         ),

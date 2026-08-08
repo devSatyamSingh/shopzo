@@ -1,32 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:shopzo/view/account/coupons_screen.dart';
-import 'package:shopzo/view/order/order_list_screen.dart';
+import 'package:provider/provider.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../localization/language_provider.dart';
 import '../../res/delete_popup.dart';
 import '../../routes/route_name.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/auth/auth_viewmodel.dart';
+import '../../viewmodel/profile_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'language_selection_screen.dart';
 
-
-/// Shopzo — Account / Profile screen.
-/// All tap callbacks are wired but left empty — plug in your
-/// Navigator.pushNamed(context, RouteName.xxx) calls as you build
-/// each destination screen.
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
-  //  replace with real user data (provider / bloc / auth service)
-  // static const String _name = 'Satyam Singh';
-  // static const String _email = 'satyam@gmail.com';
-  // static const String _memberSince = 'Member since Jan 2024';
   static const String _avatarUrl = 'assets/images/pro12.jpg';
   static const String _appVersion = 'Shopzo v2.4.1';
-
-  void _onEditAvatar() {
-    //  open image picker / edit profile photo
-  }
 
   static String _formatMemberSince(String? createdAt) {
     if (createdAt == null || createdAt.isEmpty) return 'Member since —';
@@ -34,70 +24,97 @@ class ProfileScreen extends StatelessWidget {
     if (date == null) return 'Member since —';
 
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return 'Member since ${months[date.month - 1]} ${date.year}';
+  }
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  void _onEditAvatar() {
+    //  open image picker / edit profile photo
   }
 
   void _onOrdersTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.myOrders);
   }
+
   void _onWishlistTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.wishlist);
   }
-  void _onCouponsTap(BuildContext context)  {
-    Navigator.pushNamed(context, RouteName.coupons);
 
+  void _onCouponsTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.coupons);
   }
+
+  void _onLanguageTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),
+    );
+  }
+
   void _onHelpCenterTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.helpSupport);
-
   }
 
   void _onProfileInfoTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.profileInformation);
   }
+
   void _onSavedAddressesTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.addressList);
-
   }
+
   void _onPaymentMethodsTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.paymentMethods);
-
   }
+
   void _onNotificationSettingsTap() {}
+
   void _onPrivacySecurityTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.PrivacySecurity);
   }
 
   void _onAboutTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.aboutUs);
-
   }
+
   void _onTermsTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.termsConditions);
-
   }
+
   void _onPrivacyPolicyTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.privacyPolicy);
-
   }
+
   void _onReturnPolicyTap(BuildContext context) {
     Navigator.pushNamed(context, RouteName.returnRefund);
-
   }
-
 
   Future<void> _onLogoutTap(BuildContext context) async {
     final confirmed = await DeletePopup.show(
       context,
       icon: Icons.logout_rounded,
       iconColor: ColorConstant.errorColor,
-      title: "Log Out",
-      message: "Are you sure you want to log out of your Shopzo account?",
-      confirmText: "Log Out",
-      cancelText: "Cancel",
+      title: 'profile.log_out'.tr(),
+      message: 'profile.logout_message'.tr(),
+      confirmText: 'profile.log_out'.tr(),
+      cancelText: 'profile.cancel'.tr(),
     );
 
     if (confirmed != true) return;
@@ -111,212 +128,255 @@ class ProfileScreen extends StatelessWidget {
     if (!context.mounted) return;
     Navigator.pushNamedAndRemoveUntil(
       context,
-      RouteName.login,
-          (route) => false,
+      RouteName.onboarding,
+      (route) => false,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileViewModel>().fetchProfile();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final customer = AppStorage.getCustomer();
+    context.watch<LanguageProvider>();
 
-    final memberSince = _formatMemberSince(customer?['createdAt']?.toString());
+    return Consumer<ProfileViewModel>(
+      builder: (context, profileVm, _) {
+        final apiProfile = profileVm.profile;
+        final cachedCustomer =
+            AppStorage.getCustomer(); // fallback jab tak API load ho rahi ho
 
-    final name = customer?['name']?.toString().isNotEmpty == true
-        ? customer!['name'].toString()
-        : 'Guest User';
+        final memberSince = ProfileScreen._formatMemberSince(
+          apiProfile?.createdAt?.toIso8601String() ?? cachedCustomer?['createdAt']?.toString(),
+        );
 
-    // email optional hai register me, agar khali ho to phone dikha do
-    final email = customer?['email']?.toString().isNotEmpty == true
-        ? customer!['email'].toString()
-        : (customer?['phone']?.toString() ?? '');
+        final name = (apiProfile?.name.isNotEmpty ?? false)
+            ? apiProfile!.name
+            : (cachedCustomer?['name']?.toString().isNotEmpty == true
+                  ? cachedCustomer!['name'].toString()
+            : 'profile.guest_user'.tr());
 
-    return Scaffold(
-      backgroundColor: ColorConstant.scaffoldBgColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: size.width * 0.053,
-            vertical: size.height * 0.02,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ---------------- PROFILE HEADER ----------------
-              _ProfileHeader(
-                avatarUrl: _avatarUrl,
-                name: name,
-                email: email,
-                memberSince: memberSince,
-                onEditAvatar: _onEditAvatar,
+        final email = (apiProfile?.email.isNotEmpty ?? false)
+            ? apiProfile!.email
+            : (cachedCustomer?['email']?.toString().isNotEmpty == true
+                  ? cachedCustomer!['email'].toString()
+                  : (apiProfile?.phone ??
+                        cachedCustomer?['phone']?.toString() ??
+                        ''));
+
+        return Scaffold(
+          backgroundColor: ColorConstant.scaffoldBgColor,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.053,
+                vertical: size.height * 0.02,
               ),
-
-              SizedBox(height: size.height * 0.03),
-
-              // ---------------- QUICK ACTION GRID ----------------
-              Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: _QuickActionCard(
-                      icon: Icons.receipt_long_rounded,
-                      title: 'Orders',
-                      subtitle: 'Track your packages',
-                      onTap: () => _onOrdersTap(context),
-                    ),
+                  // ---------------- PROFILE HEADER ----------------
+                  _ProfileHeader(
+                    avatarUrl: ProfileScreen._avatarUrl,
+                    name: name,
+                    email: email,
+                    memberSince: memberSince,
+                    onEditAvatar: _onEditAvatar,
                   ),
-                  SizedBox(width: size.width * 0.035),
-                  Expanded(
-                    child: _QuickActionCard(
-                      icon: Icons.favorite_rounded,
-                      title: 'Wishlist',
-                      subtitle: 'Your favorite items',
-                      onTap: () => _onWishlistTap(context),                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.018),
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickActionCard(
-                      icon: Icons.confirmation_num_rounded,
-                      title: 'Coupons',
-                      subtitle: 'Exclusive offers',
-                      onTap: () => _onCouponsTap(context),
-                    ),
-                  ),
-                  SizedBox(width: size.width * 0.035),
-                  Expanded(
-                    child: _QuickActionCard(
-                      icon: Icons.support_agent_rounded,
-                      title: 'Help Center',
-                      subtitle: 'Customer support',
-                      onTap: () => _onHelpCenterTap(context),
-                    ),
-                  ),
-                ],
-              ),
 
-              SizedBox(height: size.height * 0.03),
+                  SizedBox(height: size.height * 0.03),
 
-              // ---------------- ACCOUNT SETTINGS ----------------
-              const _SectionLabel(text: 'ACCOUNT SETTINGS'),
-              SizedBox(height: size.height * 0.012),
-              _SettingsCard(
-                tiles: [
-                  _SettingsTileData(
-                    icon: Icons.person_outline_rounded,
-                    title: 'Profile Information',
-                    subtitle: 'Name, Email, Phone',
-                    onTap: () => _onProfileInfoTap(context),
-                  ),
-                  _SettingsTileData(
-                    icon: Icons.location_on_outlined,
-                    title: 'Saved Addresses',
-                    subtitle: 'Manage delivery locations',
-                    onTap: () => _onSavedAddressesTap(context),
-                  ),
-                  _SettingsTileData(
-                    icon: Icons.credit_card_rounded,
-                    title: 'Payment Methods',
-                    subtitle: 'Saved cards and UPI',
-                    onTap: () => _onPaymentMethodsTap(context),
-
-                  ),
-                  // _SettingsTileData(
-                  //   icon: Icons.notifications_none_rounded,
-                  //   title: 'Notification Settings',
-                  //   subtitle: 'Alerts and preferences',
-                  //   onTap: _onNotificationSettingsTap,
-                  // ),
-                  // _SettingsTileData(
-                  //   icon: Icons.shield_outlined,
-                  //   title: 'Privacy & Security',
-                  //   subtitle: 'Password and data',
-                  //   onTap: () => _onPrivacySecurityTap(context),
-                  //   isLast: true,
-                  // ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.03),
-
-              // ---------------- MORE ----------------
-              const _SectionLabel(text: 'MORE'),
-              SizedBox(height: size.height * 0.012),
-              _SettingsCard(
-                tiles: [
-                  _SettingsTileData(
-                    title: 'About Shopzo',
-                    onTap: () => _onAboutTap(context),
-                    isExternal: true,
-                  ),
-                  _SettingsTileData(
-                    title: 'Terms of Service',
-                    onTap: () => _onTermsTap(context),
-                    isExternal: true,
-                  ),
-                  _SettingsTileData(
-                    title: 'Privacy Policy',
-                    onTap: () => _onPrivacyPolicyTap(context),
-                    isExternal: true,
-                  ),
-                  _SettingsTileData(
-                    title: 'Return Policy',
-                    onTap: () => _onReturnPolicyTap(context),
-                    isExternal: true,
-                    isLast: true,
-                  ),
-                ],
-              ),
-
-              SizedBox(height: size.height * 0.03),
-
-              // ---------------- LOG OUT ----------------
-              GestureDetector(
-                onTap: () => _onLogoutTap(context),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: size.height * 0.015),
-                  decoration: BoxDecoration(
-                    color: ColorConstant.errorColor.withOpacity(.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  // ---------------- QUICK ACTION GRID ----------------
+                  Row(
                     children: [
-                      Icon(Icons.logout_rounded,
-                          size: 16, color: ColorConstant.errorColor),
-                      const SizedBox(width: 8),
-                      TextContext(
-                        text: 'Log Out',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: ColorConstant.errorColor,
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: Icons.receipt_long_rounded,
+                          title: 'profile.orders'.tr(),
+                          subtitle: 'profile.orders_subtitle'.tr(),
+                          onTap: () => _onOrdersTap(context),
+                        ),
+                      ),
+                      SizedBox(width: size.width * 0.035),
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: Icons.favorite_rounded,
+                          title: 'profile.wishlist'.tr(),
+                          subtitle: 'profile.wishlist_subtitle'.tr(),
+                          onTap: () => _onWishlistTap(context),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                  SizedBox(height: size.height * 0.018),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: Icons.confirmation_num_rounded,
+                          title: 'profile.coupons'.tr(),
+                          subtitle: 'profile.coupons_subtitle'.tr(),
+                          onTap: () => _onCouponsTap(context),
+                        ),
+                      ),
+                      SizedBox(width: size.width * 0.035),
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: Icons.support_agent_rounded,
+                          title: 'profile.help_center'.tr(),
+                          subtitle: 'profile.help_center_subtitle'.tr(),
+                          onTap: () => _onHelpCenterTap(context),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: size.height * 0.03),
+
+                  // ---------------- ACCOUNT SETTINGS ----------------
+                  _SectionLabel(
+                    text: 'profile.account_settings'.tr(),
+                  ),
+                  SizedBox(height: size.height * 0.012),
+                  _SettingsCard(
+                    tiles: [
+                      _SettingsTileData(
+                        icon: Icons.person_outline_rounded,
+                        title: 'profile.profile_information'.tr(),
+                        subtitle: 'profile.profile_information_subtitle'.tr(),
+                        onTap: () => _onProfileInfoTap(context),
+                      ),
+                      _SettingsTileData(
+                        icon: Icons.location_on_outlined,
+                        title: 'profile.saved_addresses'.tr(),
+                        subtitle: 'profile.saved_addresses_subtitle'.tr(),
+                        onTap: () => _onSavedAddressesTap(context),
+                      ),
+                      _SettingsTileData(
+                        icon: Icons.credit_card_rounded,
+                        title: 'profile.payment_methods'.tr(),
+                        subtitle: 'profile.payment_methods_subtitle'.tr(),
+                        onTap: () => _onPaymentMethodsTap(context),
+                      ),
+
+                      _SettingsTileData(
+                        icon: Icons.language_rounded,
+                        title: 'settings.language'.tr(),
+                        subtitle: 'settings.language_subtitle'.tr(),
+                        onTap: () => _onLanguageTap(context),
+                        isLast: true,
+                      ),
+                      // _SettingsTileData(
+                      //   icon: Icons.notifications_none_rounded,
+                      //   title: 'Notification Settings',
+                      //   subtitle: 'Alerts and preferences',
+                      //   onTap: _onNotificationSettingsTap,
+                      // ),
+                      // _SettingsTileData(
+                      //   icon: Icons.shield_outlined,
+                      //   title: 'Privacy & Security',
+                      //   subtitle: 'Password and data',
+                      //   onTap: () => _onPrivacySecurityTap(context),
+                      //   isLast: true,
+                      // ),
+                    ],
+                  ),
+                  SizedBox(height: size.height * 0.03),
+
+                  // ---------------- MORE ----------------
+                  _SectionLabel(
+                    text: 'profile.more'.tr(),
+                  ),
+                  SizedBox(height: size.height * 0.012),
+                  _SettingsCard(
+                    tiles: [
+                      _SettingsTileData(
+                        title: 'profile.about_shopzo'.tr(),
+                        onTap: () => _onAboutTap(context),
+                        isExternal: true,
+                      ),
+
+                      _SettingsTileData(
+                        title: 'profile.terms_of_service'.tr(),
+                        onTap: () => _onTermsTap(context),
+                        isExternal: true,
+                      ),
+
+                      _SettingsTileData(
+                        title: 'profile.privacy_policy'.tr(),
+                        onTap: () => _onPrivacyPolicyTap(context),
+                        isExternal: true,
+                      ),
+
+                      _SettingsTileData(
+                        title: 'profile.return_policy'.tr(),
+                        onTap: () => _onReturnPolicyTap(context),
+                        isExternal: true,
+                        isLast: true,
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: size.height * 0.03),
+
+                  // ---------------- LOG OUT ----------------
+                  GestureDetector(
+                    onTap: () => _onLogoutTap(context),
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        vertical: size.height * 0.015,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ColorConstant.errorColor.withOpacity(.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            size: 16,
+                            color: ColorConstant.errorColor,
+                          ),
+                          const SizedBox(width: 8),
+                          TextContext(
+                            text: 'profile.log_out'.tr(),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: ColorConstant.errorColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: size.height * 0.014),
+
+                  // ---------------- APP VERSION ----------------
+                  Center(
+                    child: TextContext(
+                      text: ProfileScreen._appVersion,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: ColorConstant.placeholderColor,
+                    ),
+                  ),
+
+                  SizedBox(height: size.height * 0.02),
+                ],
               ),
-
-              SizedBox(height: size.height * 0.014),
-
-              // ---------------- APP VERSION ----------------
-              Center(
-                child: TextContext(
-                  text: _appVersion,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: ColorConstant.placeholderColor,
-                ),
-              ),
-
-              SizedBox(height: size.height * 0.02),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -367,8 +427,11 @@ class _ProfileHeader extends StatelessWidget {
                   errorBuilder: (_, __, ___) => Container(
                     color: ColorConstant.primaryLight,
                     alignment: Alignment.center,
-                    child: Icon(Icons.person_rounded,
-                        size: avatarSize * 0.5, color: ColorConstant.primaryColor),
+                    child: Icon(
+                      Icons.person_rounded,
+                      size: avatarSize * 0.5,
+                      color: ColorConstant.primaryColor,
+                    ),
                   ),
                 ),
               ),
@@ -383,11 +446,17 @@ class _ProfileHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: ColorConstant.primaryColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: ColorConstant.whiteColor, width: 2),
+                      border: Border.all(
+                        color: ColorConstant.whiteColor,
+                        width: 2,
+                      ),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.edit_rounded,
-                        size: avatarSize * 0.15, color: Colors.white),
+                    child: Icon(
+                      Icons.edit_rounded,
+                      size: avatarSize * 0.15,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -469,7 +538,11 @@ class _QuickActionCard extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: size.width * 0.05, color: ColorConstant.primaryColor),
+              child: Icon(
+                icon,
+                size: size.width * 0.05,
+                color: ColorConstant.primaryColor,
+              ),
             ),
             SizedBox(height: size.height * 0.01),
             TextContext(
@@ -572,8 +645,11 @@ class _SettingsTile extends StatelessWidget {
           border: data.isLast
               ? null
               : Border(
-            bottom: BorderSide(color: ColorConstant.dividerColor, width: 1),
-          ),
+                  bottom: BorderSide(
+                    color: ColorConstant.dividerColor,
+                    width: 1,
+                  ),
+                ),
         ),
         child: Row(
           children: [

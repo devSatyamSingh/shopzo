@@ -98,7 +98,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildHeader(BuildContext context, Size size) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.012, size.width * 0.045, 0),
+      padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.012, size.width * 0.025, 0),
       child: Row(
         children: [
           InkWell(
@@ -118,7 +118,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
               textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(width: 34), // symmetry ke liye (back-icon jitna space)
+          InkWell(
+            onTap: () => Navigator.pushNamed(context, RouteName.myReturns),
+            borderRadius: BorderRadius.circular(10),
+            child: const Padding(
+              padding: EdgeInsets.all(6),
+              child: Icon(Icons.assignment_return_outlined, color: ColorConstant.primaryDark, size: 22),
+            ),
+          ),
         ],
       ),
     );

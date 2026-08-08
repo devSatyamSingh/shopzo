@@ -10,10 +10,8 @@ import '../../res/button_context.dart';
 import '../../utils/skelton_box.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/address/address_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-/// Shopzo — Select / manage saved addresses.
-/// Backed by AddressViewModel (shared via Provider) — add/edit/delete all
-/// update the SAME list, so this screen never needs a manual refetch.
 class SelectAddressScreen extends StatefulWidget {
   const SelectAddressScreen({super.key});
 
@@ -24,10 +22,6 @@ class SelectAddressScreen extends StatefulWidget {
 class _SelectAddressScreenState extends State<SelectAddressScreen> {
   int _selectedIndex = 0;
   bool _isLoadingLocation = false;
-
-  // Only used for the "Use Current Location" convenience card — NOT
-  // persisted to the backend. If the user wants it saved permanently,
-  // they still go through Add New Address.
   AddressModel? _currentLocationAddress;
 
   @override
@@ -59,7 +53,10 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
 
       if (placemarks.isEmpty) {
         if (!mounted) return;
-        AppUtils.error(context, 'Could not fetch address for your location.');
+        AppUtils.error(
+          context,
+          'select_address.could_not_fetch_location'.tr(),
+        );
         setState(() => _isLoadingLocation = false);
         return;
       }
@@ -85,18 +82,27 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
       });
 
       if (!mounted) return;
-      AppUtils.success(context, 'Current location added successfully!');
+      AppUtils.success(
+        context,
+        'select_address.location_added'.tr(),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoadingLocation = false);
-      AppUtils.error(context, 'Could not detect your location. Please try again.');
+      AppUtils.error(
+        context,
+        'select_address.could_not_detect_location'.tr(),
+      );
     }
   }
 
   Future<bool> _ensureLocationPermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      AppUtils.error(context, 'Please turn on device location (GPS) to continue.');
+      AppUtils.error(
+        context,
+        'select_address.turn_on_gps'.tr(),
+      );
       return false;
     }
 
@@ -104,7 +110,10 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        AppUtils.error(context, 'Location permission is required to detect your address.');
+        AppUtils.error(
+          context,
+          'select_address.permission_required'.tr(),
+        );
         return false;
       }
     }
@@ -112,7 +121,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
     if (permission == LocationPermission.deniedForever) {
       AppUtils.error(
         context,
-        'Location permission is permanently denied. Enable it from app settings.',
+        'select_address.permission_permanently_denied'.tr(),
       );
       await Geolocator.openAppSettings();
       return false;
@@ -141,13 +150,17 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Address'),
-        content: Text('Are you sure you want to delete this address?'),
+        title: Text(
+          'select_address.delete_address'.tr(),
+        ),
+        content: Text(
+          'select_address.delete_confirmation'.tr(),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: TextContext(
-              text: 'Cancel',
+              text: 'select_address.cancel'.tr(),
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: ColorConstant.bodyTextColor,
@@ -162,16 +175,20 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                 setState(() {
                   if (_selectedIndex > 0) _selectedIndex = 0;
                 });
-                AppUtils.success(context, 'Address deleted');
+                AppUtils.success(
+                  context,
+                  'select_address.address_deleted'.tr(),
+                );
               } else {
                 AppUtils.error(
                   context,
-                  context.read<AddressViewModel>().errorMessage ?? 'Failed to delete address',
+                  context.read<AddressViewModel>().errorMessage ??
+                      'select_address.delete_failed'.tr(),
                 );
               }
             },
             child: TextContext(
-              text: 'Delete',
+              text: 'select_address.delete'.tr(),
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: ColorConstant.errorColor,
@@ -196,7 +213,9 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
       backgroundColor: ColorConstant.scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: ColorConstant.whiteColor,
-        title: const Text('Select Address'),
+        title: Text(
+          'select_address.title'.tr(),
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -218,8 +237,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                       Icon(Icons.wifi_off_rounded, size: 46, color: ColorConstant.placeholderColor),
                       SizedBox(height: size.height * 0.015),
                       TextContext(
-                        text: viewModel.errorMessage ?? 'Something went wrong',
-                        fontSize: 14,
+                        text: viewModel.errorMessage ?? 'select_address.something_went_wrong'.tr(),                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         textAlign: TextAlign.center,
                         color: ColorConstant.labelTextColor,
@@ -228,7 +246,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                       TextButton(
                         onPressed: () => viewModel.fetchAddresses(forceRefresh: true),
                         child: TextContext(
-                          text: 'Retry',
+                          text: 'select_address.retry'.tr(),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: ColorConstant.primaryColor,
@@ -302,8 +320,8 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                                     children: [
                                       TextContext(
                                         text: _isLoadingLocation
-                                            ? 'Detecting your location...'
-                                            : 'Use Current Location',
+                                            ? 'select_address.detecting_location'.tr()
+                                            : 'select_address.use_current_location'.tr(),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: _isLoadingLocation
@@ -312,8 +330,8 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                                       ),
                                       TextContext(
                                         text: _isLoadingLocation
-                                            ? 'Please wait while we find your location'
-                                            : 'Detect your location automatically',
+                                            ? 'select_address.detecting_location_subtitle'.tr()
+                                            : 'select_address.detect_location_subtitle'.tr(),
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w400,
                                         color: _isLoadingLocation
@@ -340,13 +358,17 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             TextContext(
-                              text: 'Saved Addresses',
+                              text: 'select_address.saved_addresses'.tr(),
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: ColorConstant.headlineTextColor,
                             ),
                             TextContext(
-                              text: '${viewModel.addresses.length} addresses',
+                              text: 'select_address.addresses_count'.tr(
+                                args: [
+                                  viewModel.addresses.length.toString(),
+                                ],
+                              ),
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                               color: ColorConstant.labelTextColor,
@@ -362,7 +384,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                             padding: EdgeInsets.symmetric(vertical: size.height * 0.03),
                             child: Center(
                               child: TextContext(
-                                text: 'No saved addresses yet',
+                                text: 'select_address.no_saved_addresses'.tr(),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: ColorConstant.labelTextColor,
@@ -410,7 +432,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                                 ),
                                 const SizedBox(width: 10),
                                 TextContext(
-                                  text: 'Add New Address',
+                                  text: 'select_address.add_new_address'.tr(),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.primaryColor,
@@ -433,7 +455,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                     vertical: size.height * 0.015,
                   ),
                   child: CustomButton(
-                    text: 'Deliver Here',
+                    text: 'select_address.deliver_here'.tr(),
                     onTap: () => _onDeliverHere(displayList),
                     color: ColorConstant.primaryColor,
                     icon: Icons.keyboard_double_arrow_right_rounded,
@@ -520,7 +542,7 @@ class _SavedAddressCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'DEFAULT',
+                      'select_address.default'.tr(),
                       style: TextStyle(
                         color: ColorConstant.successColor,
                         fontSize: 9.5,
@@ -565,7 +587,7 @@ class _SavedAddressCard extends StatelessWidget {
                         Icon(Icons.edit_rounded, size: 15, color: ColorConstant.primaryColor),
                         const SizedBox(width: 5),
                         TextContext(
-                          text: 'Edit',
+                          text: 'select_address.edit'.tr(),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: ColorConstant.primaryColor,
@@ -581,7 +603,7 @@ class _SavedAddressCard extends StatelessWidget {
                         Icon(Icons.delete_outline_rounded, size: 15, color: ColorConstant.errorColor),
                         const SizedBox(width: 5),
                         TextContext(
-                          text: 'Delete',
+                          text: 'select_address.delete'.tr(),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: ColorConstant.errorColor,

@@ -1,0 +1,191 @@
+{
+  "common": {
+    "or": "OR"
+  },
+  "auth": {
+    "welcome_back": "Welcome Back",
+    "login_subtitle": "Log in with your mobile number and password.",
+    "mobile_number": "Mobile Number",
+    "mobile_hint": "Enter your mobile number",
+    "password": "Password",
+    "password_hint": "Enter your password",
+    "forgot_password": "Forgot Password?",
+    "log_in": "Log In",
+    "new_to_shopzo": "New to Shopzo?",
+    "create_account_subtitle": "Create an account to get started",
+    "terms_prefix": "By continuing, you agree to Shopzo's ",
+    "terms_of_service": "Terms of Service",
+    "terms_middle": " and ",
+    "privacy_policy": "Privacy Policy",
+    "terms_suffix": ".",
+    "invalid_mobile": "Please enter a valid mobile number",
+    "empty_password": "Please enter your password",
+    "login_success": "Login successful",
+    "login_failed": "Login failed. Please try again."
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "get_started": "Get Started",
+    "title1": "Discover Amazing Products",
+    "desc1": "Explore thousands of products from top-rated vendors at your fingertips.",
+    "title2": "Secure & Easy Payments",
+    "desc2": "Your security is our priority. Enjoy multiple safe payment options for a worry-free shop.",
+    "title3": "Fast & Reliable Delivery",
+    "desc3": "Track your orders in real-time and get them delivered to your doorstep swiftly."
+  },
+  "settings": {
+    "language": "Language",
+    "language_subtitle": "Change app language",
+    "select_language": "Select Language"
+  },
+  "profile": {
+    "guest_user": "Guest User",
+    "member_since": "Member since {}",
+
+    "orders": "Orders",
+    "orders_subtitle": "Track your packages",
+
+    "wishlist": "Wishlist",
+    "wishlist_subtitle": "Your favorite items",
+
+    "coupons": "Coupons",
+    "coupons_subtitle": "Exclusive offers",
+
+    "help_center": "Help Center",
+    "help_center_subtitle": "Customer support",
+
+    "account_settings": "ACCOUNT SETTINGS",
+
+    "profile_information": "Profile Information",
+    "profile_information_subtitle": "Name, Email, Phone",
+
+    "saved_addresses": "Saved Addresses",
+    "saved_addresses_subtitle": "Manage delivery locations",
+
+    "payment_methods": "Payment Methods",
+    "payment_methods_subtitle": "Saved cards and UPI",
+
+    "more": "MORE",
+
+    "about_shopzo": "About Shopzo",
+    "terms_of_service": "Terms of Service",
+    "privacy_policy": "Privacy Policy",
+    "return_policy": "Return Policy",
+
+    "log_out": "Log Out",
+    "logout_message": "Are you sure you want to log out of your Shopzo account?",
+    "cancel": "Cancel"
+  },
+  "bottom_nav": {
+    "home": "Home",
+    "categories": "Categories",
+    "cart": "Cart",
+    "orders": "Orders",
+    "profile": "Profile"
+  },
+  "coupons": {
+    "title": "Coupons",
+    "all_coupons": "All Coupons",
+    "copy_instruction": "Tap any coupon to copy the code, then apply it at checkout",
+    "retry": "Retry",
+    "no_coupons": "No coupons available right now",
+    "expired": "Expired",
+    "tap_to_copy": "TAP TO COPY",
+    "add_more": "Add ₹{} more to unlock this offer",
+    "code_copied": "Code '{}' copied — paste it at checkout to apply"
+  },
+  "address": {
+    "finding_location": "Finding your location...",
+    "location_permission_denied": "Location permission denied",
+    "search_or_move_map": "Search or move the map to set your address",
+    "unknown_location": "Unknown location",
+    "could_not_fetch_address": "Could not fetch address for this location",
+    "could_not_fetch_address_short": "Could not fetch address",
+    "could_not_detect_location": "Could not detect your location. Please search manually.",
+    "turn_on_gps": "Please turn on device location (GPS) to continue.",
+    "permission_required": "Location permission is required to detect your address.",
+    "permission_permanently_denied": "Location permission is permanently denied. Enable it from app settings.",
+    "location_not_found": "Location not found.",
+
+    "edit_address": "Edit Address",
+    "confirm_location": "Confirm Your Location",
+
+    "house_flat_block": "House/Flat/Block No.",
+    "house_flat_hint": "e.g. Flat 402, Block B",
+
+    "apartment_building": "Apartment/Building Name",
+    "apartment_building_hint": "e.g. Sunshine Apartments",
+
+    "landmark": "Landmark (Optional)",
+    "landmark_hint": "e.g. Near Metro Station",
+
+    "city": "City",
+    "pincode": "Pincode",
+    "state": "State",
+
+    "save_address_as": "Save address as",
+    "home": "Home",
+    "work": "Work",
+    "other": "Other",
+
+    "receiver_name": "Receiver's Name",
+    "receiver_name_hint": "e.g. John Doe",
+
+    "receiver_phone": "Receiver's Phone Number",
+    "mobile_number": "Mobile Number",
+
+    "set_as_default": "Set as default address",
+    "default_address_subtitle": "Use this for all future orders",
+
+    "update_address": "Update Address",
+    "save_address": "Save Address",
+
+    "fill_required": "Please fill all required fields.",
+    "address_updated": "Address updated",
+    "address_saved": "Address saved",
+    "save_failed": "Failed to save address. Please try again.",
+    "search_area_hint": "Search for area, street name..."
+  },
+  "select_address": {
+    "title": "Select Address",
+
+    "use_current_location": "Use Current Location",
+    "detecting_location": "Detecting your location...",
+    "detect_location_subtitle": "Detect your location automatically",
+    "detecting_location_subtitle": "Please wait while we find your location",
+
+    "saved_addresses": "Saved Addresses",
+    "addresses_count": "{} addresses",
+    "no_saved_addresses": "No saved addresses yet",
+
+    "add_new_address": "Add New Address",
+    "deliver_here": "Deliver Here",
+
+    "billing_address": "Billing Address",
+    "shipping_address": "Shipping Address",
+    "default": "DEFAULT",
+
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+
+    "delete_address": "Delete Address",
+    "delete_confirmation": "Are you sure you want to delete this address?",
+
+    "address_deleted": "Address deleted",
+    "delete_failed": "Failed to delete address",
+
+    "something_went_wrong": "Something went wrong",
+    "retry": "Retry",
+
+    "could_not_fetch_location": "Could not fetch address for your location.",
+    "could_not_detect_location": "Could not detect your location. Please try again.",
+    "turn_on_gps": "Please turn on device location (GPS) to continue.",
+    "permission_required": "Location permission is required to detect your address.",
+    "permission_permanently_denied": "Location permission is permanently denied. Enable it from app settings.",
+
+    "current_location": "Current Location",
+    "location_added": "Current location added successfully!"
+  }
+}

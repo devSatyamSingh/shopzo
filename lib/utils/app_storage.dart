@@ -14,6 +14,7 @@ class AppStorage {
   static const String _keyRefreshToken = 'refreshToken';
   static const String _keyCustomerData = 'customer_data';
   static const String _keyOnboardingSeen = 'onboarding_seen';
+  static const String _keyLanguageCode = 'language_code';
 
   static SharedPreferences? _prefs;
 
@@ -71,6 +72,15 @@ class AppStorage {
 
   static bool get hasSeenOnboarding => _instance.getBool(_keyOnboardingSeen) ?? false;
 
+  // ---------------------------------------------------------------------
+  // LANGUAGE (default = English — never cleared on logout, it's a
+  // device/user display preference, not session data)
+  // ---------------------------------------------------------------------
+  static Future<void> saveLanguageCode(String code) =>
+      _instance.setString(_keyLanguageCode, code);
+
+  static String getLanguageCode() =>
+      _instance.getString(_keyLanguageCode) ?? 'en';
 
   static Future<void> saveSession({
     required String accessToken,
@@ -91,13 +101,13 @@ class AppStorage {
     await saveRefreshToken(refreshToken);
   }
 
-
-
   static Future<void> logout() async {
     await _instance.remove(_keyAccessToken);
     await _instance.remove(_keyRefreshToken);
     await _instance.remove(_keyCustomerData);
     await _instance.remove(_keyOnboardingSeen);
+    // language_code jaanbujh kar remove nahi kiya — logout ke baad bhi
+    // user ki chuni hui language yaad rahegi (Flipkart wala hi behavior)
   }
 
   /// Full wipe — rarely needed (e.g. a debug "clear app data" action).

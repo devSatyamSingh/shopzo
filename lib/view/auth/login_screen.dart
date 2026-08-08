@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -9,7 +10,6 @@ import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
 import 'register_screen.dart';
 import '../../viewmodel/auth/auth_viewmodel.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,11 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _onLogin() async {
     if (!_isPhoneValid || _rawNumber.isEmpty) {
-      AppUtils.error(context, 'Please enter a valid mobile number');
+      AppUtils.error(context, 'auth.invalid_mobile'.tr());
       return;
     }
     if (_passwordController.text.trim().isEmpty) {
-      AppUtils.error(context, 'Please enter your password');
+      AppUtils.error(context, 'auth.empty_password'.tr());
       return;
     }
 
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = false);
 
     if (success) {
-      AppUtils.success(context, 'Login successful');
+      AppUtils.success(context, 'auth.login_success'.tr());
       Navigator.pushNamedAndRemoveUntil(
         context,
         RouteName.mainWrapper,
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       AppUtils.error(
         context,
-        _authViewModel.errorMessage ?? 'Login failed. Please try again.',
+        _authViewModel.errorMessage ?? 'auth.login_failed'.tr(),
       );
     }
   }
@@ -89,27 +89,20 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(height: size.height * 0.04),
 
-              // ---------------- APP LOGO ----------------
               Center(
                 child: Container(
                   height: size.width * 0.23,
                   width: size.width * 0.23,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
                   clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/images/shopzolo.png',
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.asset('assets/images/shopzolo.png', fit: BoxFit.cover),
                 ),
               ),
 
               SizedBox(height: size.height * 0.02),
 
-              // ---------------- HEADLINE ----------------
               TextContext(
-                text: 'Welcome Back',
+                text: 'auth.welcome_back'.tr(),
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
                 textAlign: TextAlign.center,
@@ -120,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: size.height * 0.01),
 
               TextContext(
-                text: 'Log in with your mobile number and password.',
+                text: 'auth.login_subtitle'.tr(),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 textAlign: TextAlign.center,
@@ -131,9 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.04),
 
-              // ---------------- MOBILE LABEL ----------------
               TextContext(
-                text: 'Mobile Number',
+                text: 'auth.mobile_number'.tr(),
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: ColorConstant.bodyTextColor,
@@ -141,46 +133,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.01),
 
-              // ---------------- PHONE FIELD (country code + flag) ----------------
               IntlPhoneField(
                 initialCountryCode: 'IN',
                 disableLengthCheck: false,
                 showDropdownIcon: true,
                 dropdownIconPosition: IconPosition.trailing,
                 flagsButtonPadding: const EdgeInsets.only(left: 12),
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: ColorConstant.headlineTextColor,
-                ),
-                dropdownTextStyle: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: ColorConstant.headlineTextColor,
-                ),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: ColorConstant.headlineTextColor),
+                dropdownTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.headlineTextColor),
                 decoration: InputDecoration(
-                  hintText: 'Enter your mobile number',
-                  hintStyle: TextStyle(
-                    fontSize: 14,
-                    color: ColorConstant.placeholderColor,
-                  ),
+                  hintText: 'auth.mobile_hint'.tr(),
+                  hintStyle: TextStyle(fontSize: 14, color: ColorConstant.placeholderColor),
                   filled: true,
                   fillColor: ColorConstant.primaryLight,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(
-                      color: ColorConstant.primaryColor,
-                      width: 1.4,
-                    ),
+                    borderSide: BorderSide(color: ColorConstant.primaryColor, width: 1.4),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -199,9 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.025),
 
-              // ---------------- PASSWORD LABEL ----------------
               TextContext(
-                text: 'Password',
+                text: 'auth.password'.tr(),
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 color: ColorConstant.bodyTextColor,
@@ -209,11 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.01),
 
-              // ---------------- PASSWORD FIELD ----------------
               CustomTextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                hintText: 'Enter your password',
+                hintText: 'auth.password_hint'.tr(),
                 fillColor: ColorConstant.primaryLight,
                 showBorder: false,
                 borderRadius: 16,
@@ -221,9 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 suffixIcon: IconButton(
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
+                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     size: 20,
                     color: ColorConstant.placeholderColor,
                   ),
@@ -232,15 +199,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.012),
 
-              // ---------------- FORGOT PASSWORD ----------------
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
-                  onTap: () {
-                    // 👉 navigate to forgot-password flow
-                  },
+                  onTap: () {},
                   child: TextContext(
-                    text: 'Forgot Password?',
+                    text: 'auth.forgot_password'.tr(),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: ColorConstant.primaryColor,
@@ -250,9 +214,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.03),
 
-              // ---------------- LOGIN BUTTON ----------------
               CustomButton(
-                text: 'Log In',
+                text: 'auth.log_in'.tr(),
                 onTap: _onLogin,
                 loading: _loading,
                 color: ColorConstant.primaryColor,
@@ -262,60 +225,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.03),
 
-              // ---------------- OR DIVIDER ----------------
               Row(
                 children: [
-                  Expanded(
-                    child: Divider(color: ColorConstant.dividerColor, thickness: 1),
-                  ),
+                  Expanded(child: Divider(color: ColorConstant.dividerColor, thickness: 1)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: TextContext(
-                      text: 'OR',
+                      text: 'common.or'.tr(),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: ColorConstant.labelTextColor,
                     ),
                   ),
-                  Expanded(
-                    child: Divider(color: ColorConstant.dividerColor, thickness: 1),
-                  ),
+                  Expanded(child: Divider(color: ColorConstant.dividerColor, thickness: 1)),
                 ],
               ),
 
               SizedBox(height: size.height * 0.025),
 
-              // ---------------- REGISTER CARD ----------------
               InkWell(
                 onTap: _onRegisterTap,
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: size.width * 0.04,
-                    vertical: size.height * 0.016,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.04, vertical: size.height * 0.016),
                   decoration: BoxDecoration(
                     color: ColorConstant.primaryLight,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: ColorConstant.primaryColor.withOpacity(0.15),
-                    ),
+                    border: Border.all(color: ColorConstant.primaryColor.withOpacity(0.15)),
                   ),
                   child: Row(
                     children: [
                       Container(
                         height: 42,
                         width: 42,
-                        decoration: const BoxDecoration(
-                          color: ColorConstant.primaryColor,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: const BoxDecoration(color: ColorConstant.primaryColor, shape: BoxShape.circle),
                         alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.person_add_alt_1_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        child: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 20),
                       ),
                       SizedBox(width: size.width * 0.03),
                       Expanded(
@@ -323,14 +268,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TextContext(
-                              text: 'New to Shopzo?',
+                              text: 'auth.new_to_shopzo'.tr(),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: ColorConstant.headlineTextColor,
                             ),
                             const SizedBox(height: 2),
                             TextContext(
-                              text: 'Create an account to get started',
+                              text: 'auth.create_account_subtitle'.tr(),
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               color: ColorConstant.labelTextColor,
@@ -338,11 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: ColorConstant.primaryColor,
-                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 14, color: ColorConstant.primaryColor),
                     ],
                   ),
                 ),
@@ -350,42 +291,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: size.height * 0.06),
 
-              // ---------------- FOOTER ----------------
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Poppins',
-                      color: ColorConstant.labelTextColor,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(fontSize: 13, fontFamily: 'Poppins', color: ColorConstant.labelTextColor, height: 1.5),
                     children: [
-                      const TextSpan(text: "By continuing, you agree to Shopzo's "),
+                      TextSpan(text: 'auth.terms_prefix'.tr()),
                       TextSpan(
-                        text: 'Terms of Service',
-                        style: TextStyle(
-                          color: ColorConstant.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                          },
+                        text: 'auth.terms_of_service'.tr(),
+                        style: TextStyle(color: ColorConstant.primaryColor, fontWeight: FontWeight.w600),
+                        recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
-                      const TextSpan(text: ' and '),
+                      TextSpan(text: 'auth.terms_middle'.tr()),
                       TextSpan(
-                        text: 'Privacy Policy',
-                        style: TextStyle(
-                          color: ColorConstant.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                          },
+                        text: 'auth.privacy_policy'.tr(),
+                        style: TextStyle(color: ColorConstant.primaryColor, fontWeight: FontWeight.w600),
+                        recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
-                      const TextSpan(text: '.'),
+                      TextSpan(text: 'auth.terms_suffix'.tr()),
                     ],
                   ),
                 ),

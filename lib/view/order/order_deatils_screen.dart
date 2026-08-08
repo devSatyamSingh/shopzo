@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopzo/view/order/return_form_bottomsheet.dart';
 import 'package:shopzo/view/order/review_rating_screen.dart';
 import '../../model/order/order_model.dart';
 import '../../res/button_context.dart';
@@ -347,15 +348,33 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
               TextContext(text: "Qty: ${item.quantity}", fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
               if (canReview) ...[
                 const SizedBox(height: 8),
-                InkWell(
-                  onTap: () => showReviewBottomSheet(context, productId: item.productId, productName: item.displayName),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.star_border_rounded, size: 16, color: ColorConstant.ratingStarColor),
-                      const SizedBox(width: 4),
-                      TextContext(text: "Rate & Review", fontSize: 12.5, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
-                    ],
-                  ),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    InkWell(
+                      onTap: () => showReviewBottomSheet(context, productId: item.productId, productName: item.displayName),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star_border_rounded, size: 16, color: ColorConstant.ratingStarColor),
+                          const SizedBox(width: 4),
+                          TextContext(text: "Rate & Review", fontSize: 12.5, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => showReturnFormBottomSheet(context, item: item),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.keyboard_return_rounded, size: 16, color: ColorConstant.orangeColor),
+                          const SizedBox(width: 4),
+                          TextContext(text: "Return / Exchange", fontSize: 12.5, fontWeight: FontWeight.w600, color: ColorConstant.orangeColor),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ],

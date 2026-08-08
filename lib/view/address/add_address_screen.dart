@@ -10,15 +10,9 @@ import '../../res/text_context.dart';
 import '../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/address/address_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-/// Shopzo — Add / Edit Address screen.
-/// Pass `editAddress` to open in edit mode (prefilled, PUT on save).
-/// Leave it null for add mode (POST on save).
-///
-/// Requires: google_maps_flutter, geolocator, geocoding packages +
-/// a valid Maps API key authorized for this app's package + SHA-1
-/// (Android) / bundle id (iOS), plus location permissions declared
-/// in AndroidManifest.xml / Info.plist (see bottom of file for both).
+
 class AddAddressScreen extends StatefulWidget {
   final AddressModel? editAddress;
 
@@ -31,16 +25,14 @@ class AddAddressScreen extends StatefulWidget {
 class _AddAddressScreenState extends State<AddAddressScreen> {
   GoogleMapController? _mapController;
 
-  // fallback location used only until real GPS location is found
   static const LatLng _fallbackPosition = LatLng(28.6139, 77.2090); // Delhi/NCR
 
   LatLng _mapCenter = _fallbackPosition;
-  bool _locatingUser = true; // true while first GPS fix is being fetched
-  bool _resolvingAddress = false; // true while reverse-geocoding is running
-
+  bool _locatingUser = true;
+  bool _resolvingAddress = false;
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _addressController =
-  TextEditingController(text: 'Locating you...');
+  TextEditingController(text: 'address.finding_location'.tr());
   final TextEditingController _houseController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
@@ -50,12 +42,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final TextEditingController _receiverPhoneController = TextEditingController();
 
   String _selectedState = 'Uttar Pradesh';
-  String _areaChipText = 'Locating you...';
-  int _saveAsIndex = 0; // 0 = Home, 1 = Work, 2 = Other — UI label only for now,
-  // the API doesn't have a Home/Work/Other field yet (only SHIPPING/BILLING).
+  String _areaChipText = 'address.finding_location'.tr();
+  int _saveAsIndex = 0;
   bool _setAsDefault = true;
   bool _saving = false;
-
   bool get _isEditMode => widget.editAddress != null;
 
   static const List<String> _states = [
@@ -68,9 +58,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   ];
 
   static const List<Map<String, dynamic>> _saveAsOptions = [
-    {'label': 'Home', 'icon': Icons.home_rounded},
-    {'label': 'Work', 'icon': Icons.work_rounded},
-    {'label': 'Other', 'icon': Icons.label_rounded},
+    {
+      'label': 'address.home',
+      'icon': Icons.home_rounded,
+    },
+    {
+      'label': 'address.work',
+      'icon': Icons.work_rounded,
+    },
+    {
+      'label': 'address.other',
+      'icon': Icons.label_rounded,
+    },
   ];
 
   @override
@@ -97,14 +96,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     _areaChipText = address.fullAddress;
     _locatingUser = false;
   }
-
-  // ============================================================
-  // LOCATION
-  // ============================================================
-
-  /// Runs once on screen open (add mode only): checks permission, grabs
-  /// a GPS fix, moves the map there, and reverse-geocodes it into an
-  /// address.
   Future<void> _detectCurrentLocation() async {
     setState(() => _locatingUser = true);
 
@@ -112,8 +103,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     if (!hasPermission) {
       setState(() {
         _locatingUser = false;
-        _areaChipText = 'Location permission denied';
-        _addressController.text = 'Search or move the map to set your address';
+        _areaChipText = 'address.location_permission_denied'.tr();
+        _addressController.text = 'address.search_or_move_map'.tr();
       });
       return;
     }
@@ -127,25 +118,24 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       final target = LatLng(position.latitude, position.longitude);
 
       setState(() => _mapCenter = target);
-
-      // camera might not be ready yet if map is still initializing —
-      // guard with null check, onMapCreated also re-checks _mapCenter
       await _mapController?.animateCamera(CameraUpdate.newLatLngZoom(target, 16));
-
       await _reverseGeocode(target);
     } catch (e) {
-      AppUtils.error(context, 'Could not detect your location. Please search manually.');
+      AppUtils.error(
+        context,
+        'address.could_not_detect_location'.tr(),
+      );
     } finally {
       if (mounted) setState(() => _locatingUser = false);
     }
   }
-
-  /// Handles the full permission flow: service enabled? permission
-  /// granted? asks if denied; sends to Settings if permanently denied.
   Future<bool> _ensureLocationPermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      AppUtils.error(context, 'Please turn on device location (GPS) to continue.');
+      AppUtils.error(
+        context,
+        'address.turn_on_gps'.tr(),
+      );
       return false;
     }
 
@@ -153,7 +143,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        AppUtils.error(context, 'Location permission is required to detect your address.');
+        AppUtils.error(
+          context,
+          'address.permission_required'.tr(),
+        );
         return false;
       }
     }
@@ -161,7 +154,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     if (permission == LocationPermission.deniedForever) {
       AppUtils.error(
         context,
-        'Location permission is permanently denied. Enable it from app settings.',
+        'address.permission_permanently_denied'.tr(),
       );
       await Geolocator.openAppSettings();
       return false;
@@ -187,8 +180,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
       if (!mounted) return;
       setState(() {
-        _addressController.text = line.isNotEmpty ? line : 'Unknown location';
-        _areaChipText = line.isNotEmpty ? line : 'Unknown location';
+        _addressController.text = line.isNotEmpty ? line : 'address.unknown_location'.tr();
+        _areaChipText = line.isNotEmpty ? line : 'address.unknown_location'.tr();
         _cityController.text = place.locality ?? _cityController.text;
         _pincodeController.text = place.postalCode ?? _pincodeController.text;
         if (place.administrativeArea != null &&
@@ -199,8 +192,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _addressController.text = 'Could not fetch address for this location';
-        _areaChipText = 'Could not fetch address';
+        _addressController.text = 'address.could_not_fetch_address'.tr();
+
+        _areaChipText = 'address.could_not_fetch_address_short'.tr();
       });
     } finally {
       if (mounted) setState(() => _resolvingAddress = false);
@@ -209,8 +203,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-    // if GPS already resolved before the map finished initializing,
-    // snap the camera there immediately
     if (_mapCenter != _fallbackPosition) {
       controller.animateCamera(CameraUpdate.newLatLngZoom(_mapCenter, 16));
     }
@@ -237,7 +229,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     if (_houseController.text.trim().isEmpty ||
         _cityController.text.trim().isEmpty ||
         _pincodeController.text.trim().isEmpty) {
-      AppUtils.error(context, 'Please fill all required fields.');
+      AppUtils.error(
+        context,
+        'address.fill_required'.tr(),
+      );
       return;
     }
 
@@ -267,12 +262,18 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     setState(() => _saving = false);
 
     if (success) {
-      AppUtils.success(context, _isEditMode ? 'Address updated' : 'Address saved');
+      AppUtils.success(
+        context,
+        _isEditMode
+            ? 'address.address_updated'.tr()
+            : 'address.address_saved'.tr(),
+      );
       Navigator.pop(context, true);
     } else {
       AppUtils.error(
         context,
-        viewModel.errorMessage ?? 'Failed to save address. Please try again.',
+        viewModel.errorMessage ??
+            'address.save_failed'.tr(),
       );
     }
   }
@@ -427,7 +428,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                         decoration: InputDecoration(
                                           isCollapsed: true,
                                           border: InputBorder.none,
-                                          hintText: 'Search for area, street name...',
+                                          hintText: 'address.search_area_hint'.tr(),
                                           hintStyle: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontSize: 12.5,
@@ -446,8 +447,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                             );
                                           } catch (_) {
                                             if (mounted) {
-                                              AppUtils.error(context, 'Location not found.');
-                                            }
+                                              AppUtils.error(
+                                                context,
+                                                'address.location_not_found'.tr(),
+                                              );                                            }
                                           }
                                         },
                                       ),
@@ -586,9 +589,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         ),
                       ),
                     ),
-
                     TextContext(
-                      text: _isEditMode ? 'Edit Address' : 'Confirm Your Location',
+                      text: _isEditMode
+                          ? 'address.edit_address'.tr()
+                          : 'address.confirm_location'.tr(),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: ColorConstant.headlineTextColor,
@@ -605,26 +609,35 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
                     SizedBox(height: size.height * 0.02),
 
-                    _FieldLabel(text: 'House/Flat/Block No.'),
+                    _FieldLabel(
+                      text: 'address.house_flat_block'.tr(),
+                    ),
+
                     CustomTextField(
                       controller: _houseController,
-                      hintText: 'e.g. Flat 402, Block B',
+                      hintText: 'address.house_flat_hint'.tr(),
                     ),
 
                     SizedBox(height: size.height * 0.016),
 
-                    _FieldLabel(text: 'Apartment/Building Name'),
+                    _FieldLabel(
+                      text: 'address.apartment_building'.tr(),
+                    ),
+
                     CustomTextField(
                       controller: _apartmentController,
-                      hintText: 'e.g. Sunshine Apartments',
+                      hintText: 'address.apartment_building_hint'.tr(),
                     ),
 
                     SizedBox(height: size.height * 0.016),
 
-                    _FieldLabel(text: 'Landmark (Optional)'),
+                    _FieldLabel(
+                      text: 'address.landmark'.tr(),
+                    ),
+
                     CustomTextField(
                       controller: _landmarkController,
-                      hintText: 'e.g. Near Metro Station',
+                      hintText: 'address.landmark_hint'.tr(),
                     ),
 
                     SizedBox(height: size.height * 0.016),
@@ -636,7 +649,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _FieldLabel(text: 'City'),
+                              _FieldLabel(
+                                text: 'address.city'.tr(),
+                              ),
                               CustomTextField(controller: _cityController),
                             ],
                           ),
@@ -646,7 +661,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _FieldLabel(text: 'Pincode'),
+                              _FieldLabel(
+                                text: 'address.pincode'.tr(),
+                              ),
                               CustomTextField(
                                 controller: _pincodeController,
                                 keyboardType: TextInputType.number,
@@ -660,7 +677,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
                     SizedBox(height: size.height * 0.016),
 
-                    _FieldLabel(text: 'State'),
+                    _FieldLabel(
+                      text: 'address.state'.tr(),
+                    ),
                     _StateDropdown(
                       value: _selectedState,
                       items: _states,
@@ -669,7 +688,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
                     SizedBox(height: size.height * 0.02),
 
-                    _FieldLabel(text: 'Save address as'),
+                    _FieldLabel(
+                      text: 'address.save_address_as'.tr(),
+                    ),
                     SizedBox(height: size.height * 0.01),
                     Row(
                       children: List.generate(_saveAsOptions.length, (index) {
@@ -703,7 +724,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      option['label'] as String,
+                                      (option['label'] as String).tr(),
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
                                         fontSize: 12.5,
@@ -728,22 +749,31 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     // sent to the API yet — backend doesn't accept them on
                     // /addresses currently. Wire these into
                     // AddressRequestModel + AddressModel once it does.
-                    _FieldLabel(text: "Receiver's Name"),
+                    _FieldLabel(
+                      text: 'address.receiver_name'.tr(),
+                    ),
+
                     CustomTextField(
                       controller: _receiverNameController,
-                      hintText: 'e.g. John Doe',
+                      hintText: 'address.receiver_name_hint'.tr(),
                     ),
 
                     SizedBox(height: size.height * 0.016),
 
-                    _FieldLabel(text: "Receiver's Phone Number"),
+                    _FieldLabel(
+                      text: 'address.receiver_phone'.tr(),
+                    ),
+
                     CustomTextField(
                       controller: _receiverPhoneController,
-                      hintText: 'Mobile Number',
+                      hintText: 'address.mobile_number'.tr(),
                       keyboardType: TextInputType.phone,
                       maxLength: 10,
-                      prefixIcon: Icon(Icons.call_rounded,
-                          size: 17, color: ColorConstant.placeholderColor),
+                      prefixIcon: Icon(
+                        Icons.call_rounded,
+                        size: 17,
+                        color: ColorConstant.placeholderColor,
+                      ),
                     ),
 
                     SizedBox(height: size.height * 0.02),
@@ -756,13 +786,13 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextContext(
-                                text: 'Set as default address',
+                                text: 'address.set_as_default'.tr(),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: ColorConstant.headlineTextColor,
                               ),
                               TextContext(
-                                text: 'Use this for all future orders',
+                                text: 'address.default_address_subtitle'.tr(),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 color: ColorConstant.labelTextColor,
@@ -784,7 +814,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     SizedBox(height: size.height * 0.025),
 
                     CustomButton(
-                      text: _isEditMode ? 'Update Address' : 'Save Address',
+                      text: _isEditMode
+                          ? 'address.update_address'.tr()
+                          : 'address.save_address'.tr(),
                       onTap: _onSaveAddress,
                       loading: _saving,
                       color: ColorConstant.primaryColor,

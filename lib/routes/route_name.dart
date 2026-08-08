@@ -38,6 +38,9 @@ class RouteName {
   static const String myOrders = "/my-orders";
   static const String orderDetail = "/order-detail";
 
+  static const String myReturns = '/my-returns';
+  static const String returnDetail = '/return-detail';
+
   // ---- Account ----
   static const String wishlist = "/wishlist";
   static const String coupons = "/coupons";

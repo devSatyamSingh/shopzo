@@ -41,7 +41,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   bool _isBuyNowLoading = false;
 
   final List<bool> _accordionExpanded = [true, false, false, false];
-  final List<String> _accordionTitles = const [
+  final List<String> _accordionTitles = const
+  [
     "Product Details",
     "Features",
     "Delivery & Returns",

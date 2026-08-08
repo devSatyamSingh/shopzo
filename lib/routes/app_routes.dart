@@ -22,8 +22,10 @@ import '../view/home/search_screen.dart';
 import '../view/category/sub_category_screen.dart';
 import '../view/notification/notification_screen.dart';
 import '../view/onboarding/onboardingscreen.dart';
+import '../view/order/my_return_screen.dart';
 import '../view/order/order_deatils_screen.dart';
 import '../view/order/order_list_screen.dart';
+import '../view/order/return_deatils_screen.dart';
 import '../view/order/review_rating_screen.dart';
 import '../view/payment/add_payment_screen.dart';
 import '../view/payment/payment_methods_screen.dart';
@@ -302,6 +304,13 @@ class AppRoutes {
           settings,
           transitionType: TransitionType.slideFromRight,
         );
+
+      case RouteName.myReturns:
+        return MaterialPageRoute(builder: (_) => const MyReturnsScreen());
+
+      case RouteName.returnDetail:
+        final returnId = settings.arguments as String;
+        return MaterialPageRoute(builder: (_) => ReturnDetailScreen(returnId: returnId));
 
       // case RouteName.reviewRating:
       //   return _getPageRoute(

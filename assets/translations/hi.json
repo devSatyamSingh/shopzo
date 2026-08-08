@@ -1,0 +1,190 @@
+{
+  "common": {
+    "or": "या"
+  },
+  "auth": {
+    "welcome_back": "वापसी पर स्वागत है",
+    "login_subtitle": "अपने मोबाइल नंबर और पासवर्ड से लॉगिन करें।",
+    "mobile_number": "मोबाइल नंबर",
+    "mobile_hint": "अपना मोबाइल नंबर दर्ज करें",
+    "password": "पासवर्ड",
+    "password_hint": "अपना पासवर्ड दर्ज करें",
+    "forgot_password": "पासवर्ड भूल गए?",
+    "log_in": "लॉग इन करें",
+    "new_to_shopzo": "Shopzo पर नए हैं?",
+    "create_account_subtitle": "शुरू करने के लिए खाता बनाएं",
+    "terms_prefix": "जारी रखकर, आप Shopzo की ",
+    "terms_of_service": "सेवा की शर्तों",
+    "terms_middle": " और ",
+    "privacy_policy": "गोपनीयता नीति",
+    "terms_suffix": " से सहमत होते हैं।",
+    "invalid_mobile": "कृपया एक वैध मोबाइल नंबर दर्ज करें",
+    "empty_password": "कृपया अपना पासवर्ड दर्ज करें",
+    "login_success": "लॉगिन सफल रहा",
+    "login_failed": "लॉगिन विफल हुआ। कृपया पुनः प्रयास करें।"
+  },
+  "onboarding": {
+    "skip": "छोड़ें",
+    "next": "आगे",
+    "get_started": "शुरू करें",
+    "title1": "अद्भुत उत्पाद खोजें",
+    "desc1": "शीर्ष रेटेड विक्रेताओं के हजारों उत्पाद अपनी उंगलियों पर खोजें।",
+    "title2": "सुरक्षित और आसान भुगतान",
+    "desc2": "आपकी सुरक्षा हमारी प्राथमिकता है। बिना किसी चिंता के खरीदारी के लिए कई सुरक्षित भुगतान विकल्पों का आनंद लें।",
+    "title3": "तेज़ और भरोसेमंद डिलीवरी",
+    "desc3": "अपने ऑर्डर को रीयल-टाइम में ट्रैक करें और उन्हें तेजी से अपने दरवाजे तक पहुंचाएं।"
+  },
+  "settings": {
+    "language": "भाषा",
+    "language_subtitle": "ऐप की भाषा बदलें",
+    "select_language": "भाषा चुनें"
+  },
+  "profile": {
+    "guest_user": "अतिथि उपयोगकर्ता",
+    "member_since": "{} से सदस्य",
+
+    "orders": "ऑर्डर",
+    "orders_subtitle": "अपने पैकेज ट्रैक करें",
+
+    "wishlist": "विशलिस्ट",
+    "wishlist_subtitle": "आपकी पसंदीदा चीज़ें",
+
+    "coupons": "कूपन",
+    "coupons_subtitle": "विशेष ऑफ़र",
+
+    "help_center": "सहायता केंद्र",
+    "help_center_subtitle": "ग्राहक सहायता",
+
+    "account_settings": "अकाउंट सेटिंग्स",
+
+    "profile_information": "प्रोफ़ाइल जानकारी",
+    "profile_information_subtitle": "नाम, ईमेल, फ़ोन",
+
+    "saved_addresses": "सहेजे गए पते",
+    "saved_addresses_subtitle": "डिलीवरी स्थान प्रबंधित करें",
+
+    "payment_methods": "भुगतान के तरीके",
+    "payment_methods_subtitle": "सहेजे गए कार्ड और UPI",
+
+    "more": "अधिक",
+
+    "about_shopzo": "Shopzo के बारे में",
+    "terms_of_service": "सेवा की शर्तें",
+    "privacy_policy": "गोपनीयता नीति",
+    "return_policy": "रिटर्न नीति",
+
+    "log_out": "लॉग आउट",
+    "logout_message": "क्या आप वाकई अपने Shopzo अकाउंट से लॉग आउट करना चाहते हैं?",
+    "cancel": "रद्द करें"
+  },
+  "bottom_nav": {
+    "home": "होम",
+    "categories": "श्रेणियाँ",
+    "cart": "कार्ट",
+    "orders": "ऑर्डर",
+    "profile": "प्रोफ़ाइल"
+  },
+  "coupons": {
+    "title": "कूपन",
+    "all_coupons": "सभी कूपन",
+    "copy_instruction": "कोड कॉपी करने के लिए किसी भी कूपन पर टैप करें, फिर चेकआउट पर इसे लागू करें",
+    "retry": "पुनः प्रयास करें",
+    "no_coupons": "अभी कोई कूपन उपलब्ध नहीं है",
+    "expired": "समाप्त",
+    "tap_to_copy": "कॉपी करने के लिए टैप करें",
+    "add_more": "इस ऑफ़र को अनलॉक करने के लिए ₹{} और जोड़ें",
+    "code_copied": "कोड '{}' कॉपी हो गया — इसे लागू करने के लिए चेकआउट पर पेस्ट करें"
+  },
+  "address": {
+    "finding_location": "आपका स्थान खोजा जा रहा है...",
+    "location_permission_denied": "स्थान की अनुमति नहीं मिली",
+    "search_or_move_map": "अपना पता सेट करने के लिए खोजें या मानचित्र को स्थानांतरित करें",
+    "unknown_location": "अज्ञात स्थान",
+    "could_not_fetch_address": "इस स्थान का पता प्राप्त नहीं किया जा सका",
+    "could_not_fetch_address_short": "पता प्राप्त नहीं किया जा सका",
+    "could_not_detect_location": "आपका स्थान पता नहीं चल सका। कृपया मैन्युअल रूप से खोजें।",
+    "turn_on_gps": "जारी रखने के लिए डिवाइस का स्थान (GPS) चालू करें।",
+    "permission_required": "आपका पता पता करने के लिए स्थान की अनुमति आवश्यक है।",
+    "permission_permanently_denied": "स्थान की अनुमति स्थायी रूप से बंद है। इसे ऐप सेटिंग्स से सक्षम करें।",
+    "location_not_found": "स्थान नहीं मिला।",
+
+    "edit_address": "पता संपादित करें",
+    "confirm_location": "अपना स्थान सुनिश्चित करें",
+
+    "house_flat_block": "घर/फ्लैट/ब्लॉक नंबर",
+    "house_flat_hint": "जैसे Flat 402, Block B",
+
+    "apartment_building": "अपार्टमेंट/बिल्डिंग का नाम",
+    "apartment_building_hint": "जैसे Sunshine Apartments",
+
+    "landmark": "लैंडमार्क (वैकल्पिक)",
+    "landmark_hint": "जैसे मेट्रो स्टेशन के पास",
+
+    "city": "शहर",
+    "pincode": "पिनकोड",
+    "state": "राज्य",
+
+    "save_address_as": "पता इस रूप में सेव करें",
+    "home": "घर",
+    "work": "काम",
+    "other": "अन्य",
+
+    "receiver_name": "प्राप्तकर्ता का नाम",
+    "receiver_name_hint": "जैसे John Doe",
+
+    "receiver_phone": "प्राप्तकर्ता का फ़ोन नंबर",
+    "mobile_number": "मोबाइल नंबर",
+
+    "set_as_default": "डिफ़ॉल्ट पता के रूप में सेट करें",
+    "default_address_subtitle": "भविष्य के सभी ऑर्डर के लिए इसका उपयोग करें",
+
+    "update_address": "पता अपडेट करें",
+    "save_address": "पता सेव करें",
+
+    "fill_required": "कृपया सभी आवश्यक फ़ील्ड भरें।",
+    "address_updated": "पता अपडेट हो गया",
+    "address_saved": "पता सेव हो गया",
+    "save_failed": "पता सेव नहीं हो सका। कृपया पुनः प्रयास करें।",
+    "search_area_hint": "क्षेत्र या सड़क का नाम खोजें..."
+  },
+  "select_address": {
+    "title": "पता चुनें",
+
+    "use_current_location": "वर्तमान स्थान का उपयोग करें",
+    "detecting_location": "आपका स्थान खोजा जा रहा है...",
+    "detect_location_subtitle": "अपना स्थान स्वचालित रूप से पता करें",
+    "detecting_location_subtitle": "कृपया प्रतीक्षा करें, हम आपका स्थान खोज रहे हैं",
+
+    "saved_addresses": "सहेजे गए पते",
+    "addresses_count": "{} पते",
+    "no_saved_addresses": "अभी कोई सहेजा गया पता नहीं है",
+
+    "add_new_address": "नया पता जोड़ें",
+    "deliver_here": "यहाँ डिलीवर करें",
+
+    "billing_address": "बिलिंग पता",
+    "shipping_address": "शिपिंग पता",
+    "default": "डिफ़ॉल्ट",
+
+    "edit": "संपादित करें",
+    "delete": "हटाएँ",
+    "cancel": "रद्द करें",
+
+    "delete_address": "पता हटाएँ",
+    "delete_confirmation": "क्या आप वाकई इस पते को हटाना चाहते हैं?",
+
+    "address_deleted": "पता हटा दिया गया",
+    "delete_failed": "पता हटाया नहीं जा सका",
+
+    "something_went_wrong": "कुछ गलत हो गया",
+    "retry": "पुनः प्रयास करें",
+
+    "could_not_fetch_location": "आपके स्थान का पता प्राप्त नहीं किया जा सका।",
+    "could_not_detect_location": "आपका स्थान पता नहीं चल सका। कृपया पुनः प्रयास करें।",
+    "turn_on_gps": "जारी रखने के लिए डिवाइस का स्थान (GPS) चालू करें।",
+    "permission_required": "आपका पता पता करने के लिए स्थान की अनुमति आवश्यक है।",
+    "permission_permanently_denied": "स्थान की अनुमति स्थायी रूप से बंद है। इसे ऐप सेटिंग्स से सक्षम करें।",
+    "current_location": "वर्तमान स्थान",
+    "location_added": "वर्तमान स्थान सफलतापूर्वक जोड़ दिया गया!"
+  }
+}

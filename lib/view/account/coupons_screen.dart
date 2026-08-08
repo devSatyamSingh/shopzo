@@ -6,6 +6,7 @@ import '../../res/text_context.dart';
 import '../../model/coupons/coupon_model.dart';
 import '../../viewmodel/coupon/coupon_viewmodel.dart';
 import '../../utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Kept for backward compatibility with any code that still imports it,
 /// though this screen no longer applies coupons itself — it's a pure
@@ -50,7 +51,10 @@ class _CouponsView extends StatelessWidget {
 
   void _copyCode(BuildContext context, String code) {
     Clipboard.setData(ClipboardData(text: code));
-    AppUtils.success(context, "Code '$code' copied — paste it at checkout to apply");
+    AppUtils.success(
+      context,
+      'coupons.code_copied'.tr(args: [code]),
+    );
   }
 
   @override
@@ -74,14 +78,14 @@ class _CouponsView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const TextContext(
-                        text: "All Coupons",
+                      TextContext(
+                        text: 'coupons.all_coupons'.tr(),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                       SizedBox(height: size.height * 0.006),
-                      const TextContext(
-                        text: "Tap any coupon to copy the code, then apply it at checkout",
+                      TextContext(
+                        text: 'coupons.copy_instruction'.tr(),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         color: ColorConstant.labelTextColor,
@@ -116,9 +120,9 @@ class _CouponsView extends StatelessWidget {
               child: Icon(Icons.arrow_back_rounded, color: ColorConstant.primaryColor, size: 22),
             ),
           ),
-          const Expanded(
+          Expanded(
             child: TextContext(
-              text: "Coupons",
+              text: 'coupons.title'.tr(),
               fontSize: 18,
               fontWeight: FontWeight.w600,
               textAlign: TextAlign.center,
@@ -156,8 +160,8 @@ class _CouponsView extends StatelessWidget {
             const SizedBox(height: 10),
             TextButton(
               onPressed: vm.fetchCoupons,
-              child: const TextContext(
-                text: "Retry",
+              child: TextContext(
+                text: 'coupons.retry'.tr(),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.primaryColor,
@@ -173,7 +177,7 @@ class _CouponsView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 30),
         child: Center(
           child: TextContext(
-            text: "No coupons available right now",
+            text: 'coupons.no_coupons'.tr(),
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: ColorConstant.labelTextColor,
@@ -196,8 +200,8 @@ class _CouponsView extends StatelessWidget {
           ),
         if (expired.isNotEmpty) ...[
           SizedBox(height: size.height * 0.008),
-          const TextContext(
-            text: "Expired",
+          TextContext(
+            text: 'coupons.expired'.tr(),
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: ColorConstant.placeholderColor,
@@ -264,7 +268,13 @@ class _CouponsView extends StatelessWidget {
                         if (!isExpired && !isEligible) ...[
                           const SizedBox(height: 6),
                           TextContext(
-                            text: "Add ₹${(coupon.minOrderValue - subtotal).clamp(0, double.infinity).toStringAsFixed(0)} more to unlock this offer",
+                            text: 'coupons.add_more'.tr(
+                              args: [
+                                (coupon.minOrderValue - subtotal)
+                                    .clamp(0, double.infinity)
+                                    .toStringAsFixed(0),
+                              ],
+                            ),
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: ColorConstant.orangeColor,
@@ -310,9 +320,15 @@ class _CouponsView extends StatelessWidget {
                       ),
                       if (!isExpired) ...[
                         const SizedBox(height: 8),
-                        const Text(
-                          "TAP TO COPY",
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, fontFamily: "Poppins", letterSpacing: 0.3, color: ColorConstant.primaryColor),
+                        Text(
+                          'coupons.tap_to_copy'.tr(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: "Poppins",
+                            letterSpacing: 0.3,
+                            color: ColorConstant.primaryColor,
+                          ),
                         ),
                       ],
                     ],
@@ -335,7 +351,7 @@ class _CouponsView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          "EXPIRED",
+                          'coupons.expired'.tr(),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,

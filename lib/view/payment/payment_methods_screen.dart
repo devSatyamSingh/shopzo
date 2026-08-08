@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
+import '../../utils/utils.dart';
 import 'add_payment_screen.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+
 
 class UpiIdModel {
   final IconData icon;
@@ -54,7 +57,7 @@ class OtherMethodData {
   });
 }
 
-class PaymentMethodsScreen extends StatelessWidget {
+class PaymentMethodsScreen extends StatefulWidget {
   const PaymentMethodsScreen({super.key});
 
   static const List<UpiIdModel> _upiIds = [
@@ -114,8 +117,36 @@ class PaymentMethodsScreen extends StatelessWidget {
     ),
   ];
 
-  void _onAddNew(BuildContext context) {
+  @override
+  State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
+}
+
+class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
+  void _onAddNews(BuildContext context) {
     Navigator.pushNamed(context, RouteName.addPaymentMethod);
+  }
+
+// AB:
+  void _onAddNew(BuildContext context) {
+    var options = {
+      'key': 'rzp_test_TMrR6ooJaZ04CA', // apni Test Key ID
+      'amount': 500, // ₹5 test amount, paise mein
+      'name': 'Shopzo',
+      'description': 'Add Payment Method - Test',
+      'prefill': {
+        'contact': '9161440593',
+        'email': 'satyam@gmail.com',
+      },
+      'method': {'upi': true, 'card': true, 'netbanking': true, 'wallet': true},
+      'theme': {'color': '#4F46E5'},
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      AppUtils.error(context, 'Checkout open nahi ho paaya.');
+      debugPrint('Razorpay open error: $e');
+    }
   }
 
   void _onUpiOptionsTap(UpiIdModel upi) {
@@ -124,6 +155,43 @@ class PaymentMethodsScreen extends StatelessWidget {
 
   void _onManageOtherTap(OtherMethodData method) {
     // 👉 navigate to the relevant settings screen
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    AppUtils.success(
+      context,
+      'Payment ID: ${response.paymentId}',
+      title: 'Payment Successful',
+    );
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    AppUtils.error(
+      context,
+      response.message ?? 'Payment fail ho gaya.',
+      title: 'Payment Failed',
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    AppUtils.info(context, 'Wallet: ${response.walletName}');
+  }
+
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 
   @override
@@ -138,7 +206,7 @@ class PaymentMethodsScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => _onAddNew(context),
+            onPressed: () => _onAddNews(context),
             icon: Icon(Icons.add_rounded, color: ColorConstant.primaryColor),
           ),
         ],
@@ -176,7 +244,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: size.height * 0.015),
-                    ..._upiIds.map((upi) => Padding(
+                    ...PaymentMethodsScreen._upiIds.map((upi) => Padding(
                       padding: EdgeInsets.only(bottom: size.height * 0.015),
                       child: _UpiCard(
                         upi: upi,
@@ -202,7 +270,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                       color: ColorConstant.headlineTextColor,
                     ),
                     TextContext(
-                      text: '${_cards.length} Cards',
+                      text: '${PaymentMethodsScreen._cards.length} Cards',
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: ColorConstant.labelTextColor,
@@ -218,10 +286,10 @@ class PaymentMethodsScreen extends StatelessWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                  itemCount: _cards.length,
+                  itemCount: PaymentMethodsScreen._cards.length,
                   separatorBuilder: (_, __) => SizedBox(width: size.width * 0.035),
                   itemBuilder: (context, index) => _SavedCardTile(
-                    card: _cards[index],
+                    card: PaymentMethodsScreen._cards[index],
                     width: size.width * 0.74,
                   ),
                 ),
@@ -255,9 +323,9 @@ class PaymentMethodsScreen extends StatelessWidget {
                         ],
                       ),
                       child: Column(
-                        children: List.generate(_otherMethods.length, (index) {
-                          final method = _otherMethods[index];
-                          final isLast = index == _otherMethods.length - 1;
+                        children: List.generate(PaymentMethodsScreen._otherMethods.length, (index) {
+                          final method = PaymentMethodsScreen._otherMethods[index];
+                          final isLast = index == PaymentMethodsScreen._otherMethods.length - 1;
                           return InkWell(
                             onTap: () => _onManageOtherTap(method),
                             borderRadius: BorderRadius.circular(16),

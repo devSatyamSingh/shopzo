@@ -1,8 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/utils/app_storage.dart';
 import 'package:shopzo/utils/connectivty_wrapper.dart';
 import 'package:shopzo/utils/utils.dart';
+import 'package:shopzo/localization/app_locales.dart';
+import 'package:shopzo/localization/language_provider.dart';
 import 'package:shopzo/viewmodel/address/address_provider.dart';
 import 'package:shopzo/view/filter_model.dart';
 import 'package:shopzo/viewmodel/address/address_viewmodel.dart';
@@ -12,10 +15,14 @@ import 'package:shopzo/viewmodel/cart/cart_viewmodel.dart';
 import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
 import 'package:shopzo/viewmodel/coupon/coupon_viewmodel.dart';
 import 'package:shopzo/viewmodel/order_checkout/order_checkout_viewmodel.dart';
+import 'package:shopzo/viewmodel/orderview/create_return_viewmodel.dart';
 import 'package:shopzo/viewmodel/orderview/orderlist_viewmodel.dart';
+import 'package:shopzo/viewmodel/orderview/return_details_viewmodel.dart';
+import 'package:shopzo/viewmodel/orderview/return_list_viewmodel.dart';
 import 'package:shopzo/viewmodel/product/product_viewmodel.dart';
 import 'package:shopzo/viewmodel/productdetails_and_list/product_details_viewmodel.dart';
 import 'package:shopzo/viewmodel/productdetails_and_list/product_list_viewmodel.dart';
+import 'package:shopzo/viewmodel/profile_viewmodel.dart';
 import 'package:shopzo/viewmodel/review/review_viewmodel.dart';
 import 'package:shopzo/viewmodel/top_pick_viewmodel.dart';
 import 'package:shopzo/viewmodel/wishlist_viewmodel.dart';
@@ -25,8 +32,21 @@ import 'routes/route_name.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await AppStorage.init();
-  runApp(const MyApp());
+
+  final savedLanguageCode = AppStorage.getLanguageCode();
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: AppLocales.supported,
+      path: 'assets/translations',
+      fallbackLocale: AppLocales.defaultLocale,
+      startLocale: Locale(savedLanguageCode),
+      saveLocale: false,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -36,6 +56,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => FilterProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => AddressViewModel()),
@@ -52,13 +73,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BestSellerViewModel()),
         ChangeNotifierProvider(create: (_) => TopPicksViewModel()),
         ChangeNotifierProvider(create: (_) => WishlistViewModel()),
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateReturnViewModel()),
+        ChangeNotifierProvider(create: (_) => ReturnDetailViewModel()),
+        ChangeNotifierProvider(create: (_) => ReturnListViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",
         debugShowCheckedModeBanner: false,
         navigatorKey: AppUtils.navigatorKey,
         scaffoldMessengerKey: AppUtils.messengerKey,
-
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
         theme: ThemeData(
           useMaterial3: true,
           fontFamily: "Poppins",
@@ -80,7 +107,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-
         initialRoute: RouteName.splash,
         onGenerateRoute: AppRoutes.generateRoute,
         builder: (context, child) {

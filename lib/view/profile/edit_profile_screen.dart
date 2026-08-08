@@ -1,13 +1,13 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../res/button_context.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/date_picker.dart';
 import '../../../res/dropdown_context.dart';
-import '../../../res/image_upload_constant.dart';
 import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
+import '../../viewmodel/profile_viewmodel.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -25,23 +25,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _dobController = TextEditingController();
 
   String? _selectedGender;
-  File? _pickedAvatar;
-  bool _isSaving = false;
+  DateTime? _selectedDob;
+  bool _prefilled = false;
 
-  final List<String> _genderOptions = const ["Male", "Female", "Other", "Prefer not to say"];
-
-  static const String _existingAvatarUrl = 'assets/images/pro12.jpg';
+  final List<String> _genderOptions = const ["Male", "Female", "Other"];
 
   @override
   void initState() {
     super.initState();
-    // TODO: pre-fill from real user data (provider / bloc / auth service)
-    _nameController = TextEditingController(text: "Satyam Singh");
-    _emailController = TextEditingController(text: "satyam@gmail.com");
-    _phoneController = TextEditingController(text: "9876543210");
-    _dobController.text = "15/08/1996";
-    _selectedGender = "Male";
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
   }
+
+  void _prefillFromProfile(ProfileViewModel vm) {
+    if (_prefilled || vm.profile == null) return;
+    final p = vm.profile!;
+    _nameController.text = p.name;
+    _emailController.text = p.email;
+    _phoneController.text = p.phone;
+    _selectedDob = p.dob;
+    if (p.dob != null) _dobController.text = _formatDate(p.dob!);
+    _selectedGender = p.genderLabel;
+    _prefilled = true;
+  }
+
+  String _formatDate(DateTime d) => "${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}";
 
   @override
   void dispose() {
@@ -52,25 +61,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickAvatar() async {
-    final file = await ImageUploadHelper.pickImage(context);
-    if (file != null) setState(() => _pickedAvatar = file);
-  }
-
-  Future<void> _onSave() async {
+  Future<void> _onSave(ProfileViewModel vm) async {
     AppUtils.hideKeyboard(context);
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
-
-    // TODO: call your update-profile API here, e.g.
-    await Future.delayed(const Duration(seconds: 1));
+    final ok = await vm.updateProfile(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      email: _emailController.text.trim(),
+      dob: _selectedDob,
+      gender: _selectedGender,
+    );
 
     if (!mounted) return;
-    setState(() => _isSaving = false);
 
-    AppUtils.success(context, "Your profile has been updated");
-    Navigator.of(context).maybePop();
+    if (ok) {
+      AppUtils.success(context, "Your profile has been updated");
+      Navigator.of(context).maybePop();
+    } else {
+      AppUtils.error(context, vm.saveError ?? "Failed to update profile");
+    }
   }
 
   @override
@@ -80,96 +90,105 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: ColorConstant.whiteColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context, size),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.02),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildAvatarPicker(size),
-                      SizedBox(height: size.height * 0.03),
+        child: Consumer<ProfileViewModel>(
+          builder: (context, vm, _) {
+            // profile detail screen se already loaded hoga — but agar direct
+            // is screen pe aaya user, to yaha se fetch kar lo
+            if (vm.profile == null && !vm.isLoading) {
+              WidgetsBinding.instance.addPostFrameCallback((_) => vm.fetchProfile());
+            }
+            _prefillFromProfile(vm);
 
-                      const TextContext(text: "Full Name", fontSize: 13, fontWeight: FontWeight.w600),
-                      SizedBox(height: size.height * 0.01),
-                      CustomTextField(
-                        controller: _nameController,
-                        hintText: "Enter your full name",
-                        prefixIcon: const Icon(Icons.person_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
-                        validator: (v) => AppUtils.validateNotEmpty(v, field: "Name"),
-                      ),
-                      SizedBox(height: size.height * 0.02),
+            return Column(
+              children: [
+                _buildHeader(context, size),
+                Expanded(
+                  child: (vm.isLoading && vm.profile == null)
+                      ? const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor))
+                      : SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.02),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildAvatarBlock(size),
+                          SizedBox(height: size.height * 0.03),
 
-                      const TextContext(text: "Email Address", fontSize: 13, fontWeight: FontWeight.w600),
-                      SizedBox(height: size.height * 0.01),
-                      CustomTextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        hintText: "Enter your email",
-                        prefixIcon: const Icon(Icons.mail_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
-                        validator: AppUtils.validateEmail,
-                      ),
-                      SizedBox(height: size.height * 0.02),
+                          const TextContext(text: "Full Name", fontSize: 13, fontWeight: FontWeight.w600),
+                          SizedBox(height: size.height * 0.01),
+                          CustomTextField(
+                            controller: _nameController,
+                            hintText: "Enter your full name",
+                            prefixIcon: const Icon(Icons.person_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
+                            validator: (v) => AppUtils.validateNotEmpty(v, field: "Name"),
+                          ),
+                          SizedBox(height: size.height * 0.02),
 
-                      const TextContext(text: "Phone Number", fontSize: 13, fontWeight: FontWeight.w600),
-                      SizedBox(height: size.height * 0.01),
-                      CustomTextField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        maxLength: 10,
-                        hintText: "Enter your mobile number",
-                        prefixText: "+91  ",
-                        suffixIcon: const Padding(
-                          padding: EdgeInsets.only(right: 12),
-                          child: Icon(Icons.verified_rounded, color: ColorConstant.successColor, size: 18),
-                        ),
-                        validator: (v) => AppUtils.validatePhone(v),
-                      ),
-                      SizedBox(height: size.height * 0.02),
+                          const TextContext(text: "Email Address", fontSize: 13, fontWeight: FontWeight.w600),
+                          SizedBox(height: size.height * 0.01),
+                          CustomTextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            hintText: "Enter your email",
+                            prefixIcon: const Icon(Icons.mail_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
+                            validator: AppUtils.validateEmail,
+                          ),
+                          SizedBox(height: size.height * 0.02),
 
-                      CustomDatePickerField(
-                        title: "Date of Birth",
-                        hintText: "DD/MM/YYYY",
-                        controller: _dobController,
-                        prefixIcon: Icons.cake_outlined,
-                        lastDate: DateTime.now(),
-                      ),
-                      SizedBox(height: size.height * 0.02),
+                          const TextContext(text: "Phone Number", fontSize: 13, fontWeight: FontWeight.w600),
+                          SizedBox(height: size.height * 0.01),
+                          CustomTextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            maxLength: 10,
+                            hintText: "Enter your mobile number",
+                            prefixText: "+91  ",
+                            validator: (v) => AppUtils.validatePhone(v),
+                          ),
+                          SizedBox(height: size.height * 0.02),
 
-                      CustomDropdownField<String>(
-                        title: "Gender",
-                        hintText: "Select gender",
-                        value: _selectedGender,
-                        prefixIcon: Icons.wc_rounded,
-                        items: DropdownItems.fromStrings(_genderOptions),
-                        onChanged: (value) => setState(() => _selectedGender = value),
-                      ),
-                      SizedBox(height: size.height * 0.04),
+                          CustomDatePickerField(
+                            title: "Date of Birth",
+                            hintText: "DD/MM/YYYY",
+                            controller: _dobController,
+                            prefixIcon: Icons.cake_outlined,
+                            lastDate: DateTime.now(),
+                            onDateSelected: (date) => _selectedDob = date, // ⚠️ confirm callback name in your CustomDatePickerField
+                          ),
+                          SizedBox(height: size.height * 0.02),
 
-                      CustomButton(
-                        text: "Save Changes",
-                        height: 54,
-                        loading: _isSaving,
-                        icon: Icons.check_rounded,
-                        onTap: _onSave,
+                          CustomDropdownField<String>(
+                            title: "Gender",
+                            hintText: "Select gender",
+                            value: _selectedGender,
+                            prefixIcon: Icons.wc_rounded,
+                            items: DropdownItems.fromStrings(_genderOptions),
+                            onChanged: (value) => setState(() => _selectedGender = value),
+                          ),
+                          SizedBox(height: size.height * 0.04),
+
+                          CustomButton(
+                            text: "Save Changes",
+                            height: 54,
+                            loading: vm.isSaving,
+                            icon: Icons.check_rounded,
+                            onTap: vm.isSaving ? null : () => _onSave(vm),
+                          ),
+                          SizedBox(height: size.height * 0.02),
+                        ],
                       ),
-                      SizedBox(height: size.height * 0.02),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  /// ---------------- HEADER ----------------
   Widget _buildHeader(BuildContext context, Size size) {
     return Padding(
       padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.012, size.width * 0.045, 0),
@@ -184,64 +203,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const Expanded(
-            child: TextContext(
-              text: "Edit Profile",
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              textAlign: TextAlign.center,
-            ),
+            child: TextContext(text: "Edit Profile", fontSize: 18, fontWeight: FontWeight.w700, textAlign: TextAlign.center),
           ),
-          const SizedBox(width: 34), // balances the back button for true centering
+          const SizedBox(width: 34),
         ],
       ),
     );
   }
 
-  /// ---------------- AVATAR PICKER ----------------
-  Widget _buildAvatarPicker(Size size) {
+  Widget _buildAvatarBlock(Size size) {
     final double avatarSize = (size.width * 0.28).clamp(96.0, 130.0);
+    final initial = _nameController.text.isNotEmpty ? _nameController.text[0].toUpperCase() : '?';
 
     return Center(
-      child: Stack(
-        children: [
-          Container(
-            height: avatarSize,
-            width: avatarSize,
-            decoration: BoxDecoration(
-              color: ColorConstant.primaryLight,
-              shape: BoxShape.circle,
-              border: Border.all(color: ColorConstant.borderColor, width: 1),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: _pickedAvatar != null
-                ? Image.file(_pickedAvatar!, fit: BoxFit.cover)
-                : Image.asset(
-              _existingAvatarUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Center(
-                child: Icon(Icons.person_rounded, size: avatarSize * 0.5, color: ColorConstant.primaryColor),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: InkWell(
-              onTap: _pickAvatar,
-              customBorder: const CircleBorder(),
-              child: Container(
-                height: 36,
-                width: 36,
-                decoration: BoxDecoration(
-                  color: ColorConstant.primaryColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: ColorConstant.whiteColor, width: 2.5),
-                ),
-                child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16),
-              ),
-            ),
-          ),
-        ],
+      child: Container(
+        height: avatarSize,
+        width: avatarSize,
+        decoration: BoxDecoration(
+          color: ColorConstant.primaryLight,
+          shape: BoxShape.circle,
+          border: Border.all(color: ColorConstant.borderColor, width: 1),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          initial,
+          style: TextStyle(fontSize: avatarSize * 0.4, fontWeight: FontWeight.w700, color: ColorConstant.primaryColor, fontFamily: "Poppins"),
+        ),
       ),
     );
   }

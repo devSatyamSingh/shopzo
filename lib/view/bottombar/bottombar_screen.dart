@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BottomNavItem {
   final IconData icon;
@@ -25,12 +26,27 @@ class AnimatedNotchBottomNavBar extends StatefulWidget {
     this.cartCount = 0,
   });
 
-  static const List<BottomNavItem> items = [
-    BottomNavItem(icon: Icons.home_rounded, label: 'Home'),
-    BottomNavItem(icon: Icons.grid_view_rounded, label: 'Categories'),
-    BottomNavItem(icon: Icons.shopping_bag_rounded, label: 'Cart'),
-    BottomNavItem(icon: Icons.receipt_long_rounded, label: 'Orders'),
-    BottomNavItem(icon: Icons.person_rounded, label: 'Profile'),
+  static List<BottomNavItem> items = [
+    BottomNavItem(
+      icon: Icons.home_rounded,
+      label: 'bottom_nav.home',
+    ),
+    BottomNavItem(
+      icon: Icons.grid_view_rounded,
+      label: 'bottom_nav.categories',
+    ),
+    BottomNavItem(
+      icon: Icons.shopping_bag_rounded,
+      label: 'bottom_nav.cart',
+    ),
+    BottomNavItem(
+      icon: Icons.receipt_long_rounded,
+      label: 'bottom_nav.orders',
+    ),
+    BottomNavItem(
+      icon: Icons.person_rounded,
+      label: 'bottom_nav.profile',
+    ),
   ];
 
   @override
@@ -157,7 +173,7 @@ class _AnimatedNotchBottomNavBarState extends State<AnimatedNotchBottomNavBar>
                                       const SizedBox(height: 22),
                                     const SizedBox(height: 5),
                                     TextContext(
-                                      text: item.label,
+                                      text: item.label.tr(),
                                       fontSize: 11,
                                       fontWeight:
                                       isSelected ? FontWeight.w600 : FontWeight.w500,

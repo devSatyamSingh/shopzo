@@ -14,6 +14,7 @@ class ApiUrl {
   static const String logout = '$baseUrl/v1/customer/logout';
   static const String categories = '$baseUrl/v1/categories';
   static String categoryById(String id) => '$baseUrl/v1/categories/$id';
+  static const String customerProfile = '$baseUrl/v1/customer/profile';
 
   // ---- Home ----
   static const String homeData = "$baseUrl/v1/home";
@@ -23,11 +24,9 @@ class ApiUrl {
   static const String bestSellers = "$baseUrl/v1/websiteProducts/bestsellers";
 
   // ---- Categories / Brands ----
-  static String categoryProducts(String categoryId) =>
-      "$baseUrl/v1/categories/$categoryId/products";
+  static String categoryProducts(String categoryId) => "$baseUrl/v1/categories/$categoryId/products";
   static const String brands = "$baseUrl/v1/brands";
-  static String brandProducts(String brandId) =>
-      "$baseUrl/v1/brands/$brandId/products";
+  static String brandProducts(String brandId) => "$baseUrl/v1/brands/$brandId/products";
 
   // ---- Search ----
   static const String search = "$baseUrl/v1/search";
@@ -75,8 +74,7 @@ class ApiUrl {
   // ---- Cart ----
   static const String cart = "$baseUrl/v1/website/cart";
   static const String cartItems = "$baseUrl/v1/website/cart/items";
-  static String cartItem(String itemId) =>
-      "$baseUrl/v1/website/cart/items/$itemId";
+  static String cartItem(String itemId) => "$baseUrl/v1/website/cart/items/$itemId";
 
   // ---- Checkout ----
   static const String checkoutSummary = "$baseUrl/v1/checkout/summary";
@@ -95,13 +93,16 @@ class ApiUrl {
   static const String verifyPayment = "$baseUrl/payment/verify";
 
   // ---- Orders ----
-  // ---- Orders ----
   static const String orders = "$baseUrl/v1/orders";
-
   static const String placeOnlineOrder = "$baseUrl/v1/orders/online";
   static const String previewOrder = "$baseUrl/v1/orders/preview";
   static String orderById(String orderId) => "$baseUrl/v1/orders/$orderId";
   static String cancelOrder(String orderId) => "$baseUrl/v1/orders/$orderId/cancel";
+
+  // ---- Return/Exchange ----
+  static String get returns => '$baseUrl/v1/website/returns';
+  static String returnById(String id) => '$baseUrl/v1/website/returns/$id';
+  static String cancelReturn(String id) => '$baseUrl/v1/website/returns/$id/cancel';
 
   // ---- Wishlist ----
   static const String wishlist = '$baseUrl/v1/website/wishlist';
