@@ -6,6 +6,7 @@ import '../../../res/text_context.dart';
 import '../../model/profile_model.dart';
 import '../../routes/route_name.dart';
 import '../../viewmodel/profile_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ProfileInformationScreen extends StatefulWidget {
   const ProfileInformationScreen({super.key});
@@ -53,7 +54,14 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                           children: [
                             const Icon(Icons.wifi_off_rounded, size: 42, color: ColorConstant.placeholderColor),
                             const SizedBox(height: 10),
-                            TextContext(text: vm.errorMessage ?? 'Failed to load profile', fontSize: 13.5, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
+                            TextContext(
+                              text: vm.errorMessage ??
+                                  'profile.failed_load_profile'.tr(),
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w500,
+                              color: ColorConstant.labelTextColor,
+                              textAlign: TextAlign.center,
+                            ),
                             const SizedBox(height: 14),
                             CustomButton(text: 'Retry', width: 140, height: 44, onTap: () => vm.fetchProfile()),
                           ],
@@ -75,26 +83,59 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                         children: [
                           _buildAvatarBlock(size, profile),
                           SizedBox(height: size.height * 0.03),
-                          const _SectionLabel(text: 'PERSONAL DETAILS'),
+                          _SectionLabel(
+                            text: 'profile.personal_details'.tr(),
+                          ),
                           SizedBox(height: size.height * 0.012),
                           _InfoCard(
                             tiles: [
-                              _InfoTileData(icon: Icons.person_outline_rounded, label: 'Full Name', value: profile.name.isNotEmpty ? profile.name : '—'),
-                              _InfoTileData(icon: Icons.mail_outline_rounded, label: 'Email Address', value: profile.email.isNotEmpty ? profile.email : '—'),
-                              _InfoTileData(icon: Icons.call_outlined, label: 'Phone Number', value: profile.phone.isNotEmpty ? profile.phone : '—'),
-                              _InfoTileData(icon: Icons.cake_outlined, label: 'Date of Birth', value: profile.dob != null ? _formatDate(profile.dob!) : 'Not set'),
-                              _InfoTileData(icon: Icons.wc_rounded, label: 'Gender', value: profile.genderLabel ?? 'Not set'),
+                              _InfoTileData(
+                                icon: Icons.person_outline_rounded,
+                                label: 'profile.full_name',
+                                value: profile.name.isNotEmpty
+                                    ? profile.name
+                                    : '—',
+                              ),
+                              _InfoTileData(
+                                icon: Icons.mail_outline_rounded,
+                                label: 'profile.email_address',
+                                value: profile.email.isNotEmpty
+                                    ? profile.email
+                                    : '—',
+                              ),
+                              _InfoTileData(
+                                icon: Icons.call_outlined,
+                                label: 'profile.phone_number',
+                                value: profile.phone.isNotEmpty
+                                    ? profile.phone
+                                    : '—',
+                              ),
+                              _InfoTileData(
+                                icon: Icons.cake_outlined,
+                                label: 'profile.date_of_birth',
+                                value: profile.dob != null
+                                    ? _formatDate(profile.dob!)
+                                    : 'profile.not_set',
+                              ),
+                              _InfoTileData(
+                                icon: Icons.wc_rounded,
+                                label: 'profile.gender',
+                                value: profile.genderLabel ?? 'profile.not_set',
+                                translateValue: profile.genderLabel != null,
+                              ),
                               _InfoTileData(
                                 icon: Icons.calendar_today_outlined,
-                                label: 'Member Since',
-                                value: profile.createdAt != null ? _formatMonthYear(profile.createdAt!) : '—',
+                                label: 'profile.member_since_label',
+                                value: profile.createdAt != null
+                                    ? _formatMonthYear(profile.createdAt!)
+                                    : '—',
                                 isLast: true,
                               ),
                             ],
                           ),
                           SizedBox(height: size.height * 0.035),
                           CustomButton(
-                            text: 'Edit Profile',
+                            text: 'profile.edit_profile'.tr(),
                             height: 52,
                             icon: Icons.edit_rounded,
                             iconSize: 18,
@@ -127,8 +168,13 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               child: Icon(Icons.arrow_back_rounded, color: ColorConstant.headlineTextColor, size: 22),
             ),
           ),
-          const Expanded(
-            child: TextContext(text: 'Profile Information', fontSize: 18, fontWeight: FontWeight.w700, textAlign: TextAlign.center),
+          Expanded(
+            child: TextContext(
+              text: 'profile.profile_information'.tr(),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(width: 34),
         ],
@@ -158,13 +204,28 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
             ),
           ),
           SizedBox(height: size.height * 0.014),
-          TextContext(text: profile.name.isNotEmpty ? profile.name : 'Your Profile', fontSize: 17, fontWeight: FontWeight.w600),
+          TextContext(
+            text: profile.name.isNotEmpty
+                ? profile.name
+                : 'profile.your_profile'.tr(),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
           SizedBox(height: size.height * 0.006),
           if (profile.createdAt != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(color: ColorConstant.primaryLight, borderRadius: BorderRadius.circular(20)),
-              child: TextContext(text: 'Member since ${_formatMonthYear(profile.createdAt!)}', fontSize: 12, fontWeight: FontWeight.w500, color: ColorConstant.primaryColor),
+              child: TextContext(
+                text: 'profile.member_since'.tr(
+                  args: [
+                    _formatMonthYear(profile.createdAt!),
+                  ],
+                ),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: ColorConstant.primaryColor,
+              ),
             ),
         ],
       ),
@@ -197,8 +258,9 @@ class _InfoTileData {
   final String label;
   final String value;
   final bool isLast;
+  final bool translateValue;
 
-  const _InfoTileData({required this.icon, required this.label, required this.value, this.isLast = false});
+  const _InfoTileData({required this.icon, required this.label, required this.value, this.isLast = false, this.translateValue = false,});
 }
 
 class _InfoCard extends StatelessWidget {
@@ -240,9 +302,16 @@ class _InfoTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextContext(text: data.label, fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+                TextContext(text: data.label.tr(), fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
                 const SizedBox(height: 2),
-                TextContext(text: data.value, fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.headlineTextColor),
+                TextContext(
+                  text: data.translateValue
+                      ? 'profile.${data.value.toLowerCase()}'.tr()
+                      : data.value.tr(),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: ColorConstant.headlineTextColor,
+                ),
               ],
             ),
           ),

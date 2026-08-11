@@ -6,6 +6,7 @@ import '../../../routes/route_name.dart';
 import '../../../utils/skelton_box.dart';
 import '../../model/category/category_model.dart';
 import '../../viewmodel/category_subcategory/category_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 class QuickCategoryGrid extends StatefulWidget {
@@ -78,7 +79,7 @@ class _QuickCategoryGridState extends State<QuickCategoryGrid> {
                   Icon(Icons.refresh_rounded, size: 18, color: ColorConstant.labelTextColor),
                   const SizedBox(width: 8),
                   TextContext(
-                    text: "Couldn't load categories — tap to retry",
+                    text: 'quick_categories.category_load_error'.tr(),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                     color: ColorConstant.labelTextColor,
@@ -208,7 +209,9 @@ class _ToggleTile extends StatelessWidget {
           ),
           SizedBox(height: size.height * 0.007),
           TextContext(
-            text: expanded ? 'Hide' : 'More',
+            text: expanded
+                ? 'quick_categories.hide'.tr()
+                : 'quick_categories.more'.tr(),
             fontSize: 11,
             fontWeight: FontWeight.w600,
             textAlign: TextAlign.center,

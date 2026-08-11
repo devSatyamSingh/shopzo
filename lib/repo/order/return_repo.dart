@@ -40,9 +40,11 @@ class ReturnRepository {
 
       final dataMap = _extractSingle(response);
       if (dataMap == null) {
-        return ApiResponse.error('Return request create nahi ho paayi. Dobara try karein.');
+        final backendMsg = (response is Map ? response['message']?.toString() : null);
+        return ApiResponse.error(backendMsg ?? 'Something went wrong. Please try again.');
       }
-      return ApiResponse.completed(ReturnModel.fromJson(dataMap));
+      final backendMsg = (response is Map ? response['message']?.toString() : null);
+      return ApiResponse.completed(ReturnModel.fromJson(dataMap), message: backendMsg);
     } on AppException catch (e) {
       return ApiResponse.error(e.message.isNotEmpty ? e.message : 'Return request failed.');
     } catch (e) {
@@ -82,22 +84,16 @@ class ReturnRepository {
     }
   }
 
-  /// PATCH /api/v1/website/returns/:id/cancel
-  /// Backend sirf REQUESTED status me hi cancel allow karta hai,
-  /// warna 400 ke saath { success: false, message: "Cannot cancel a return in X status" } aata hai
   Future<ApiResponse<bool>> cancelReturn(String id) async {
     try {
-      // NOTE: agar NetworkApiServices me PATCH method nahi hai to
-      // getPatchApiResponse() jaisa method add karna hoga (http.patch use karke).
       final response = await _apiServices.getPatchApiResponse(ApiUrl.cancelReturn(id), {});
       final success = (response is Map && response['success'] == true);
+      final backendMsg = (response is Map ? response['message']?.toString() : null);
       if (!success) {
-        final message = (response is Map ? response['message']?.toString() : null);
-        return ApiResponse.error(message ?? 'Could not cancel return request.');
+        return ApiResponse.error(backendMsg ?? 'Could not cancel return request.');
       }
-      return ApiResponse.completed(true);
+      return ApiResponse.completed(true, message: backendMsg);
     } on AppException catch (e) {
-      // 400 wale case me AppException me hi backend ka "message" field aana chahiye
       return ApiResponse.error(e.message.isNotEmpty ? e.message : 'Failed to cancel return request.');
     } catch (e) {
       return ApiResponse.error('Failed to cancel return request. Please try again.');

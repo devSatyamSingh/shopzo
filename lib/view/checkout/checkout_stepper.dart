@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Shopzo — shared 3-step checkout progress indicator
 class CheckoutStepper extends StatelessWidget {
@@ -82,7 +83,11 @@ class CheckoutStepper extends StatelessWidget {
                     ),
                     SizedBox(height: size.height * 0.008),
                     TextContext(
-                      text: _labels[index],
+                      text: [
+                        'checkout.steps.address'.tr(),
+                        'checkout.steps.summary'.tr(),
+                        'checkout.steps.payment'.tr(),
+                      ][index],
                       fontSize: 12,
                       fontWeight: step == currentStep
                           ? FontWeight.w600

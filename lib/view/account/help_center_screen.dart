@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -62,7 +63,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
-      appBar: AppBar(title: const Text('Help & Support')),
+      appBar: AppBar(title: Text('help_support.app_bar_title'.tr())),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -76,7 +77,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               // _SearchField(controller: _searchController),
               // ---------------- COMMON ISSUES ----------------
               TextContext(
-                text: 'Common Issues',
+                text: 'help_support.common_issues'.tr(),
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
@@ -99,7 +100,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               // ---------------- QUICK CONTACT ----------------
               Center(
                 child: TextContext(
-                  text: 'QUICK CONTACT',
+                  text: 'help_support.quick_contact'.tr(),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: ColorConstant.labelTextColor,
@@ -153,7 +154,7 @@ class _SearchField extends StatelessWidget {
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
-                hintText: 'Search for help, FAQs, or topics',
+                hintText: 'help_support.search_hint'.tr(),
                 hintStyle: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14,
@@ -277,7 +278,7 @@ class _IssueCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             TextContext(
-              text: data.title,
+              text: data.title.tr(),
               fontSize: 13,
               fontWeight: FontWeight.w600,
               textAlign: TextAlign.center,
@@ -345,15 +346,14 @@ class _SupportFormCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextContext(
-            text: 'Still need help?',
+            text: 'help_support.still_need_help'.tr(),
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: ColorConstant.headlineTextColor,
           ),
           SizedBox(height: size.height * 0.008),
           TextContext(
-            text:
-            'Describe your issue and our team will get back to you within 24 hours.',
+            text: 'help_support.support_description'.tr(),
             fontSize: 13,
             fontWeight: FontWeight.w400,
             height: 1.4,
@@ -368,7 +368,7 @@ class _SupportFormCard extends StatelessWidget {
               fontSize: 13.5,
               color: ColorConstant.headlineTextColor,
             ),
-            decoration: _decoration('Issue Title'),
+            decoration: _decoration('help_support.issue_title_hint'.tr()),
           ),
 
           SizedBox(height: size.height * 0.016),
@@ -382,13 +382,13 @@ class _SupportFormCard extends StatelessWidget {
               fontSize: 13.5,
               color: ColorConstant.headlineTextColor,
             ),
-            decoration: _decoration('Write your problem here...'),
+            decoration: _decoration('help_support.problem_hint'.tr()),
           ),
 
           SizedBox(height: size.height * 0.022),
 
           CustomButton(
-            text: 'Send Now',
+            text: sending ? 'help_support.sending'.tr() : 'help_support.send_now'.tr(),
             onTap: onSend,
             loading: sending,
             color: ColorConstant.primaryColor,
@@ -418,9 +418,9 @@ class _QuickContactRow extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     final items = [
-      (Icons.call_rounded, 'Call', onCall),
-      (Icons.chat_bubble_rounded, 'Chat', onChat),
-      (Icons.email_rounded, 'Email', onEmail),
+      (Icons.call_rounded, 'help_support.call'.tr(), onCall),
+      (Icons.chat_bubble_rounded, 'help_support.chat'.tr(), onChat),
+      (Icons.email_rounded, 'help_support.email'.tr(), onEmail),
     ];
 
     return Row(

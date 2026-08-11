@@ -5,6 +5,7 @@ import 'package:shopzo/model/product/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import 'top_picks_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class TopPicksSection extends StatelessWidget {
   final List<ProductModel> products;
@@ -40,7 +41,7 @@ class TopPicksSection extends StatelessWidget {
           child: Row(
             children: [
               TextContext(
-                text: 'Top Picks For You',
+                text: 'top_picks.title'.tr(),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
@@ -49,7 +50,7 @@ class TopPicksSection extends StatelessWidget {
               GestureDetector(
                 onTap: onSeeAllTap ?? () => _navigateToTopPicksScreen(context),
                 child: TextContext(
-                  text: 'See All',
+                  text: 'flash_deals.see_all'.tr(),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: ColorConstant.primaryColor,

@@ -13,7 +13,7 @@ class ApiResponse<T> {
 
   factory ApiResponse.loading() => ApiResponse._(status: Status.loading);
 
-  factory ApiResponse.completed(T data) =>
+  factory ApiResponse.completed(T data, {String? message}) =>
       ApiResponse._(status: Status.completed, data: data);
 
   factory ApiResponse.error(String message) =>

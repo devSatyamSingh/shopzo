@@ -1,22 +1,25 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../res/color_constant.dart';
 
 class LoyaltyBannerSection extends StatelessWidget {
-  final String title;
-  final String subtitle;
   final VoidCallback? onTap;
 
   const LoyaltyBannerSection({
     super.key,
-    this.title = 'EXCLUSIVE LOYALTY REWARDS\nUP TO ₹500 CASHBACK',
-    this.subtitle = 'On all UPI transactions above ₹1,999',
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final lines = title.split('\n');
+    final title = [
+      'home.loyalty_title_line1'.tr(),
+      'home.loyalty_title_line2'.tr(),
+    ];
+
+    final subtitle = 'home.loyalty_subtitle'.tr();
+    final lines = title;
 
     return Padding(
       padding: EdgeInsets.symmetric(

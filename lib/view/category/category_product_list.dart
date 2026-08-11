@@ -7,6 +7,7 @@ import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/product/product_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 class CategoryProductListScreen extends StatelessWidget {
@@ -106,7 +107,8 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
                       Icon(Icons.wifi_off_rounded, size: 46, color: ColorConstant.placeholderColor),
                       SizedBox(height: size.height * 0.015),
                       TextContext(
-                        text: viewModel.errorMessage ?? 'Something went wrong',
+                        text: viewModel.errorMessage ??
+                            'category_products.failed_load'.tr(),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         textAlign: TextAlign.center,
@@ -116,7 +118,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
                       TextButton(
                         onPressed: () => viewModel.refresh(),
                         child: TextContext(
-                          text: 'Retry',
+                          text: 'category_products.retry'.tr(),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: ColorConstant.primaryColor,
@@ -139,7 +141,7 @@ class _CategoryProductListViewState extends State<_CategoryProductListView> {
                       Icon(Icons.inventory_2_outlined, size: 46, color: ColorConstant.placeholderColor),
                       SizedBox(height: size.height * 0.015),
                       TextContext(
-                        text: 'No products in this category yet',
+                        text: 'category_products.no_products'.tr(),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         textAlign: TextAlign.center,
@@ -286,7 +288,7 @@ class _ProductGridCard extends StatelessWidget {
                     if (!product.inStock) ...[
                       const SizedBox(height: 2),
                       TextContext(
-                        text: 'Out of stock',
+                        text: 'category_products.out_of_stock'.tr(),
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
                         color: ColorConstant.errorColor,
@@ -294,7 +296,9 @@ class _ProductGridCard extends StatelessWidget {
                     ] else if (product.isLowStock) ...[
                       const SizedBox(height: 2),
                       TextContext(
-                        text: 'Only ${product.stock} left',
+                        text: 'category_products.only_left'.tr(
+                          args: [product.stock.toString()],
+                        ),
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
                         color: ColorConstant.orangeColor,

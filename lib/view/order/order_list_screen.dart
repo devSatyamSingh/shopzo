@@ -6,6 +6,7 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../viewmodel/orderview/orderlist_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -16,7 +17,12 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   int _selectedFilter = 0;
-  final List<String> _filters = const ["All", "Processing", "Shipped", "Delivered"];
+  final List<String> _filters = [
+    'orders.filters.all'.tr(),
+    'orders.filters.processing'.tr(),
+    'orders.filters.shipped'.tr(),
+    'orders.filters.delivered'.tr(),
+  ];
 
   OrderStatus? _statusForTab(int index) {
     switch (index) {
@@ -109,9 +115,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
               child: Icon(Icons.arrow_back_rounded, color: ColorConstant.primaryDark, size: 22),
             ),
           ),
-          const Expanded(
+           Expanded(
             child: TextContext(
-              text: "Orders",
+              text: 'orders.orders'.tr(),
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: ColorConstant.primaryDark,
@@ -231,7 +237,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         child: Container(
                           decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(14)),
                           alignment: Alignment.center,
-                          child: Text("+$extraCount more",
+                          child: Text('orders.more_items'.tr(
+                            args: [extraCount.toString()],
+                          ),
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w600, fontFamily: "Poppins")),
                         ),
@@ -253,7 +261,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ),
                       const SizedBox(height: 3),
                       TextContext(
-                        text: "${order.itemCount} item${order.itemCount > 1 ? 's' : ''} • ₹${order.total.toStringAsFixed(0)}",
+                        text: '${order.itemCount} ${order.itemCount > 1
+                            ? 'orders.items_count_plural'.tr()
+                            : 'orders.items_count'.tr()} • ₹${order.total.toStringAsFixed(0)}',
                         fontSize: 12.5,
                         fontWeight: FontWeight.w400,
                         color: ColorConstant.labelTextColor,
@@ -274,7 +284,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _buildActionButton(BuildContext context, OrderModel order) {
     if (order.status == OrderStatus.completed) {
       return CustomButton(
-        text: "View Details",
+        text: 'orders.actions.view_details'.tr(),
         outlined: true,
         width: 140,
         height: 40,
@@ -285,7 +295,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
     if (order.canCancel) {
       return CustomButton(
-        text: "Track / Cancel",
+        text: 'orders.actions.track_cancel'.tr(),
         outlined: true,
         width: 150,
         height: 40,
@@ -295,7 +305,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       );
     }
     return CustomButton(
-      text: "View Details",
+      text: 'orders.actions.view_details'.tr(),
       width: 140,
       height: 40,
       fontSize: 13,
@@ -307,17 +317,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
   _StatusConfig _statusConfig(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return const _StatusConfig(label: "Pending", color: ColorConstant.orangeColor);
+        return _StatusConfig(label: 'orders.status.pending'.tr(), color: ColorConstant.orangeColor);
       case OrderStatus.processing:
-        return const _StatusConfig(label: "Processing", color: ColorConstant.infoColor);
+        return _StatusConfig(label: 'orders.status.processing'.tr(), color: ColorConstant.infoColor);
       case OrderStatus.completed:
-        return const _StatusConfig(label: "Delivered", color: ColorConstant.successColor);
+        return _StatusConfig(label: 'orders.status.delivered'.tr(), color: ColorConstant.successColor);
       case OrderStatus.cancelled:
-        return const _StatusConfig(label: "Cancelled", color: ColorConstant.errorColor);
+        return _StatusConfig( label: 'orders.status.cancelled'.tr(), color: ColorConstant.errorColor);
       case OrderStatus.refunded:
-        return const _StatusConfig(label: "Refunded", color: ColorConstant.errorColor);
+        return _StatusConfig(label: 'orders.status.refunded'.tr(), color: ColorConstant.errorColor);
       case OrderStatus.unknown:
-        return const _StatusConfig(label: "Processing", color: ColorConstant.labelTextColor);
+        return _StatusConfig(label: 'orders.status.processing'.tr(), color: ColorConstant.labelTextColor);
     }
   }
 
@@ -338,10 +348,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
             child: const Icon(Icons.shopping_basket_outlined, color: ColorConstant.primaryColor, size: 28),
           ),
           SizedBox(height: size.height * 0.018),
-          const TextContext(text: "No orders yet", fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
+          TextContext(text: 'orders.messages.no_orders'.tr(), fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
           SizedBox(height: size.height * 0.02),
           CustomButton(
-            text: "Start Shopping",
+            text: 'orders.actions.start_shopping'.tr(),
             width: size.width * 0.55,
             height: 48,
             icon: Icons.arrow_forward_rounded,
@@ -364,7 +374,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             SizedBox(height: size.height * 0.012),
             TextContext(text: message, fontSize: 13, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
             SizedBox(height: size.height * 0.02),
-            CustomButton(text: "Retry", width: 140, height: 44, onTap: onRetry),
+            CustomButton(text: 'orders.actions.retry'.tr(), width: 140, height: 44, onTap: onRetry),
           ],
         ),
       ),

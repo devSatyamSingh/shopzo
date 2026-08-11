@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/top_picks/top_product_card.dart';
@@ -36,7 +37,11 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: ColorConstant.headlineTextColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const TextContext(text: 'Top Picks For You', fontSize: 18, fontWeight: FontWeight.w600),
+        title: TextContext(
+          text: 'top_picks.title'.tr(),
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
         centerTitle: true,
       ),
       body: Consumer<TopPicksViewModel>(
@@ -54,9 +59,10 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
                   children: [
                     const Icon(Icons.wifi_off_rounded, size: 40, color: ColorConstant.placeholderColor),
                     const SizedBox(height: 10),
-                    TextContext(text: vm.errorMessage ?? 'Something went wrong', fontSize: 13, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
-                    const SizedBox(height: 14),
-                    TextButton(onPressed: () => vm.fetchTopPicks(), child: const TextContext(text: 'Retry', fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor)),
+                TextContext(
+                  text: vm.errorMessage ?? 'top_picks.something_wrong'.tr(),),
+                  const SizedBox(height: 14),
+                    TextButton(onPressed: () => vm.fetchTopPicks(), child: TextContext(text: 'top_picks.retry'.tr(), fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor)),
                   ],
                 ),
               ),
@@ -64,8 +70,8 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
           }
 
           if (vm.isEmpty) {
-            return const Center(
-              child: TextContext(text: 'No top picks right now', fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
+            return Center(
+              child: TextContext(text: 'top_picks.no_picks'.tr(), fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
             );
           }
 
@@ -87,7 +93,7 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
                 return TopProductCard(
                   product: product,
                   width: cardWidth,
-                  badgeLabel: "Top Pick",
+                  badgeLabel: 'top_picks.badge'.tr(),
                   badgeIcon: Icons.trending_up_rounded,
                   badgeColor: ColorConstant.primaryColor,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(productId: product.id))),

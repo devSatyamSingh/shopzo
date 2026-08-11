@@ -27,11 +27,11 @@ import 'hero_banner_section.dart';
 import 'home_appbar.dart';
 import 'home_searchbar.dart';
 import 'loyalty_banner_section.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  // Brands API not wired yet — keeping this static for now.
   static const List<BrandModel> _brands = [
     BrandModel(logo: 'assets/images/pro4.jpg', name: 'Apple'),
     BrandModel(logo: 'assets/images/pro3.jpg', name: 'Samsung'),
@@ -166,8 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   size: 42, color: ColorConstant.placeholderColor),
                               const SizedBox(height: 10),
                               TextContext(
-                                text: productListVm.errorMessage ?? 'Failed to load products',
-                                fontSize: 13,
+                                text: productListVm.errorMessage ??
+                                    'home.failed_to_load_products'.tr(),                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
                                 color: ColorConstant.labelTextColor,
                               ),
@@ -175,8 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               TextButton(
                                 onPressed: () => productListVm.fetchProducts(forceRefresh: true),
                                 child: TextContext(
-                                  text: 'Retry',
-                                  fontSize: 13,
+                                  text: 'home.retry'.tr(),                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.primaryColor,
                                 ),
@@ -234,7 +233,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextContext(
-                                  text: 'Results (${filteredProducts.length})',
+                                  text: 'home.results'.tr(
+                                    args: [
+                                      filteredProducts.length.toString(),
+                                    ],
+                                  ),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.headlineTextColor,
@@ -242,8 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextButton(
                                   onPressed: filterProvider.clearAllFilters,
                                   child: TextContext(
-                                    text: 'Clear Filters',
-                                    fontSize: 13,
+                                    text: 'home.clear_filters'.tr(),                                    fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                     color: ColorConstant.primaryColor,
                                   ),
@@ -292,14 +294,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     const SizedBox(height: 16),
                                     TextContext(
-                                      text: 'No products found',
-                                      fontSize: 16,
+                                      text: 'home.no_products_found'.tr(),                                      fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: ColorConstant.bodyTextColor,
                                     ),
                                     TextContext(
-                                      text: 'Try adjusting your filters',
-                                      fontSize: 14,
+                                      text: 'home.try_adjusting_filters'.tr(),                                      fontSize: 14,
                                       fontWeight: FontWeight.w400,
                                       color: ColorConstant.placeholderColor,
                                     ),
@@ -321,8 +321,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Center(
                               child: TextContext(
-                                text: 'No products available right now',
-                                fontSize: 13.5,
+                                text: 'home.no_products_available'.tr(),
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
                                 color: ColorConstant.labelTextColor,
                               ),

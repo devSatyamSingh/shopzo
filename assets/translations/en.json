@@ -92,7 +92,7 @@
     "no_coupons": "No coupons available right now",
     "expired": "Expired",
     "tap_to_copy": "TAP TO COPY",
-    "add_more": "Add ₹{} more to unlock this offer",
+    "add_more": "Add ₹ more to unlock this offer",
     "code_copied": "Code '{}' copied — paste it at checkout to apply"
   },
   "address": {
@@ -156,7 +156,7 @@
     "detecting_location_subtitle": "Please wait while we find your location",
 
     "saved_addresses": "Saved Addresses",
-    "addresses_count": "{} addresses",
+    "addresses_count": " addresses",
     "no_saved_addresses": "No saved addresses yet",
 
     "add_new_address": "Add New Address",
@@ -187,5 +187,500 @@
 
     "current_location": "Current Location",
     "location_added": "Current location added successfully!"
+  },
+  "profiles": {
+    "edit_profile": "Edit Profile",
+    "profile_information": "Profile Information",
+
+    "personal_details": "PERSONAL DETAILS",
+
+    "full_name": "Full Name",
+    "full_name_hint": "Enter your full name",
+
+    "email_address": "Email Address",
+    "email_hint": "Enter your email",
+
+    "phone_number": "Phone Number",
+    "phone_hint": "Enter your mobile number",
+
+    "date_of_birth": "Date of Birth",
+    "date_hint": "DD/MM/YYYY",
+
+    "gender": "Gender",
+    "select_gender": "Select gender",
+
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+
+    "member_since": "Member since {}",
+    "your_profile": "Your Profile",
+    "not_set": "Not set",
+
+    "save_changes": "Save Changes",
+
+    "profile_updated": "Your profile has been updated",
+    "update_failed": "Failed to update profile",
+    "member_since_label": "Member Since",
+
+    "failed_load_profile": "Failed to load profile",
+    "retry": "Retry"
+  },
+  "home": {
+    "deliver_to": "Deliver to",
+    "trending_now": "Trending Now",
+    "search_placeholder": "Search for products, brands and more",
+
+    "loyalty_title_line1": "EXCLUSIVE LOYALTY REWARDS",
+    "loyalty_title_line2": "UP TO ₹500 CASHBACK",
+    "loyalty_subtitle": "On all UPI transactions above ₹1,999",
+
+    "retry": "Retry",
+
+    "failed_to_load_products": "Failed to load products",
+
+    "results": "Results ({})",
+    "clear_filters": "Clear Filters",
+
+    "no_products_found": "No products found",
+    "try_adjusting_filters": "Try adjusting your filters",
+    "no_products_available": "No products available right now",
+
+    "category_load_error": "Couldn't load categories — tap to retry"
+  },
+
+  "filters": {
+    "sort": "Sort",
+    "price": "Price",
+    "filters": "Filters",
+    "filters_count": "Filters ({})",
+
+    "sort_by": "Sort By",
+    "price_low_high": "Price: Low → High",
+    "price_high_low": "Price: High → Low",
+    "rating": "Rating",
+    "newest": "Newest",
+
+    "price_range": "Price Range",
+    "reset": "Reset",
+
+    "cancel": "Cancel",
+    "apply": "Apply",
+
+    "categories": "Categories",
+    "clear_all": "Clear All",
+
+    "gender": "Gender",
+    "men": "Men",
+    "women": "Women",
+    "unisex": "Unisex"
+  },
+
+  "wishlist": {
+    "update_failed": "Failed to update wishlist. Please try again.",
+    "added": "Added to wishlist",
+    "removed": "Removed from wishlist",
+    "my_wishlist": "My Wishlist",
+    "item": "item",
+    "items": "items",
+
+    "removed_success": "Removed from wishlist",
+    "remove_failed": "Failed to remove item. Please try again.",
+
+    "moved_to_cart": "moved to cart",
+    "move_to_cart_failed": "Failed to move item to cart. Please try again.",
+
+    "out_of_stock": "Out of Stock",
+    "notify_me": "Notify Me",
+    "adding": "Adding...",
+    "add_to_cart": "Add to Cart",
+
+    "load_failed": "Failed to load wishlist",
+    "retry": "Retry",
+
+    "empty_title": "Your wishlist is empty",
+    "empty_message": "Save items you love and find them here anytime",
+    "browse_products": "Browse Products",
+
+    "looking_for_more": "Looking for more?",
+    "explore_trending": "Explore trending picks tailored just for you"
+  },
+  "flash_deals": {
+    "title": "Flash Deals",
+    "time_left": "Time Left:",
+    "items": "items",
+    "no_deals": "No Flash Deals Available",
+    "check_back": "Check back later for great offers!",
+    "see_all": "See All"
+  },
+
+  "top_picks": {
+    "title": "Top Picks For You",
+    "badge": "Top Pick",
+    "no_picks": "No top picks right now",
+    "something_wrong": "Something went wrong",
+    "retry": "Retry"
+  },
+
+  "brands": {
+    "all_brands": "All Brands",
+    "search": "Search brands",
+    "no_brands_found": "No brands found",
+    "view_all": "View All",
+    "shop_by_brand": "Shop By Brand",
+    "products": "Products"
+  },
+
+  "quick_categories": {
+    "category_load_error": "Couldn't load categories — tap to retry",
+    "more": "More",
+    "hide": "Hide"
+  },
+
+  "product": {
+    "out_of_stock": "Out of Stock"
+  },
+  "product_detail": {
+    "failed_to_load": "Failed to load product",
+    "retry": "Retry",
+
+    "delivery_details": "DELIVERY DETAILS",
+    "enter_pincode": "Enter Pincode",
+    "check": "Check",
+
+    "out_of_stock": "Out of stock",
+    "only_left": "Only left!",
+
+    "product_details": "Product Details",
+    "features": "Features",
+    "delivery_returns": "Delivery & Returns",
+    "warranty_info": "Warranty Info",
+
+    "no_description": "No description available for this product.",
+    "no_additional_details": "No additional details available.",
+    "delivery_return_details": "Delivery and return details will be shown here once available for this product.",
+    "warranty_details": "Warranty details will be shown here once available for this product.",
+
+    "customer_reviews": "Customer Reviews",
+    "no_reviews": "No reviews yet for this product.",
+    "review_count": "review",
+    "reviews_count": "reviews",
+    "rating_count": "rating",
+    "ratings_count": "ratings",
+
+    "just_now": "Just now",
+    "time_week": "week ago",
+    "time_weeks": "weeks ago",
+    "time_day": "day ago",
+    "time_days": "days ago",
+    "time_hour": "hour ago",
+    "time_hours": "hours ago",
+
+    "failed_wishlist": "Failed to update wishlist. Please try again.",
+    "added_wishlist": "Added to wishlist",
+    "removed_wishlist": "Removed from wishlist",
+
+    "adding": "Adding...",
+    "go_to_cart": "Go to Cart",
+    "add_to_cart": "Add to Cart",
+    "please_wait": "Please wait...",
+    "buy_now": "Buy Now",
+
+    "out_of_stock_now": "This item is out of stock right now",
+    "select_options": "Please select all options first",
+    "something_wrong": "Something went wrong. Please try again."
+  },
+  "category": {
+    "all_categories": "All Categories",
+    "search_categories_products": "Search categories or products",
+
+    "trending_summer": "Trending: Summer\nCollection",
+    "explore": "Explore",
+
+    "new_arrivals": "New Arrivals",
+    "best_sellers": "Best Sellers",
+    "deals": "Deals",
+    "top_brands": "Top Brands",
+
+    "failed_load_categories": "Failed to load categories",
+    "retry": "Retry",
+    "no_categories_found": "No categories found",
+
+    "something_wrong": "Something went wrong",
+
+    "no_subcategories": "No subcategories found",
+    "items": "items",
+
+    "out_of_stock": "Out of stock",
+    "only_left": "Only left",
+
+    "product_count": "Products",
+
+    "popular_this_week": "Popular This Week",
+    "see_all": "See All"
+  },
+
+  "category_products": {
+    "failed_load": "Something went wrong",
+    "retry": "Retry",
+    "no_products": "No products in this category yet",
+
+    "out_of_stock": "Out of stock",
+    "only_left": "Only left"
+  },
+  "cart": {
+    "my_cart": "My Cart",
+    "item": "item",
+    "items": "items",
+
+    "select_all": "Select All ({} / {})",
+
+    "your_cart_empty": "Your cart is empty",
+    "empty_cart_message": "Looks like you haven't added anything yet",
+    "start_shopping": "Start Shopping",
+
+    "couldnt_load_cart": "Couldn't load your cart",
+    "something_wrong_retry": "Something went wrong. Please try again.",
+    "retry": "Retry",
+
+    "currently_unavailable": "Currently unavailable",
+    "out_of_stock": "Out of stock",
+    "remove": "Remove",
+
+    "only_in_stock": "Only in stock",
+    "only_left_in_stock": "Only left in stock — order soon",
+    "only_available": "Only available. Reduce quantity to continue.",
+    "out_of_stock_remove": "This item is out of stock. Please remove it to continue.",
+
+    "coupon_removed": "Coupon removed — your cart selection changed",
+
+    "have_coupon": "Have a coupon code?",
+    "enter_code": "ENTER CODE",
+    "apply": "Apply",
+    "please_enter_coupon": "Please enter a coupon code",
+    "coupon_applied": "Coupon applied",
+    "invalid_coupon": "Invalid coupon",
+    "select_item_coupon": "Select at least one item to apply a coupon",
+    "view_all_coupons": "View all coupons",
+    "applied": "Applied",
+    "you_saved": "You saved {}",
+
+    "bill_details": "Bill Details",
+    "item_total": "Item Total (item)",
+    "items_total": "Item Total (items)",
+    "coupon_discount": "Coupon Discount",
+    "delivery_fee": "Delivery Fee",
+    "platform_fee": "Platform Fee",
+    "free": "FREE",
+    "to_pay": "To Pay",
+
+    "selected": "item selected",
+    "selected_plural": "items selected",
+
+    "select_items": "Select Items",
+    "review_cart": "Review Cart",
+    "proceed_checkout": "Proceed to Checkout",
+
+    "select_at_least_one": "Select at least one item to continue",
+    "remove_unavailable": "Please remove unavailable / out-of-stock items to continue",
+
+    "remove_item_title": "Remove item?",
+    "remove_item_message": "Remove \"{}\" from your cart?",
+    "clear_cart_title": "Clear cart?",
+    "clear_cart_message": "This will remove all items from your cart.",
+    "clear": "Clear"
+  },
+  "checkout": {
+    "checkout": "Checkout",
+
+    "steps": {
+      "address": "Address",
+      "summary": "Summary",
+      "payment": "Payment"
+    },
+
+    "delivery": {
+      "home_delivery": "Home Delivery",
+      "store_pickup": "Store Pickup",
+      "estimated_delivery": "Estimated delivery",
+      "within_days": "Within 3-5 business days"
+    },
+
+    "address": {
+      "saved_addresses": "Saved Addresses",
+      "address_count": "addresses",
+      "no_saved": "No saved addresses yet. Add one to continue.",
+      "add_new": "Add New Address",
+      "billing": "Billing Address",
+      "shipping": "Shipping Address",
+      "default": "DEFAULT",
+      "change": "Change",
+      "deliver_to": "DELIVER TO:"
+    },
+
+    "order": {
+      "order_items": "Order Items ({})",
+      "no_items": "No items to checkout",
+      "out_of_stock": "Out of stock",
+      "stock_warning": "Some items are out of stock. Please go back and update your cart.",
+      "quantity": "Qty: {}"
+    },
+
+    "coupon": {
+      "have_code": "Have a coupon code?",
+      "enter_code": "ENTER COUPON CODE",
+      "apply": "Apply",
+      "remove": "Remove",
+      "applied": "Applied",
+      "saved": "You saved {}",
+      "please_enter": "Please enter a coupon code",
+      "invalid": "Invalid coupon",
+      "success": "Coupon applied"
+    },
+
+    "bill": {
+      "bill_details": "Bill Details",
+      "item_total": "Item Total",
+      "tax": "Tax",
+      "delivery_fee": "Delivery Fee",
+      "free": "FREE",
+      "coupon_discount": "Coupon Discount",
+      "platform_fee": "Platform Fee",
+      "to_pay": "To Pay"
+    },
+
+    "payment": {
+      "amount_to_pay": "AMOUNT TO PAY",
+      "payment_method": "Payment Method",
+      "cash_on_delivery": "Cash on Delivery",
+      "upi": "UPI",
+      "credit_debit_card": "Credit / Debit Card",
+      "net_banking": "Net Banking",
+      "coming_soon": "Coming soon",
+      "secure_payments": "100% Secure Payments",
+      "placing_order": "Placing order...",
+      "pay": "Pay {}",
+      "payment_coming_soon": "coming soon — please use Cash on Delivery for now"
+    },
+
+    "actions": {
+      "retry": "Retry",
+      "continue_summary": "Continue to Summary",
+      "continue_payment": "Continue To Payment",
+      "go_to_cart": "Go to Cart"
+    },
+
+    "errors": {
+      "something_wrong": "Something went wrong",
+      "failed_place_order": "Failed to place order"
+    }
+  },
+  "orders": {
+    "orders": "Orders",
+    "order_details": "Order Details",
+    "order": "Order",
+    "placed_on": "Placed on",
+    "order_status": "Order Status",
+    "order_items": "Order Items",
+    "deliver_to": "DELIVER TO",
+
+    "filters": {
+      "all": "All",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+
+    "timeline": {
+      "order_placed": "Order Placed",
+      "processing": "Processing",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refund_initiated": "Refund Initiated",
+      "refunded": "Refunded"
+    },
+
+    "quantity": "Qty: ",
+    "items_count": "item",
+    "items_count_plural": "items",
+    "more_items": "+more",
+
+    "payment": {
+      "paid_via": "Paid via {}",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "discount": "Discount",
+      "total_paid": "Total Paid"
+    },
+
+    "actions": {
+      "view_details": "View Details",
+      "track_cancel": "Track / Cancel",
+      "cancel_order": "Cancel Order",
+      "keep_order": "Keep Order",
+      "confirm_cancel": "Confirm Cancel",
+      "cancelling": "Cancelling...",
+      "retry": "Retry",
+      "start_shopping": "Start Shopping"
+    },
+
+    "messages": {
+      "no_orders": "No orders yet",
+      "something_wrong": "Something went wrong",
+      "order_cancelled": "This order has been cancelled.",
+      "cancel_success": "Order cancelled successfully",
+      "cancel_failed": "Failed to cancel order",
+      "cancel_reason": "Reason for cancellation",
+      "cancel_reason_required": "Please tell us why you're cancelling",
+      "cancel_reason_hint": "e.g. Ordered by mistake, found a better price..."
+    },
+
+    "review": {
+      "rate_review": "Rate & Review",
+      "return_exchange": "Return / Exchange"
+    }
+  },
+  "reviews": {
+    "rate_product": "How would you rate this product?",
+    "write_review": "Write your review",
+    "share_experience": "Share your experience...",
+    "add_photos": "Add Photos",
+    "submitting": "Submitting...",
+    "submit": "Submit Review",
+    "reviews": "Reviews ({})",
+    "no_reviews": "No reviews yet. Be the first to review!",
+    "rating_required": "Please rate the product before submitting",
+    "submitted_title": "Review Submitted!",
+    "submitted_message": "It'll be visible once approved.",
+    "pending_message": "Your review has been submitted and is awaiting approval. It'll appear here once approved.",
+    "already_reviewed": "You've already reviewed this product.",
+    "failed": "Failed to submit review"
+  },
+  "help_support": {
+    "app_bar_title": "Help & Support",
+    "common_issues": "Common Issues",
+    "orders_tracking": "Orders & Tracking",
+    "payments_refunds": "Payments & Refunds",
+    "returns_exchanges": "Returns & Exchanges",
+    "account_security": "Account Security",
+    "search_hint": "Search for help, FAQs, or topics",
+    "still_need_help": "Still need help?",
+    "support_description": "Describe your issue and our team will get back to you within 24 hours.",
+    "issue_title_hint": "Issue Title",
+    "problem_hint": "Write your problem here...",
+    "send_now": "Send Now",
+    "sending": "Sending...",
+    "quick_contact": "QUICK CONTACT",
+    "call": "Call",
+    "chat": "Chat",
+    "email": "Email"
   }
 }

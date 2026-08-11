@@ -167,6 +167,8 @@ class ProductDetailModel {
   final double? taxRate;
   final List<String> images;
   final bool isActive;
+  final bool isReturnable;
+  final String? returnPolicyText;
   final int stock;
   final int lowStockThreshold;
   final String categoryId;
@@ -187,6 +189,8 @@ class ProductDetailModel {
     this.taxRate,
     required this.images,
     required this.isActive,
+    required this.isReturnable,
+    this.returnPolicyText,
     required this.stock,
     required this.lowStockThreshold,
     required this.categoryId,
@@ -209,6 +213,8 @@ class ProductDetailModel {
       taxRate: json['taxRate'] != null ? double.tryParse(json['taxRate'].toString()) : null,
       images: (json['images'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
       isActive: json['isActive'] == true,
+      isReturnable: json['isReturnable'] == true,                 // ⬅️ NEW
+      returnPolicyText: json['returnPolicyText']?.toString(),
       stock: int.tryParse(json['stock']?.toString() ?? '') ?? 0,
       lowStockThreshold: int.tryParse(json['lowStockThreshold']?.toString() ?? '') ?? 0,
       categoryId: json['categoryId']?.toString() ?? '',
@@ -240,6 +246,8 @@ class ProductDetailModel {
     return '₹$withCommas';
   }
 
+
+
   /// Distinct attribute groups across all variants, in first-seen order.
   /// e.g. { "Net Quantity": ["500ml","600ml","100ml","1000ml"], "Packaging Type": ["Tube"] }
   Map<String, List<String>> get attributeOptions {
@@ -251,5 +259,34 @@ class ProductDetailModel {
       });
     }
     return map;
+  }
+
+  /// Product-level text nahi mila to category-level fallback — jo bhi pehle available ho wahi dikhega
+  String? get effectiveReturnPolicyText {
+    if (returnPolicyText != null && returnPolicyText!.trim().isNotEmpty) {
+      return returnPolicyText;
+    }
+    if (category?.returnPolicyText != null && category!.returnPolicyText!.trim().isNotEmpty) {
+      return category!.returnPolicyText;
+    }
+    return null;
+  }
+
+  /// Return allowed hai ya nahi — product ka flag priority, warna category ka
+  bool get effectiveIsReturnable => isReturnable;
+
+  /// MRP jaisa strikethrough price — sirf tabhi dikhana jab costPrice, selling price se zyada ho
+  bool get hasDiscount => costPrice != null && costPrice! > price;
+
+  String get formattedCostPrice {
+    if (costPrice == null) return '';
+    final whole = costPrice!.toStringAsFixed(0);
+    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+    return '₹$withCommas';
+  }
+
+  int get discountPercent {
+    if (!hasDiscount) return 0;
+    return (((costPrice! - price) / costPrice!) * 100).round();
   }
 }

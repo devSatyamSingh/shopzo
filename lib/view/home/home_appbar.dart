@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomeAppBar extends StatelessWidget {
   final String location;
@@ -49,7 +50,9 @@ class HomeAppBar extends StatelessWidget {
                           color: ColorConstant.labelTextColor,
                         ),
                         children: [
-                          const TextSpan(text: 'Deliver to  '),
+                          TextSpan(
+                            text: '${'home.deliver_to'.tr()}  ',
+                          ),
                           TextSpan(
                             text: location,
                             style: TextStyle(

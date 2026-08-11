@@ -41,7 +41,7 @@
   },
   "profile": {
     "guest_user": "अतिथी वापरकर्ता",
-    "member_since": "{} पासून सदस्य",
+    "member_since": "पासून सदस्य",
 
     "orders": "ऑर्डर्स",
     "orders_subtitle": "तुमची पॅकेजेस ट्रॅक करा",
@@ -92,7 +92,7 @@
     "no_coupons": "सध्या कोणतेही कूपन्स उपलब्ध नाहीत",
     "expired": "कालबाह्य",
     "tap_to_copy": "कॉपी करण्यासाठी टॅप करा",
-    "add_more": "हा ऑफर अनलॉक करण्यासाठी आणखी ₹{} जोडा",
+    "add_more": "हा ऑफर अनलॉक करण्यासाठी आणखी ₹जोडा",
     "code_copied": "कोड '{}' कॉपी झाला — लागू करण्यासाठी चेकआउटवर पेस्ट करा"
   },
   "address": {
@@ -156,7 +156,7 @@
     "detecting_location_subtitle": "कृपया प्रतीक्षा करा, आम्ही तुमचे स्थान शोधत आहोत",
 
     "saved_addresses": "जतन केलेले पत्ते",
-    "addresses_count": "{} पत्ते",
+    "addresses_count": "पत्ते",
     "no_saved_addresses": "अद्याप कोणतेही जतन केलेले पत्ते नाहीत",
 
     "add_new_address": "नवीन पत्ता जोडा",
@@ -184,8 +184,475 @@
     "turn_on_gps": "पुढे जाण्यासाठी डिव्हाइसचे स्थान (GPS) सुरू करा.",
     "permission_required": "तुमचा पत्ता शोधण्यासाठी स्थानाची परवानगी आवश्यक आहे.",
     "permission_permanently_denied": "स्थानाची परवानगी कायमची नाकारली आहे. ती अॅप सेटिंग्जमधून सुरू करा.",
-
     "current_location": "सध्याचे स्थान",
     "location_added": "सध्याचे स्थान यशस्वीरित्या जोडले गेले!"
+  },
+  "profiles": {
+    "edit_profile": "प्रोफाइल संपादित करा",
+    "profile_information": "प्रोफाइल माहिती",
+    "personal_details": "वैयक्तिक माहिती",
+    "full_name": "पूर्ण नाव",
+    "full_name_hint": "तुमचे पूर्ण नाव प्रविष्ट करा",
+    "email_address": "ईमेल पत्ता",
+    "email_hint": "तुमचा ईमेल प्रविष्ट करा",
+    "phone_number": "फोन नंबर",
+    "phone_hint": "तुमचा मोबाईल नंबर प्रविष्ट करा",
+    "date_of_birth": "जन्मतारीख",
+    "date_hint": "DD/MM/YYYY",
+    "gender": "लिंग",
+    "select_gender": "लिंग निवडा",
+    "male": "पुरुष",
+    "female": "महिला",
+    "other": "इतर",
+    "member_since": "पासून सदस्य",
+    "your_profile": "तुमची प्रोफाइल",
+    "not_set": "सेट केलेले नाही",
+    "save_changes": "बदल सेव्ह करा",
+    "member_since_label": "सदस्य झाल्याची तारीख",
+    "profile_updated": "तुमची प्रोफाइल अपडेट झाली आहे",
+    "update_failed": "प्रोफाइल अपडेट करता आली नाही",
+    "failed_load_profile": "प्रोफाइल लोड करता आली नाही",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+  "home": {
+    "deliver_to": "येथे डिलिव्हर करा",
+    "trending_now": "सध्या ट्रेंडिंगमध्ये",
+    "search_placeholder": "उत्पादने, ब्रँड आणि इतर गोष्टी शोधा",
+    "loyalty_title_line1": "विशेष लॉयल्टी रिवॉर्ड्स",
+    "loyalty_title_line2": "₹500 पर्यंत कॅशबॅक",
+    "loyalty_subtitle": "₹1,999 पेक्षा जास्त सर्व UPI व्यवहारांवर",
+    "retry": "पुन्हा प्रयत्न करा",
+    "failed_to_load_products": "उत्पादने लोड करता आली नाहीत",
+    "results": "निकाल ({})",
+    "clear_filters": "फिल्टर साफ करा",
+    "no_products_found": "कोणतेही उत्पादन सापडले नाही",
+    "try_adjusting_filters": "तुमचे फिल्टर बदलून पहा",
+    "no_products_available": "सध्या कोणतेही उत्पादन उपलब्ध नाही",
+    "category_load_error": "कॅटेगरी लोड करता आल्या नाहीत — पुन्हा प्रयत्न करण्यासाठी टॅप करा"
+  },
+
+  "filters": {
+    "sort": "क्रमवारी लावा",
+    "price": "किंमत",
+    "filters": "फिल्टर",
+    "filters_count": "फिल्टर ({})",
+    "sort_by": "क्रमवारी लावा",
+    "price_low_high": "किंमत: कमी ते जास्त",
+    "price_high_low": "किंमत: जास्त ते कमी",
+    "rating": "रेटिंग",
+    "newest": "नवीनतम",
+    "price_range": "किंमत श्रेणी",
+    "reset": "रीसेट",
+    "cancel": "रद्द करा",
+    "apply": "लागू करा",
+    "categories": "कॅटेगरी",
+    "clear_all": "सर्व साफ करा",
+    "gender": "लिंग",
+    "men": "पुरुष",
+    "women": "महिला",
+    "unisex": "युनिसेक्स"
+  },
+  "wishlist": {
+    "update_failed": "विशलिस्ट अपडेट करता आली नाही. कृपया पुन्हा प्रयत्न करा.",
+    "added": "विशलिस्टमध्ये जोडले",
+    "removed": "विशलिस्टमधून हटवले",
+    "my_wishlist": "माझी विशलिस्ट",
+    "item": "आयटम",
+    "items": "आयटम",
+
+    "removed_success": "विशलिस्टमधून काढले",
+    "remove_failed": "आयटम काढता आला नाही. कृपया पुन्हा प्रयत्न करा.",
+
+    "moved_to_cart": "कार्टमध्ये जोडले",
+    "move_to_cart_failed": "आयटम कार्टमध्ये जोडता आला नाही. कृपया पुन्हा प्रयत्न करा.",
+
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+    "notify_me": "मला सूचित करा",
+    "adding": "जोडत आहे...",
+    "add_to_cart": "कार्टमध्ये जोडा",
+
+    "load_failed": "विशलिस्ट लोड करता आली नाही",
+    "retry": "पुन्हा प्रयत्न करा",
+
+    "empty_title": "तुमची विशलिस्ट रिकामी आहे",
+    "empty_message": "तुम्हाला आवडणारे आयटम सेव्ह करा आणि ते कधीही येथे शोधा",
+    "browse_products": "प्रोडक्ट्स पहा",
+
+    "looking_for_more": "आणखी काही शोधत आहात?",
+    "explore_trending": "तुमच्यासाठी निवडलेले ट्रेंडिंग प्रोडक्ट्स पहा"
+  },
+  "flash_deals": {
+    "title": "फ्लॅश डील्स",
+    "time_left": "उरलेला वेळ:",
+    "items": "वस्तू",
+    "no_deals": "सध्या कोणतीही फ्लॅश डील उपलब्ध नाही",
+    "check_back": "उत्तम ऑफर्ससाठी नंतर पुन्हा पहा!",
+    "see_all": "सर्व पहा"
+  },
+  "top_picks": {
+    "title": "तुमच्यासाठी टॉप पिक्स",
+    "badge": "टॉप पिक",
+    "no_picks": "सध्या कोणतेही टॉप पिक उपलब्ध नाही",
+    "something_wrong": "काहीतरी चूक झाली",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+  "brands": {
+    "all_brands": "सर्व ब्रँड",
+    "search": "ब्रँड शोधा",
+    "no_brands_found": "कोणताही ब्रँड सापडला नाही",
+    "view_all": "सर्व पहा",
+    "shop_by_brand": "ब्रँडनुसार खरेदी करा",
+    "products": "उत्पादने"
+  },
+  "quick_categories": {
+    "category_load_error": "कॅटेगरी लोड करता आल्या नाहीत — पुन्हा प्रयत्न करण्यासाठी टॅप करा",
+    "more": "अधिक पहा",
+    "hide": "लपवा"
+  },
+  "product": {
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही"
+  },
+  "product_detail": {
+    "failed_to_load": "प्रॉडक्ट लोड करता आला नाही",
+    "retry": "पुन्हा प्रयत्न करा",
+
+    "delivery_details": "डिलिव्हरी तपशील",
+    "enter_pincode": "पिनकोड प्रविष्ट करा",
+    "check": "तपासा",
+
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+    "only_left": "फक्त शिल्लक!",
+
+    "product_details": "प्रॉडक्ट तपशील",
+    "features": "वैशिष्ट्ये",
+    "delivery_returns": "डिलिव्हरी आणि रिटर्न",
+    "warranty_info": "वॉरंटी माहिती",
+
+    "no_description": "या प्रॉडक्टसाठी कोणतेही वर्णन उपलब्ध नाही.",
+    "no_additional_details": "कोणतेही अतिरिक्त तपशील उपलब्ध नाहीत.",
+    "delivery_return_details": "या प्रॉडक्टसाठी डिलिव्हरी आणि रिटर्नची माहिती उपलब्ध झाल्यावर येथे दाखवली जाईल.",
+    "warranty_details": "वॉरंटीची माहिती उपलब्ध झाल्यावर येथे दाखवली जाईल.",
+
+    "customer_reviews": "ग्राहक पुनरावलोकने",
+    "no_reviews": "या प्रॉडक्टसाठी अद्याप कोणतेही पुनरावलोकन नाही.",
+    "review_count": "पुनरावलोकन",
+    "reviews_count": "पुनरावलोकने",
+    "rating_count": "रेटिंग",
+    "ratings_count": "रेटिंग",
+
+    "just_now": "आत्ताच",
+    "time_week": "आठवड्यापूर्वी",
+    "time_weeks": "आठवड्यांपूर्वी",
+    "time_day": "दिवसापूर्वी",
+    "time_days": "दिवसांपूर्वी",
+    "time_hour": "तासापूर्वी",
+    "time_hours": "तासांपूर्वी",
+
+    "failed_wishlist": "विशलिस्ट अपडेट करता आली नाही. कृपया पुन्हा प्रयत्न करा.",
+    "added_wishlist": "विशलिस्टमध्ये जोडले",
+    "removed_wishlist": "विशलिस्टमधून काढले",
+
+    "adding": "जोडत आहे...",
+    "go_to_cart": "कार्टवर जा",
+    "add_to_cart": "कार्टमध्ये जोडा",
+    "please_wait": "कृपया प्रतीक्षा करा...",
+    "buy_now": "आता खरेदी करा",
+
+    "out_of_stock_now": "हा आयटम सध्या स्टॉकमध्ये उपलब्ध नाही",
+    "select_options": "कृपया आधी सर्व पर्याय निवडा",
+    "something_wrong": "काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा."
+  },
+  "category": {
+    "all_categories": "सर्व कॅटेगरी",
+    "search_categories_products": "कॅटेगरी किंवा प्रॉडक्ट शोधा",
+
+    "trending_summer": "ट्रेंडिंग: समर\nकलेक्शन",
+    "explore": "पहा",
+
+    "new_arrivals": "नवीन प्रॉडक्ट्स",
+    "best_sellers": "बेस्ट सेलर्स",
+    "deals": "ऑफर्स",
+    "top_brands": "टॉप ब्रँड्स",
+
+    "failed_load_categories": "कॅटेगरी लोड करता आली नाही",
+    "retry": "पुन्हा प्रयत्न करा",
+    "no_categories_found": "कोणतीही कॅटेगरी सापडली नाही",
+
+    "something_wrong": "काहीतरी चूक झाली",
+
+    "no_subcategories": "कोणतीही सब-कॅटेगरी सापडली नाही",
+    "items": "आयटम",
+
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+    "only_left": "फक्त शिल्लक",
+
+    "product_count": "प्रॉडक्ट्स",
+
+    "popular_this_week": "या आठवड्यात लोकप्रिय",
+    "see_all": "सर्व पहा"
+  },
+
+  "category_products": {
+    "failed_load": "काहीतरी चूक झाली",
+    "retry": "पुन्हा प्रयत्न करा",
+    "no_products": "या कॅटेगरीमध्ये सध्या कोणतेही प्रॉडक्ट उपलब्ध नाही",
+
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+    "only_left": "फक्त शिल्लक"
+  },
+  "cart": {
+    "my_cart": "माझी कार्ट",
+    "item": "आयटम",
+    "items": "आयटम",
+
+    "select_all": "सर्व निवडा ({} / {})",
+
+    "your_cart_empty": "तुमची कार्ट रिकामी आहे",
+    "empty_cart_message": "असे दिसते की तुम्ही अजून काहीही जोडलेले नाही",
+    "start_shopping": "शॉपिंग सुरू करा",
+
+    "couldnt_load_cart": "तुमची कार्ट लोड करता आली नाही",
+    "something_wrong_retry": "काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.",
+    "retry": "पुन्हा प्रयत्न करा",
+
+    "currently_unavailable": "सध्या उपलब्ध नाही",
+    "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+    "remove": "काढा",
+
+    "only_in_stock": "स्टॉकमध्ये फक्त {} उपलब्ध",
+    "only_left_in_stock": "स्टॉकमध्ये फक्त {} शिल्लक — लवकर ऑर्डर करा",
+    "only_available": "फक्त {} उपलब्ध आहेत. पुढे जाण्यासाठी प्रमाण कमी करा.",
+    "out_of_stock_remove": "हा आयटम स्टॉकमध्ये नाही. पुढे जाण्यासाठी तो काढा.",
+
+    "coupon_removed": "कूपन काढून टाकले — तुमच्या कार्टमधील निवड बदलली",
+
+    "have_coupon": "तुमच्याकडे कूपन कोड आहे का?",
+    "enter_code": "कोड टाका",
+    "apply": "लागू करा",
+    "please_enter_coupon": "कृपया कूपन कोड टाका",
+    "coupon_applied": "कूपन लागू झाले",
+    "invalid_coupon": "अवैध कूपन",
+    "select_item_coupon": "कूपन लागू करण्यासाठी किमान एक आयटम निवडा",
+    "view_all_coupons": "सर्व कूपन पहा",
+    "applied": "लागू",
+    "you_saved": "तुम्ही {} वाचवले",
+
+    "bill_details": "बिल तपशील",
+    "item_total": "आयटम एकूण ({} आयटम)",
+    "items_total": "आयटम एकूण ({} आयटम)",
+    "coupon_discount": "कूपन सवलत",
+    "delivery_fee": "डिलिव्हरी शुल्क",
+    "platform_fee": "प्लॅटफॉर्म शुल्क",
+    "free": "मोफत",
+    "to_pay": "देय रक्कम",
+
+    "selected": "{} आयटम निवडला",
+    "selected_plural": "{} आयटम निवडले",
+
+    "select_items": "आयटम निवडा",
+    "review_cart": "कार्ट तपासा",
+    "proceed_checkout": "चेकआउटकडे जा",
+
+    "select_at_least_one": "पुढे जाण्यासाठी किमान एक आयटम निवडा",
+    "remove_unavailable": "पुढे जाण्यासाठी अनुपलब्ध / स्टॉक नसलेले आयटम काढा",
+
+    "remove_item_title": "आयटम काढायचा?",
+    "remove_item_message": "\"{}\" तुमच्या कार्टमधून काढायचा?",
+    "clear_cart_title": "कार्ट रिकामी करायची?",
+    "clear_cart_message": "यामुळे तुमच्या कार्टमधील सर्व आयटम काढले जातील.",
+    "clear": "रिकामी करा"
+  },
+  "checkout": {
+    "checkout": "चेकआउट",
+
+    "steps": {
+      "address": "पत्ता",
+      "summary": "सारांश",
+      "payment": "पेमेंट"
+    },
+
+    "delivery": {
+      "home_delivery": "होम डिलिव्हरी",
+      "store_pickup": "स्टोअर पिकअप",
+      "estimated_delivery": "अंदाजे डिलिव्हरी",
+      "within_days": "3-5 कामकाजाच्या दिवसांत"
+    },
+
+    "address": {
+      "saved_addresses": "सेव्ह केलेले पत्ते",
+      "address_count": "{} पत्ते",
+      "no_saved": "अजून कोणताही पत्ता सेव्ह केलेला नाही. पुढे जाण्यासाठी पत्ता जोडा.",
+      "add_new": "नवीन पत्ता जोडा",
+      "billing": "बिलिंग पत्ता",
+      "shipping": "शिपिंग पत्ता",
+      "default": "डीफॉल्ट",
+      "change": "बदला",
+      "deliver_to": "डिलिव्हरी पत्ता:"
+    },
+
+    "order": {
+      "order_items": "ऑर्डर आयटम ({})",
+      "no_items": "चेकआउट करण्यासाठी कोणतेही आयटम नाहीत",
+      "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही",
+      "stock_warning": "काही आयटम स्टॉकमध्ये उपलब्ध नाहीत. कृपया मागे जाऊन तुमचे कार्ट अपडेट करा.",
+      "quantity": "प्रमाण: {}"
+    },
+
+    "coupon": {
+      "have_code": "तुमच्याकडे कूपन कोड आहे का?",
+      "enter_code": "कूपन कोड प्रविष्ट करा",
+      "apply": "लागू करा",
+      "remove": "काढा",
+      "applied": "{} लागू केले",
+      "saved": "तुमची {} बचत झाली",
+      "please_enter": "कृपया कूपन कोड प्रविष्ट करा",
+      "invalid": "अवैध कूपन",
+      "success": "कूपन लागू झाले"
+    },
+
+    "bill": {
+      "bill_details": "बिल तपशील",
+      "item_total": "आयटम एकूण",
+      "tax": "कर",
+      "delivery_fee": "डिलिव्हरी शुल्क",
+      "free": "मोफत",
+      "coupon_discount": "कूपन सवलत",
+      "platform_fee": "प्लॅटफॉर्म शुल्क",
+      "to_pay": "देय रक्कम"
+    },
+
+    "payment": {
+      "amount_to_pay": "भरण्याची रक्कम",
+      "payment_method": "पेमेंट पद्धत",
+      "cash_on_delivery": "कॅश ऑन डिलिव्हरी",
+      "upi": "UPI",
+      "credit_debit_card": "क्रेडिट / डेबिट कार्ड",
+      "net_banking": "नेट बँकिंग",
+      "coming_soon": "लवकरच उपलब्ध",
+      "secure_payments": "100% सुरक्षित पेमेंट",
+      "placing_order": "ऑर्डर दिली जात आहे...",
+      "pay": "{} भरा",
+      "payment_coming_soon": "{} लवकरच उपलब्ध होईल — सध्या कॅश ऑन डिलिव्हरी वापरा"
+    },
+
+    "actions": {
+      "retry": "पुन्हा प्रयत्न करा",
+      "continue_summary": "सारांशाकडे जा",
+      "continue_payment": "पेमेंटकडे जा",
+      "go_to_cart": "कार्टवर जा"
+    },
+
+    "errors": {
+      "something_wrong": "काहीतरी चूक झाली",
+      "failed_place_order": "ऑर्डर देण्यात अयशस्वी"
+    }
+  },
+  "orders": {
+    "orders": "ऑर्डर्स",
+    "order_details": "ऑर्डर तपशील",
+    "order": "ऑर्डर",
+    "placed_on": "ऑर्डर दिल्याची तारीख",
+    "order_status": "ऑर्डरची स्थिती",
+    "order_items": "ऑर्डरमधील वस्तू",
+    "deliver_to": "डिलिव्हरी पत्ता",
+
+    "filters": {
+      "all": "सर्व",
+      "processing": "प्रक्रियेत",
+      "shipped": "पाठवले",
+      "delivered": "डिलिव्हर झाले"
+    },
+
+    "status": {
+      "pending": "प्रलंबित",
+      "processing": "प्रक्रियेत",
+      "delivered": "डिलिव्हर झाले",
+      "cancelled": "रद्द केले",
+      "refunded": "रिफंड केले"
+    },
+
+    "timeline": {
+      "order_placed": "ऑर्डर दिली",
+      "processing": "प्रक्रियेत",
+      "delivered": "डिलिव्हर झाले",
+      "cancelled": "रद्द केले",
+      "refund_initiated": "रिफंड सुरू केला",
+      "refunded": "रिफंड केले"
+    },
+
+    "quantity": "प्रमाण: {}",
+    "items_count": "{} वस्तू",
+    "items_count_plural": "{} वस्तू",
+    "more_items": "+{} अधिक",
+
+    "payment": {
+      "paid_via": "{} द्वारे पेमेंट",
+      "subtotal": "उपएकूण",
+      "tax": "कर",
+      "discount": "सूट",
+      "total_paid": "एकूण पेमेंट"
+    },
+
+    "actions": {
+      "view_details": "तपशील पहा",
+      "track_cancel": "ट्रॅक / रद्द करा",
+      "cancel_order": "ऑर्डर रद्द करा",
+      "keep_order": "ऑर्डर ठेवा",
+      "confirm_cancel": "रद्द करण्याची पुष्टी करा",
+      "cancelling": "रद्द करत आहे...",
+      "retry": "पुन्हा प्रयत्न करा",
+      "start_shopping": "खरेदी सुरू करा"
+    },
+
+    "messages": {
+      "no_orders": "अजून कोणतेही ऑर्डर नाहीत",
+      "something_wrong": "काहीतरी चूक झाली",
+      "order_cancelled": "हा ऑर्डर रद्द करण्यात आला आहे.",
+      "cancel_success": "ऑर्डर यशस्वीरित्या रद्द केली",
+      "cancel_failed": "ऑर्डर रद्द करता आली नाही",
+      "cancel_reason": "रद्द करण्याचे कारण",
+      "cancel_reason_required": "कृपया ऑर्डर रद्द करण्याचे कारण सांगा",
+      "cancel_reason_hint": "उदा. चुकीने ऑर्डर केली, चांगली किंमत मिळाली..."
+    },
+
+    "review": {
+      "rate_review": "रेट आणि रिव्ह्यू",
+      "return_exchange": "रिटर्न / एक्सचेंज"
+    }
+  },
+  "reviews": {
+    "rate_product": "तुम्ही या उत्पादनाला किती रेटिंग द्याल?",
+    "write_review": "तुमचा रिव्ह्यू लिहा",
+    "share_experience": "तुमचा अनुभव शेअर करा...",
+    "add_photos": "फोटो जोडा",
+    "submitting": "सबमिट करत आहे...",
+    "submit": "रिव्ह्यू सबमिट करा",
+    "reviews": "रिव्ह्यू ({})",
+    "no_reviews": "अजून कोणतेही रिव्ह्यू नाहीत. सर्वात आधी रिव्ह्यू करा!",
+    "rating_required": "सबमिट करण्यापूर्वी कृपया उत्पादनाला रेटिंग द्या",
+    "submitted_title": "रिव्ह्यू सबमिट झाला!",
+    "submitted_message": "मंजुरी मिळाल्यानंतर तो दिसेल.",
+    "pending_message": "तुमचा रिव्ह्यू सबमिट झाला आहे आणि मंजुरीच्या प्रतीक्षेत आहे. मंजुरी मिळाल्यानंतर तो येथे दिसेल.",
+    "already_reviewed": "तुम्ही या उत्पादनाचा आधीच रिव्ह्यू केला आहे.",
+    "failed": "रिव्ह्यू सबमिट करता आला नाही"
+  },
+  "help_support": {
+    "app_bar_title": "मदत आणि समर्थन",
+    "common_issues": "सामान्य समस्या",
+    "orders_tracking": "ऑर्डर आणि ट्रॅकिंग",
+    "payments_refunds": "पेमेंट आणि रिफंड",
+    "returns_exchanges": "परतावा आणि देवाणघेवाण",
+    "account_security": "खाते सुरक्षा",
+    "search_hint": "मदत, FAQ किंवा विषय शोधा...",
+    "still_need_help": "अजूनही मदत हवी आहे?",
+    "support_description": "तुमची समस्या सांगा आणि आमची टीम 24 तासांत तुमच्याशी संपर्क साधेल.",
+    "issue_title_hint": "समस्येचे शीर्षक",
+    "problem_hint": "तुमची समस्या येथे लिहा...",
+    "send_now": "आत्ता पाठवा",
+    "sending": "पाठवत आहे...",
+    "quick_contact": "द्रुत संपर्क",
+    "call": "कॉल करा",
+    "chat": "चॅट करा",
+    "email": "ईमेल"
   }
 }

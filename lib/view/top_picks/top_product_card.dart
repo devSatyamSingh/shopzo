@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../model/top_product_model.dart';
 import '../../res/color_constant.dart';
@@ -95,7 +96,7 @@ class TopProductCard extends StatelessWidget {
                     child: Container(
                       color: Colors.black.withOpacity(0.45),
                       alignment: Alignment.center,
-                      child: const Text("Out of Stock",
+                      child: Text('product.out_of_stock'.tr(),
                           style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700, fontFamily: "Poppins")),
                     ),
                   ),

@@ -3,11 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:shopzo/view/order/return_form_bottomsheet.dart';
 import 'package:shopzo/view/order/review_rating_screen.dart';
 import '../../model/order/order_model.dart';
+import '../../model/order/return_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
+import '../../utils/utils.dart';
 import '../../viewmodel/orderview/order_details_viewmodel.dart';
 import '../../viewmodel/orderview/orderlist_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
@@ -30,8 +34,6 @@ class _OrderDetailView extends StatefulWidget {
 }
 
 class _OrderDetailViewState extends State<_OrderDetailView> {
-  bool _cancelRequested = false; // local UI flag — abhi cancel API nahi hai
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -63,11 +65,20 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             borderRadius: BorderRadius.circular(10),
             child: const Padding(
               padding: EdgeInsets.all(6),
-              child: Icon(Icons.arrow_back_rounded, color: ColorConstant.headlineTextColor, size: 22),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: ColorConstant.headlineTextColor,
+                size: 22,
+              ),
             ),
           ),
-          const Expanded(
-            child: TextContext(text: "Order Details", fontSize: 18, fontWeight: FontWeight.w700, textAlign: TextAlign.center),
+          Expanded(
+            child: TextContext(
+              text: 'orders.order_details'.tr(),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(width: 34),
         ],
@@ -77,7 +88,9 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
 
   Widget _buildBody(BuildContext context, Size size, OrderDetailViewModel vm) {
     if (vm.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
+      return const Center(
+        child: CircularProgressIndicator(color: ColorConstant.primaryColor),
+      );
     }
 
     if (vm.status == OrderDetailStatus.error || vm.order == null) {
@@ -87,11 +100,26 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline_rounded, color: ColorConstant.errorColor, size: 40),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: ColorConstant.errorColor,
+                size: 40,
+              ),
               SizedBox(height: size.height * 0.012),
-              TextContext(text: vm.errorMessage ?? 'Something went wrong', fontSize: 13, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
+              TextContext(
+                text: vm.errorMessage ?? 'Something went wrong',
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: ColorConstant.labelTextColor,
+                textAlign: TextAlign.center,
+              ),
               SizedBox(height: size.height * 0.02),
-              CustomButton(text: "Retry", width: 140, height: 44, onTap: () => vm.fetchOrder(vm.orderId!)),
+              CustomButton(
+                text: "Retry",
+                width: 140,
+                height: 44,
+                onTap: () => vm.fetchOrder(vm.orderId!),
+              ),
             ],
           ),
         ),
@@ -105,7 +133,10 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       onRefresh: () => vm.fetchOrder(order.id),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: size.width * 0.045, vertical: size.height * 0.016),
+        padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.045,
+          vertical: size.height * 0.016,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -117,7 +148,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
               _buildAddressCard(size, order),
               SizedBox(height: size.height * 0.018),
             ],
-            _buildItemsCard(context, size, order),
+            _buildItemsCard(context, size, order, vm),
             SizedBox(height: size.height * 0.018),
             _buildPaymentCard(size, order),
             SizedBox(height: size.height * 0.02),
@@ -137,10 +168,16 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextContext(text: "Order #${order.orderNumber}", fontSize: 15, fontWeight: FontWeight.w600),
+              TextContext(
+                text: '${'orders.order'.tr()} #${order.orderNumber}',
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
               const SizedBox(height: 3),
               TextContext(
-                text: order.createdAt != null ? "Placed on ${_formatDate(order.createdAt!)}" : '',
+                text: order.createdAt != null
+                    ? "Placed on ${_formatDate(order.createdAt!)}"
+                    : '',
                 fontSize: 12.5,
                 fontWeight: FontWeight.w400,
                 color: ColorConstant.labelTextColor,
@@ -150,9 +187,19 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: _statusColor(order.status).withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
-          child: Text(_statusLabel(order),
-              style: TextStyle(color: _statusColor(order.status), fontSize: 12, fontWeight: FontWeight.w600, fontFamily: "Poppins")),
+          decoration: BoxDecoration(
+            color: _statusColor(order.status).withOpacity(0.12),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _statusLabel(order),
+            style: TextStyle(
+              color: _statusColor(order.status),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: "Poppins",
+            ),
+          ),
         ),
       ],
     );
@@ -165,14 +212,25 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TextContext(text: "Order Status", fontSize: 15, fontWeight: FontWeight.w600),
+          TextContext(
+            text: 'orders.order_status'.tr(),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
           SizedBox(height: size.height * 0.018),
-          for (int i = 0; i < steps.length; i++) _buildTimelineTile(steps[i], isLast: i == steps.length - 1),
+          for (int i = 0; i < steps.length; i++)
+            _buildTimelineTile(steps[i], isLast: i == steps.length - 1),
         ],
       ),
     );
@@ -180,24 +238,41 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
 
   List<_Step> _buildTimelineSteps(OrderStatus status) {
     if (status == OrderStatus.cancelled) {
-      return const [
-        _Step("Order Placed", _StepState.done),
-        _Step("Cancelled", _StepState.current),
+      return [
+        _Step('orders.timeline.order_placed'.tr(), _StepState.done),
+        _Step('orders.timeline.cancelled'.tr(), _StepState.current),
       ];
     }
     if (status == OrderStatus.refunded) {
-      return const [
-        _Step("Order Placed", _StepState.done),
-        _Step("Refund Initiated", _StepState.done),
-        _Step("Refunded", _StepState.current),
+      return [
+        _Step('orders.timeline.order_placed'.tr(), _StepState.done),
+        _Step('orders.timeline.refund_initiated'.tr(), _StepState.done),
+        _Step('orders.timeline.refunded'.tr(), _StepState.current),
       ];
     }
-    final order = [OrderStatus.pending, OrderStatus.processing, OrderStatus.completed];
+    final order = [
+      OrderStatus.pending,
+      OrderStatus.processing,
+      OrderStatus.completed,
+    ];
     final idx = order.indexOf(status);
     return [
-      _Step("Order Placed", idx >= 0 ? _StepState.done : _StepState.upcoming),
-      _Step("Processing", idx >= 1 ? _StepState.done : (idx == 0 ? _StepState.current : _StepState.upcoming)),
-      _Step("Delivered", idx >= 2 ? _StepState.done : (idx == 1 ? _StepState.current : _StepState.upcoming)),
+      _Step(
+        'orders.timeline.order_placed'.tr(),
+        idx >= 0 ? _StepState.done : _StepState.upcoming,
+      ),
+      _Step(
+        'orders.timeline.processing'.tr(),
+        idx >= 1
+            ? _StepState.done
+            : (idx == 0 ? _StepState.current : _StepState.upcoming),
+      ),
+      _Step(
+        'orders.timeline.delivered'.tr(),
+        idx >= 2
+            ? _StepState.done
+            : (idx == 1 ? _StepState.current : _StepState.upcoming),
+      ),
     ];
   }
 
@@ -210,7 +285,14 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             children: [
               _buildStepCircle(step.state),
               if (!isLast)
-                Expanded(child: Container(width: 2, color: step.state == _StepState.done ? ColorConstant.primaryColor : ColorConstant.borderColor)),
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    color: step.state == _StepState.done
+                        ? ColorConstant.primaryColor
+                        : ColorConstant.borderColor,
+                  ),
+                ),
             ],
           ),
           const SizedBox(width: 14),
@@ -221,7 +303,9 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                 text: step.title,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: step.state == _StepState.upcoming ? ColorConstant.placeholderColor : ColorConstant.headlineTextColor,
+                color: step.state == _StepState.upcoming
+                    ? ColorConstant.placeholderColor
+                    : ColorConstant.headlineTextColor,
               ),
             ),
           ),
@@ -234,21 +318,38 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     switch (state) {
       case _StepState.done:
         return Container(
-          height: 24, width: 24,
-          decoration: const BoxDecoration(color: ColorConstant.primaryColor, shape: BoxShape.circle),
+          height: 24,
+          width: 24,
+          decoration: const BoxDecoration(
+            color: ColorConstant.primaryColor,
+            shape: BoxShape.circle,
+          ),
           child: const Icon(Icons.check_rounded, color: Colors.white, size: 15),
         );
       case _StepState.current:
         return Container(
-          height: 24, width: 24,
+          height: 24,
+          width: 24,
           padding: const EdgeInsets.all(4),
-          decoration: const BoxDecoration(color: ColorConstant.primaryColor, shape: BoxShape.circle),
-          child: Container(decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+          decoration: const BoxDecoration(
+            color: ColorConstant.primaryColor,
+            shape: BoxShape.circle,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
         );
       case _StepState.upcoming:
         return Container(
-          height: 24, width: 24,
-          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ColorConstant.borderColor, width: 2)),
+          height: 24,
+          width: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: ColorConstant.borderColor, width: 2),
+          ),
         );
     }
   }
@@ -260,26 +361,48 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 36, width: 36,
-            decoration: const BoxDecoration(color: ColorConstant.primaryLight, shape: BoxShape.circle),
+            height: 36,
+            width: 36,
+            decoration: const BoxDecoration(
+              color: ColorConstant.primaryLight,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
-            child: const Icon(Icons.location_on_rounded, color: ColorConstant.primaryColor, size: 18),
+            child: const Icon(
+              Icons.location_on_rounded,
+              color: ColorConstant.primaryColor,
+              size: 18,
+            ),
           ),
           SizedBox(width: size.width * 0.03),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextContext(text: "DELIVER TO", fontSize: 10.5, fontWeight: FontWeight.w600, letterSpacing: 0.6, color: ColorConstant.placeholderColor),
+                TextContext(
+                  text: 'orders.deliver_to'.tr(),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
+                  color: ColorConstant.placeholderColor,
+                ),
                 const SizedBox(height: 4),
                 TextContext(
-                  text: "${address.line1}${(address.line2 != null && address.line2!.isNotEmpty) ? ', ${address.line2}' : ''}\n${address.city}, ${address.state} - ${address.postalCode}",                  fontSize: 12.5,
+                  text:
+                  "${address.line1}${(address.line2 != null && address.line2!.isNotEmpty) ? ', ${address.line2}' : ''}\n${address.city}, ${address.state} - ${address.postalCode}",
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w400,
                   color: ColorConstant.labelTextColor,
                   height: 1.5,
@@ -292,21 +415,43 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     );
   }
 
-  Widget _buildItemsCard(BuildContext context, Size size, OrderModel order) {
+  Widget _buildItemsCard(
+      BuildContext context,
+      Size size,
+      OrderModel order,
+      OrderDetailViewModel vm,
+      ) {
     return Container(
       padding: EdgeInsets.all(size.width * 0.04),
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextContext(text: "Order Items (${order.itemCount})", fontSize: 14, fontWeight: FontWeight.w600),
+          TextContext(
+            text: '${'orders.order_items'.tr()} (${order.itemCount})',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
           SizedBox(height: size.height * 0.016),
           for (int i = 0; i < order.orderItems.length; i++) ...[
-            _buildItemRow(context, size, order.orderItems[i], order.canReview),
+            _buildItemRow(
+              context,
+              size,
+              order.orderItems[i],
+              order.canReview,
+              vm.returnsByOrderItem[order.orderItems[i].id],
+              vm,
+            ),
             if (i != order.orderItems.length - 1) ...[
               SizedBox(height: size.height * 0.014),
               const Divider(height: 1, color: ColorConstant.dividerColor),
@@ -318,20 +463,40 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     );
   }
 
-  Widget _buildItemRow(BuildContext context, Size size, OrderItemModel item, bool canReview) {
+  Widget _buildItemRow(
+      BuildContext context,
+      Size size,
+      OrderItemModel item,
+      bool canReview,
+      ReturnModel? existingReturn,
+      OrderDetailViewModel detailVm,
+      ) {
     final double thumbSize = (size.width * 0.16).clamp(50.0, 70.0);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: thumbSize, width: thumbSize,
+          height: thumbSize,
+          width: thumbSize,
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: ColorConstant.fieldFillColor),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: ColorConstant.fieldFillColor,
+          ),
           child: item.displayImage != null
-              ? Image.network(item.displayImage!, fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported_outlined, color: ColorConstant.placeholderColor))
-              : const Icon(Icons.image_outlined, color: ColorConstant.placeholderColor),
+              ? Image.network(
+            item.displayImage!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const Icon(
+              Icons.image_not_supported_outlined,
+              color: ColorConstant.placeholderColor,
+            ),
+          )
+              : const Icon(
+            Icons.image_outlined,
+            color: ColorConstant.placeholderColor,
+          ),
         ),
         SizedBox(width: size.width * 0.035),
         Expanded(
@@ -340,12 +505,32 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
             children: [
               Row(
                 children: [
-                  Expanded(child: TextContext(text: item.displayName, fontSize: 14, fontWeight: FontWeight.w600, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                  TextContext(text: "₹${item.subtotal.toStringAsFixed(0)}", fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+                  Expanded(
+                    child: TextContext(
+                      text: item.displayName,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  TextContext(
+                    text: "₹${item.subtotal.toStringAsFixed(0)}",
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: ColorConstant.primaryColor,
+                  ),
                 ],
               ),
               const SizedBox(height: 2),
-              TextContext(text: "Qty: ${item.quantity}", fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+              TextContext(
+                text: 'orders.quantity'.tr(
+                  args: [item.quantity.toString()],
+                ),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: ColorConstant.labelTextColor,
+              ),
               if (canReview) ...[
                 const SizedBox(height: 8),
                 Wrap(
@@ -353,27 +538,88 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                   runSpacing: 8,
                   children: [
                     InkWell(
-                      onTap: () => showReviewBottomSheet(context, productId: item.productId, productName: item.displayName),
+                      onTap: () => showReviewBottomSheet(
+                        context,
+                        productId: item.productId,
+                        productName: item.displayName,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star_border_rounded, size: 16, color: ColorConstant.ratingStarColor),
+                          const Icon(
+                            Icons.star_border_rounded,
+                            size: 16,
+                            color: ColorConstant.ratingStarColor,
+                          ),
                           const SizedBox(width: 4),
-                          TextContext(text: "Rate & Review", fontSize: 12.5, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+                          TextContext(
+                            text: 'orders.review.rate_review'.tr(),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: ColorConstant.primaryColor,
+                          ),
                         ],
                       ),
                     ),
-                    InkWell(
-                      onTap: () => showReturnFormBottomSheet(context, item: item),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.keyboard_return_rounded, size: 16, color: ColorConstant.orangeColor),
-                          const SizedBox(width: 4),
-                          TextContext(text: "Return / Exchange", fontSize: 12.5, fontWeight: FontWeight.w600, color: ColorConstant.orangeColor),
-                        ],
+
+                    // ---- Return/Exchange: already requested -> Track, else -> new form ----
+                    if (existingReturn == null)
+                      InkWell(
+                        onTap: () => showReturnFormBottomSheet(
+                          context,
+                          item: item,
+                          onSuccess: () {
+                            if (detailVm.orderId != null) {
+                              detailVm.fetchOrder(detailVm.orderId!);
+                            }
+                          },
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.keyboard_return_rounded,
+                              size: 16,
+                              color: ColorConstant.orangeColor,
+                            ),
+                            const SizedBox(width: 4),
+                            TextContext(
+                              text: 'orders.review.return_exchange'.tr(),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.orangeColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      InkWell(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          RouteName.returnDetail,
+                          arguments: existingReturn.id,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              existingReturn.isExchange
+                                  ? Icons.swap_horiz_rounded
+                                  : Icons.track_changes_rounded,
+                              size: 16,
+                              color: ColorConstant.primaryColor,
+                            ),
+                            const SizedBox(width: 4),
+                            TextContext(
+                              text:
+                              "${existingReturn.isExchange ? 'Exchange' : 'Return'} · ${existingReturn.statusRaw}",
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: ColorConstant.primaryColor,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ],
@@ -390,53 +636,117 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: ColorConstant.blackColor.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.credit_card_rounded, size: 18, color: ColorConstant.primaryColor),
+              const Icon(
+                Icons.credit_card_rounded,
+                size: 18,
+                color: ColorConstant.primaryColor,
+              ),
               const SizedBox(width: 8),
-              TextContext(text: "Paid via ${order.payment?.method ?? '—'}", fontSize: 14, fontWeight: FontWeight.w600),
+              TextContext(
+                text: 'orders.payment.paid_via'.tr(
+                  args: [order.payment?.method ?? '—'],
+                ),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ],
           ),
           SizedBox(height: size.height * 0.016),
-          _billRow("Subtotal", "₹${order.subtotal.toStringAsFixed(0)}"),
-          SizedBox(height: size.height * 0.01),
-          _billRow("Tax", "₹${order.tax.toStringAsFixed(0)}"),
-          SizedBox(height: size.height * 0.01),
-          _billRow("Discount", "-₹${order.discount.toStringAsFixed(0)}", valueColor: ColorConstant.successColor),
-          SizedBox(height: size.height * 0.014),
-          const Divider(height: 1, color: ColorConstant.dividerColor),
-          SizedBox(height: size.height * 0.014),
-          _billRow("Total Paid", "₹${order.total.toStringAsFixed(0)}", bold: true, valueColor: ColorConstant.primaryColor),
+          _billRow(
+            'orders.payment.subtotal'.tr(),
+            "₹${order.subtotal.toStringAsFixed(0)}",
+          ),
+
+          _billRow(
+            'orders.payment.tax'.tr(),
+            "₹${order.tax.toStringAsFixed(0)}",
+          ),
+
+          _billRow(
+            'orders.payment.discount'.tr(),
+            "-₹${order.discount.toStringAsFixed(0)}",
+            valueColor: ColorConstant.successColor,
+          ),
+
+          _billRow(
+            'orders.payment.total_paid'.tr(),
+            "₹${order.total.toStringAsFixed(0)}",
+            bold: true,
+            valueColor: ColorConstant.primaryColor,
+          ),
         ],
       ),
     );
   }
 
-  Widget _billRow(String label, String value, {bool bold = false, Color? valueColor}) {
+  Widget _billRow(
+      String label,
+      String value, {
+        bool bold = false,
+        Color? valueColor,
+      }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TextContext(text: label, fontSize: bold ? 15 : 13, fontWeight: bold ? FontWeight.w600 : FontWeight.w400, color: bold ? ColorConstant.headlineTextColor : ColorConstant.labelTextColor),
-        TextContext(text: value, fontSize: bold ? 16.5 : 13, fontWeight: bold ? FontWeight.w600 : FontWeight.w500, color: valueColor ?? ColorConstant.headlineTextColor),
+        TextContext(
+          text: label,
+          fontSize: bold ? 15 : 13,
+          fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
+          color: bold
+              ? ColorConstant.headlineTextColor
+              : ColorConstant.labelTextColor,
+        ),
+        TextContext(
+          text: value,
+          fontSize: bold ? 16.5 : 13,
+          fontWeight: bold ? FontWeight.w600 : FontWeight.w500,
+          color: valueColor ?? ColorConstant.headlineTextColor,
+        ),
       ],
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, Size size, OrderModel order) {
+  Widget _buildActionButtons(
+      BuildContext context,
+      Size size,
+      OrderModel order,
+      ) {
     if (order.status == OrderStatus.cancelled) {
       return Container(
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: ColorConstant.errorColor.withOpacity(0.08), borderRadius: BorderRadius.circular(14)),
-        child: const Row(
+        decoration: BoxDecoration(
+          color: ColorConstant.errorColor.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
           children: [
-            Icon(Icons.cancel_outlined, color: ColorConstant.errorColor, size: 18),
-            SizedBox(width: 8),
-            Expanded(child: TextContext(text: "This order has been cancelled.", fontSize: 12.5, fontWeight: FontWeight.w500, color: ColorConstant.errorColor)),
+            const Icon(
+              Icons.cancel_outlined,
+              color: ColorConstant.errorColor,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextContext(
+                text: 'orders.messages.order_cancelled'.tr(),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+                color: ColorConstant.errorColor,
+              ),
+            ),
           ],
         ),
       );
@@ -445,9 +755,9 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
     if (!order.canCancel) return const SizedBox.shrink();
 
     return CustomButton(
-      text: "Cancel Order",
+      text: 'orders.actions.cancel_order'.tr(),
       width: double.infinity,
-      height: 52,
+      height: 50,
       outlined: true,
       borderColor: ColorConstant.errorColor,
       textColor: ColorConstant.errorColor,
@@ -468,7 +778,9 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
             decoration: const BoxDecoration(
@@ -482,27 +794,60 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
-                    child: Container(height: 4, width: 40, decoration: BoxDecoration(color: ColorConstant.borderColor, borderRadius: BorderRadius.circular(10))),
+                    child: Container(
+                      height: 4,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: ColorConstant.borderColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const TextContext(text: "Cancel Order", fontSize: 17, fontWeight: FontWeight.w700),
+                  TextContext(
+                    text: 'orders.actions.cancel_order'.tr(),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
                   const SizedBox(height: 6),
-                  TextContext(text: "Order #${order.orderNumber}", fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+                  TextContext(
+                    text: "Order #${order.orderNumber}",
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w400,
+                    color: ColorConstant.labelTextColor,
+                  ),
                   const SizedBox(height: 16),
-                  const TextContext(text: "Reason for cancellation", fontSize: 13, fontWeight: FontWeight.w600),
+                  TextContext(
+                    text: 'orders.messages.cancel_reason'.tr(),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                   const SizedBox(height: 8),
                   Container(
-                    decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(14), border: Border.all(color: ColorConstant.borderColor)),
+                    decoration: BoxDecoration(
+                      color: ColorConstant.fieldFillColor,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: ColorConstant.borderColor),
+                    ),
                     child: TextFormField(
                       controller: commentController,
                       maxLines: 4,
-                      validator: (v) => (v == null || v.trim().isEmpty) ? "Please tell us why you're cancelling" : null,
-                      style: const TextStyle(fontFamily: "Poppins", fontSize: 13.5),
-                      decoration: const InputDecoration(
-                        hintText: "e.g. Ordered by mistake, found a better price...",
-                        hintStyle: TextStyle(fontFamily: "Poppins", fontSize: 13, color: ColorConstant.placeholderColor),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'orders.messages.cancel_reason_required'.tr()
+                          : null,
+                      style: const TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 13.5,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'orders.messages.cancel_reason_hint'.tr(),
+                        hintStyle: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 13,
+                          color: ColorConstant.placeholderColor,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(14),
+                        contentPadding: const EdgeInsets.all(14),
                       ),
                     ),
                   ),
@@ -513,7 +858,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              text: "Keep Order",
+                              text: 'orders.actions.keep_order'.tr(),
                               outlined: true,
                               height: 50,
                               onTap: () => Navigator.of(sheetContext).pop(),
@@ -525,25 +870,36 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
                               animation: detailVm,
                               builder: (context, _) {
                                 return CustomButton(
-                                  text: detailVm.isCancelling ? "Cancelling..." : "Confirm Cancel",
+                                  text: detailVm.isCancelling
+                                      ? 'orders.actions.cancelling'.tr()
+                                      : 'orders.actions.confirm_cancel'.tr(),
                                   height: 50,
                                   color: ColorConstant.errorColor,
                                   onTap: detailVm.isCancelling
                                       ? null
                                       : () async {
-                                    if (!formKey.currentState!.validate()) return;
-                                    final ok = await detailVm.cancelOrder(commentController.text.trim());
+                                    if (!formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    final ok = await detailVm.cancelOrder(
+                                      commentController.text.trim(),
+                                    );
                                     if (!sheetContext.mounted) return;
                                     Navigator.of(sheetContext).pop();
                                     if (!context.mounted) return;
                                     if (ok) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text("Order cancelled successfully"), backgroundColor: ColorConstant.successColor),
+                                      AppUtils.success(
+                                        context,
+                                        'orders.messages.cancel_success'.tr(),
                                       );
-                                      context.read<OrderViewModel>().refresh();
+                                      context
+                                          .read<OrderViewModel>()
+                                          .refresh();
                                     } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(detailVm.cancelError ?? 'Failed to cancel order'), backgroundColor: ColorConstant.errorColor),
+                                      AppUtils.error(
+                                        context,
+                                        detailVm.cancelError ??
+                                            'orders.messages.cancel_failed'.tr(),
                                       );
                                     }
                                   },
@@ -563,6 +919,7 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
       },
     );
   }
+
   Color _statusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
@@ -597,7 +954,20 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
   }
 
   String _formatDate(DateTime d) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return "${d.day} ${months[d.month - 1]} ${d.year}";
   }
 }

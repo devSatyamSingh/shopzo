@@ -6,6 +6,7 @@ import 'package:shopzo/model/product/product_model.dart';
 import '../../../../res/color_constant.dart';
 import '../../../../res/text_context.dart';
 import '../../routes/route_name.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class FlashDealsScreen extends StatefulWidget {
   final List<ProductModel> products;
@@ -66,7 +67,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: TextContext(
-          text: 'Flash Deals',
+          text: 'flash_deals.title'.tr(),
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: ColorConstant.headlineTextColor,
@@ -91,7 +92,7 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
                     size: 20, color: ColorConstant.errorColor),
                 const SizedBox(width: 8),
                 TextContext(
-                  text: 'Time Left:',
+                  text: 'flash_deals.time_left'.tr(),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: ColorConstant.bodyTextColor,

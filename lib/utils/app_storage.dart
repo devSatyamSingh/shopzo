@@ -18,8 +18,6 @@ class AppStorage {
 
   static SharedPreferences? _prefs;
 
-  /// Call once in main() BEFORE runApp(), so Splash can safely check
-  /// AppStorage.isLoggedIn on first frame without any async gap/flicker.
   static Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
@@ -33,32 +31,21 @@ class AppStorage {
     return _prefs!;
   }
 
-  // ---------------------------------------------------------------------
-  // ACCESS TOKEN
-  // ---------------------------------------------------------------------
   static Future<void> saveAccessToken(String token) =>
       _instance.setString(_keyAccessToken, token);
 
   static String? getAccessToken() => _instance.getString(_keyAccessToken);
 
-  /// Logged-in state is derived from access token presence — single source
-  /// of truth, no separate "is_logged_in" flag to fall out of sync.
   static bool get isLoggedIn {
     final token = getAccessToken();
     return token != null && token.isNotEmpty;
   }
 
-  // ---------------------------------------------------------------------
-  // REFRESH TOKEN
-  // ---------------------------------------------------------------------
   static Future<void> saveRefreshToken(String token) =>
       _instance.setString(_keyRefreshToken, token);
 
   static String? getRefreshToken() => _instance.getString(_keyRefreshToken);
 
-  // ---------------------------------------------------------------------
-  // CUSTOMER DATA (raw JSON, so any extra fields survive without new methods)
-  // ---------------------------------------------------------------------
   static Future<void> saveCustomer(Map<String, dynamic> customer) =>
       _instance.setString(_keyCustomerData, jsonEncode(customer));
 
@@ -72,15 +59,9 @@ class AppStorage {
 
   static bool get hasSeenOnboarding => _instance.getBool(_keyOnboardingSeen) ?? false;
 
-  // ---------------------------------------------------------------------
-  // LANGUAGE (default = English — never cleared on logout, it's a
-  // device/user display preference, not session data)
-  // ---------------------------------------------------------------------
-  static Future<void> saveLanguageCode(String code) =>
-      _instance.setString(_keyLanguageCode, code);
+  static Future<void> saveLanguageCode(String code) => _instance.setString(_keyLanguageCode, code);
 
-  static String getLanguageCode() =>
-      _instance.getString(_keyLanguageCode) ?? 'en';
+  static String getLanguageCode() => _instance.getString(_keyLanguageCode) ?? 'en';
 
   static Future<void> saveSession({
     required String accessToken,
@@ -92,7 +73,6 @@ class AppStorage {
     if (customer != null) await saveCustomer(customer);
   }
 
-  /// Called internally by NetworkApiServices after a silent token refresh.
   static Future<void> updateTokens({
     required String accessToken,
     required String refreshToken,
@@ -106,11 +86,8 @@ class AppStorage {
     await _instance.remove(_keyRefreshToken);
     await _instance.remove(_keyCustomerData);
     await _instance.remove(_keyOnboardingSeen);
-    // language_code jaanbujh kar remove nahi kiya — logout ke baad bhi
-    // user ki chuni hui language yaad rahegi (Flipkart wala hi behavior)
   }
 
-  /// Full wipe — rarely needed (e.g. a debug "clear app data" action).
   static Future<void> clearAll() async {
     await _instance.clear();
   }

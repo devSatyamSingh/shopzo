@@ -8,6 +8,7 @@ import '../../res/text_context.dart';
 import '../../utils/app_storage.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/review/review_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 void showReviewBottomSheet(BuildContext context, {required String productId, required String productName}) {
   showModalBottomSheet(
@@ -59,7 +60,9 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
 
   Future<void> _submit() async {
     if (_rating == 0) {
-      setState(() => _localError = 'Please rate the product before submitting');
+      setState(() {
+        _localError = 'reviews.rating_required'.tr();
+      });
       return;
     }
     setState(() => _localError = null);
@@ -76,13 +79,16 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
 
     if (ok) {
       Navigator.of(context).pop();
-      AppUtils.success(null, "It'll be visible once approved.", title: "Review Submitted!");
+      AppUtils.success(
+        null,
+        'reviews.submitted_message'.tr(),
+        title: 'reviews.submitted_title'.tr(),
+      );
     } else {
-      // backend ka exact message yaha inline dikhega — bottomsheet ke andar,
-      // SnackBar ki tarah peeche nahi chhupega
-      setState(() => _localError = vm.submitError ?? 'Failed to submit review');
+      setState(() => _localError = vm.submitError ?? 'reviews.failed'.tr());
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final currentCustomerId = AppStorage.getCustomer()?['id']?.toString();
@@ -112,7 +118,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                     _buildPendingOrDoneBanner(pending),
                     const SizedBox(height: 16),
                   ] else ...[
-                    const TextContext(text: 'How would you rate this product?', fontSize: 14.5, fontWeight: FontWeight.w600),
+                    TextContext(text: 'reviews.rate_product'.tr(), fontSize: 14.5, fontWeight: FontWeight.w600),
                     const SizedBox(height: 12),
                     Center(
                       child: Row(
@@ -134,7 +140,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const TextContext(text: 'Write your review', fontSize: 14.5, fontWeight: FontWeight.w600),
+                    TextContext(text: 'reviews.write_review'.tr(), fontSize: 14.5, fontWeight: FontWeight.w600),
                     const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(14), border: Border.all(color: ColorConstant.borderColor)),
@@ -143,8 +149,8 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                         maxLines: 4,
                         maxLength: 500,
                         style: const TextStyle(fontFamily: 'Poppins', fontSize: 13.5),
-                        decoration: const InputDecoration(
-                          hintText: 'Share your experience...',
+                        decoration:  InputDecoration(
+                          hintText: 'reviews.share_experience'.tr(),
                           hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 13, color: ColorConstant.placeholderColor),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(14),
@@ -156,7 +162,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const TextContext(text: 'Add Photos', fontSize: 14.5, fontWeight: FontWeight.w600),
+                        TextContext(text: 'reviews.add_photos'.tr(), fontSize: 14.5, fontWeight: FontWeight.w600),
                         TextContext(text: '${_images.length}/5', fontSize: 12, fontWeight: FontWeight.w400, color: ColorConstant.placeholderColor),
                       ],
                     ),
@@ -200,7 +206,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
                       const SizedBox(height: 14),
                     ],
                     CustomButton(
-                      text: vm.isSubmitting ? 'Submitting...' : 'Submit Review',
+                      text: vm.isSubmitting ? 'reviews.submitting'.tr() : 'reviews.submit'.tr(),
                       onTap: vm.isSubmitting ? null : _submit,
                       icon: vm.isSubmitting ? null : Icons.send_rounded,
                     ),
@@ -209,15 +215,24 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
 
                   const Divider(color: ColorConstant.dividerColor),
                   const SizedBox(height: 10),
-                  TextContext(text: 'Reviews (${vm.reviewsFor(widget.productId).length})', fontSize: 14.5, fontWeight: FontWeight.w600),
+                  TextContext(
+                    text: 'reviews.reviews'.tr(args: [vm.reviewsFor(widget.productId).length.toString()]),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                  ),
                   const SizedBox(height: 10),
 
                   if (vm.isLoading)
                     const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor)))
                   else if (vm.reviewsFor(widget.productId).isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: TextContext(text: 'No reviews yet. Be the first to review!', fontSize: 13, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: TextContext(
+                        text: 'reviews.no_reviews'.tr(),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: ColorConstant.labelTextColor,
+                      ),
                     )
                   else
                     for (final review in vm.reviewsFor(widget.productId)) _buildReviewTile(review),
@@ -244,9 +259,7 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
           const SizedBox(width: 10),
           Expanded(
             child: TextContext(
-              text: pending
-                  ? "Your review has been submitted and is awaiting approval. It'll appear here once approved."
-                  : "You've already reviewed this product.",
+              text: pending ? 'reviews.pending_message'.tr() : 'reviews.already_reviewed'.tr(),
               fontSize: 12.5,
               fontWeight: FontWeight.w500,
               color: pending ? ColorConstant.orangeColor : ColorConstant.successColor,
@@ -367,7 +380,8 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
         pageBuilder: (_, __, ___) => _FullScreenImageViewer(images: images, initialIndex: initialIndex),
       ),
     );
-  }}
+  }
+}
 
 class _FullScreenImageViewer extends StatefulWidget {
   final List<String> images;

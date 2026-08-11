@@ -4,6 +4,7 @@ import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
 import '../../../routes/route_name.dart';
 import 'shop_by_brand_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Shopzo — All Brands screen.
 /// Reached from "View All" on the Shop By Brand section. Tapping any
@@ -56,7 +57,9 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
       backgroundColor: ColorConstant.scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: ColorConstant.whiteColor,
-        title: const Text('All Brands'),
+        title: Text(
+          'brands.all_brands'.tr(),
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -69,7 +72,7 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
               ),
               child: CustomTextField(
                 controller: _searchController,
-                hintText: 'Search brands',
+                hintText: 'brands.search'.tr(),
                 prefixIcon: const Icon(Icons.search_rounded,
                     color: ColorConstant.placeholderColor, size: 22),
                 suffixIcon: _query.isEmpty
@@ -93,7 +96,7 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
               child: brands.isEmpty
                   ? Center(
                 child: TextContext(
-                  text: 'No brands found',
+                  text: 'brands.no_brands_found'.tr(),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: ColorConstant.labelTextColor,
@@ -185,7 +188,9 @@ class _BrandGridTile extends StatelessWidget {
           ),
           if (brand.productCount != null)
             TextContext(
-              text: '${brand.productCount} Products',
+              text: 'brands.products'.tr(
+                args: [brand.productCount.toString()],
+              ),
               fontSize: 10,
               fontWeight: FontWeight.w400,
               color: ColorConstant.placeholderColor,

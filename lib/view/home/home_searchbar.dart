@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/search_screen.dart';
 import '../../../res/color_constant.dart';
@@ -33,7 +34,7 @@ class HomeSearchBar extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Search for products, brands and more',
+                  'home.search_placeholder'.tr(),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 13.5,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../res/color_constant.dart';
@@ -85,8 +86,7 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
                   Icon(Icons.refresh_rounded, size: 18, color: ColorConstant.labelTextColor),
                   const SizedBox(width: 8),
                   TextContext(
-                    text: 'Couldn\'t load categories — tap to retry',
-                    fontSize: 12.5,
+                    text: 'home.category_load_error'.tr(),                    fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                     color: ColorConstant.labelTextColor,
                   ),

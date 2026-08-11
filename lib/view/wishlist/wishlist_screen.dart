@@ -7,6 +7,7 @@ import '../../res/text_context.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/wishlist_viewmodel.dart';
 import '../product_details/product_details_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -29,9 +30,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
     final ok = await vm.removeItem(item);
     if (!mounted) return;
     if (ok) {
-      AppUtils.success(null, 'Removed from wishlist');
+      AppUtils.success(
+        null,
+        'wishlist.removed_success'.tr(),
+      );
     } else {
-      AppUtils.error(null, 'Failed to remove item. Please try again.');
+      AppUtils.error(
+        null,
+        'wishlist.remove_failed'.tr(),
+      );
     }
   }
 
@@ -40,9 +47,17 @@ class _WishlistScreenState extends State<WishlistScreen> {
     final ok = await vm.moveToCart(item);
     if (!mounted) return;
     if (ok) {
-      AppUtils.success(null, '${item.displayName} moved to cart');
+      AppUtils.success(
+        null,
+        'wishlist.moved_to_cart'.tr(
+          args: [item.displayName],
+        ),
+      );
     } else {
-      AppUtils.error(null, 'Failed to move item to cart. Please try again.');
+      AppUtils.error(
+        null,
+        'wishlist.move_to_cart_failed'.tr(),
+      );
     }
   }
 
@@ -121,10 +136,22 @@ class _WishlistScreenState extends State<WishlistScreen> {
               builder: (context, vm, _) {
                 return Column(
                   children: [
-                    const TextContext(text: "My Wishlist", fontSize: 17, color: ColorConstant.primaryColor, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
+                    TextContext(
+                      text: 'wishlist.my_wishlist'.tr(),
+                      fontSize: 17,
+                      color: ColorConstant.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 2),
                     TextContext(
-                      text: "${vm.items.length} item${vm.items.length == 1 ? '' : 's'}",
+                      text: vm.items.length == 1
+                          ? 'wishlist.item'.tr(
+                        args: [vm.items.length.toString()],
+                      )
+                          : 'wishlist.items'.tr(
+                        args: [vm.items.length.toString()],
+                      ),
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       color: ColorConstant.labelTextColor,
@@ -246,7 +273,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(color: Colors.black.withOpacity(0.65), borderRadius: BorderRadius.circular(20)),
-                          child: const Text("Out of Stock",
+                          child: Text(
+                              'wishlist.out_of_stock'.tr(),
                               style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600, fontFamily: "Poppins")),
                         ),
                       ),
@@ -285,7 +313,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                     const SizedBox(height: 12),
                     isOutOfStock
                         ? CustomButton(
-                      text: "Notify Me",
+                      text: 'wishlist.notify_me'.tr(),
                       height: 40,
                       fontSize: 13,
                       outlined: true,
@@ -297,8 +325,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       },
                     )
                         : CustomButton(
-                      text: isMoving ? "Adding..." : "Add to Cart",
-                      height: 40,
+                      text: isMoving
+                          ? 'wishlist.adding'.tr()
+                          : 'wishlist.add_to_cart'.tr(),                      height: 40,
                       fontSize: 13,
                       outlined: true,
                       borderColor: ColorConstant.primaryColor,
@@ -324,9 +353,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
           children: [
             const Icon(Icons.wifi_off_rounded, size: 42, color: ColorConstant.placeholderColor),
             const SizedBox(height: 12),
-            TextContext(text: vm.errorMessage ?? 'Failed to load wishlist', fontSize: 13.5, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            CustomButton(text: 'Retry', width: 140, height: 44, onTap: () => vm.fetchWishlist()),
+        TextContext(
+          text: vm.errorMessage ?? 'wishlist.load_failed'.tr(),),            const SizedBox(height: 16),
+            CustomButton(text: 'wishlist.retry'.tr(), width: 140, height: 44, onTap: () => vm.fetchWishlist()),
           ],
         ),
       ),
@@ -348,17 +377,17 @@ class _WishlistScreenState extends State<WishlistScreen> {
               child: const Icon(Icons.favorite_border_rounded, color: ColorConstant.primaryColor, size: 28),
             ),
             SizedBox(height: size.height * 0.02),
-            const TextContext(text: "Your wishlist is empty", fontSize: 15, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
+            TextContext(text: 'wishlist.empty_title'.tr(), fontSize: 15, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
             const SizedBox(height: 6),
-            const TextContext(
-              text: "Save items you love and find them here anytime",
+            TextContext(
+              text: 'wishlist.empty_message'.tr(),
               fontSize: 12.5,
               fontWeight: FontWeight.w400,
               color: ColorConstant.labelTextColor,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: size.height * 0.02),
-            CustomButton(text: "Browse Products", width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
+            CustomButton(text: 'wishlist.browse_products'.tr(), width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
           ],
         ),
       ),
@@ -379,11 +408,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
             child: const Icon(Icons.favorite_border_rounded, color: ColorConstant.primaryColor, size: 24),
           ),
           SizedBox(height: size.height * 0.016),
-          const TextContext(text: "Looking for more?", fontSize: 14, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
+          TextContext(text: 'wishlist.looking_for_more'.tr(), fontSize: 14, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
           const SizedBox(height: 4),
-          const TextContext(text: "Explore trending picks tailored just for you", fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
+          TextContext(text: 'wishlist.explore_trending'.tr(), fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
           SizedBox(height: size.height * 0.02),
-          CustomButton(text: "Browse Products", width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
+          CustomButton(text: 'wishlist.browse_products'.tr(), width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
         ],
       ),
     );

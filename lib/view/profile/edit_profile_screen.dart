@@ -8,6 +8,8 @@ import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/profile_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -76,10 +78,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!mounted) return;
 
     if (ok) {
-      AppUtils.success(context, "Your profile has been updated");
+      AppUtils.success(
+        context,
+        'profile.profile_updated'.tr(),
+      );
       Navigator.of(context).maybePop();
     } else {
-      AppUtils.error(context, vm.saveError ?? "Failed to update profile");
+      AppUtils.error(
+        context,
+        vm.saveError ?? 'profile.update_failed'.tr(),
+      );
     }
   }
 
@@ -115,61 +123,95 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _buildAvatarBlock(size),
                           SizedBox(height: size.height * 0.03),
 
-                          const TextContext(text: "Full Name", fontSize: 13, fontWeight: FontWeight.w600),
+                          TextContext(
+                            text: 'profile.full_name'.tr(),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                           SizedBox(height: size.height * 0.01),
                           CustomTextField(
                             controller: _nameController,
-                            hintText: "Enter your full name",
-                            prefixIcon: const Icon(Icons.person_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
-                            validator: (v) => AppUtils.validateNotEmpty(v, field: "Name"),
+                            hintText: 'profile.full_name_hint'.tr(),
+                            prefixIcon: const Icon(
+                              Icons.person_outline_rounded,
+                              color: ColorConstant.placeholderColor,
+                              size: 20,
+                            ),
+                            validator: (v) => AppUtils.validateNotEmpty(
+                              v,
+                              field: 'profile.full_name'.tr(),
+                            ),
                           ),
                           SizedBox(height: size.height * 0.02),
 
-                          const TextContext(text: "Email Address", fontSize: 13, fontWeight: FontWeight.w600),
+                          TextContext(
+                            text: 'profile.email_address'.tr(),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                           SizedBox(height: size.height * 0.01),
                           CustomTextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            hintText: "Enter your email",
-                            prefixIcon: const Icon(Icons.mail_outline_rounded, color: ColorConstant.placeholderColor, size: 20),
+                            hintText: 'profile.email_hint'.tr(),
+                            prefixIcon: const Icon(
+                              Icons.mail_outline_rounded,
+                              color: ColorConstant.placeholderColor,
+                              size: 20,
+                            ),
                             validator: AppUtils.validateEmail,
                           ),
                           SizedBox(height: size.height * 0.02),
 
-                          const TextContext(text: "Phone Number", fontSize: 13, fontWeight: FontWeight.w600),
+                          TextContext(
+                            text: 'profile.phone_number'.tr(),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                           SizedBox(height: size.height * 0.01),
                           CustomTextField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
-                            hintText: "Enter your mobile number",
+                            hintText: 'profile.phone_hint'.tr(),
                             prefixText: "+91  ",
                             validator: (v) => AppUtils.validatePhone(v),
                           ),
                           SizedBox(height: size.height * 0.02),
-
                           CustomDatePickerField(
-                            title: "Date of Birth",
-                            hintText: "DD/MM/YYYY",
+                            title: 'profile.date_of_birth'.tr(),
+                            hintText: 'profile.date_hint'.tr(),
                             controller: _dobController,
                             prefixIcon: Icons.cake_outlined,
                             lastDate: DateTime.now(),
-                            onDateSelected: (date) => _selectedDob = date, // ⚠️ confirm callback name in your CustomDatePickerField
+                            onDateSelected: (date) => _selectedDob = date,
                           ),
                           SizedBox(height: size.height * 0.02),
-
                           CustomDropdownField<String>(
-                            title: "Gender",
-                            hintText: "Select gender",
+                            title: 'profile.gender'.tr(),
+                            hintText: 'profile.select_gender'.tr(),
                             value: _selectedGender,
                             prefixIcon: Icons.wc_rounded,
-                            items: DropdownItems.fromStrings(_genderOptions),
-                            onChanged: (value) => setState(() => _selectedGender = value),
+                            items: _genderOptions.map(
+                                  (gender) {
+                                return DropdownMenuItem<String>(
+                                  value: gender,
+                                  child: Text(
+                                    'profile.${gender.toLowerCase()}'.tr(),
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedGender = value;
+                              });
+                            },
                           ),
                           SizedBox(height: size.height * 0.04),
 
                           CustomButton(
-                            text: "Save Changes",
+                            text: 'profile.save_changes'.tr(),
                             height: 54,
                             loading: vm.isSaving,
                             icon: Icons.check_rounded,
@@ -202,8 +244,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Icon(Icons.arrow_back_rounded, color: ColorConstant.headlineTextColor, size: 22),
             ),
           ),
-          const Expanded(
-            child: TextContext(text: "Edit Profile", fontSize: 18, fontWeight: FontWeight.w700, textAlign: TextAlign.center),
+          Expanded(
+            child: TextContext(
+              text: 'profile.edit_profile'.tr(),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(width: 34),
         ],

@@ -3,6 +3,7 @@ import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import 'all_brands_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BrandModel {
   final String logo;
@@ -63,7 +64,7 @@ class ShopByBrandSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextContext(
-                text: 'Shop By Brand',
+                text: 'brands.shop_by_brand'.tr(),
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
@@ -76,7 +77,7 @@ class ShopByBrandSection extends StatelessWidget {
                   child: Row(
                     children: [
                       TextContext(
-                        text: 'View All',
+                        text: 'brands.view_all'.tr(),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: ColorConstant.primaryColor,
@@ -181,7 +182,9 @@ class ShopByBrandSection extends StatelessWidget {
           if (brand.productCount != null) ...[
             SizedBox(height: size.height * 0.002),
             TextContext(
-              text: '${brand.productCount} Products',
+              text: 'brands.products'.tr(
+                args: [brand.productCount.toString()],
+              ),
               fontSize: 10,
               fontWeight: FontWeight.w400,
               color: ColorConstant.placeholderColor,

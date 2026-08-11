@@ -10,6 +10,7 @@ import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import '../../viewmodel/productdetails_and_list/product_details_viewmodel.dart';
 import '../../viewmodel/cart/cart_viewmodel.dart';
 import '../../viewmodel/wishlist_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String productId;
@@ -41,12 +42,12 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   bool _isBuyNowLoading = false;
 
   final List<bool> _accordionExpanded = [true, false, false, false];
-  final List<String> _accordionTitles = const
-  [
-    "Product Details",
-    "Features",
-    "Delivery & Returns",
-    "Warranty Info",
+
+  final List<String> _accordionTitles = [
+    'product_detail.product_details'.tr(),
+    'product_detail.features'.tr(),
+    'product_detail.delivery_returns'.tr(),
+    'product_detail.warranty_info'.tr(),
   ];
 
   @override
@@ -59,16 +60,42 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   String _timeAgo(String iso) {
     final date = DateTime.tryParse(iso);
     if (date == null) return '';
+
     final diff = DateTime.now().difference(date);
+
     if (diff.inDays >= 7) {
       final weeks = (diff.inDays / 7).floor();
-      return weeks == 1 ? '1 week ago' : '$weeks weeks ago';
-    } else if (diff.inDays >= 1) {
-      return diff.inDays == 1 ? '1 day ago' : '${diff.inDays} days ago';
-    } else if (diff.inHours >= 1) {
-      return diff.inHours == 1 ? '1 hour ago' : '${diff.inHours} hours ago';
+
+      return weeks == 1
+          ? 'product_detail.time_week'.tr(
+        args: [weeks.toString()],
+      )
+          : 'product_detail.time_weeks'.tr(
+        args: [weeks.toString()],
+      );
     }
-    return 'Just now';
+
+    if (diff.inDays >= 1) {
+      return diff.inDays == 1
+          ? 'product_detail.time_day'.tr(
+        args: [diff.inDays.toString()],
+      )
+          : 'product_detail.time_days'.tr(
+        args: [diff.inDays.toString()],
+      );
+    }
+
+    if (diff.inHours >= 1) {
+      return diff.inHours == 1
+          ? 'product_detail.time_hour'.tr(
+        args: [diff.inHours.toString()],
+      )
+          : 'product_detail.time_hours'.tr(
+        args: [diff.inHours.toString()],
+      );
+    }
+
+    return 'product_detail.just_now'.tr();
   }
 
   void _openFullScreenViewer({
@@ -133,8 +160,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ),
                     const SizedBox(height: 10),
                     TextContext(
-                      text: vm.errorMessage ?? 'Failed to load product',
-                      fontSize: 13,
+                      text: vm.errorMessage ?? 'product_detail.failed_to_load'.tr(),                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: ColorConstant.labelTextColor,
                     ),
@@ -142,7 +168,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     TextButton(
                       onPressed: () => vm.fetchProduct(vm.productId),
                       child: TextContext(
-                        text: 'Retry',
+                        text: 'product_detail.retry'.tr(),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: ColorConstant.primaryColor,
@@ -327,12 +353,14 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                             setState(() => _isTogglingWishlist = false);
 
                             if (result == null) {
-                              AppUtils.error(context, 'Failed to update wishlist. Please try again.');
+                              AppUtils.error(
+                                context,
+                                'product_detail.failed_wishlist'.tr(),
+                              );
                             } else {
                               AppUtils.success(
                                 context,
-                                result ? 'Added to wishlist' : 'Removed from wishlist',
-                              );
+                                result ? 'Added to wishlist' : 'Removed from wishlist',                              );
                             }
                           },
                         );
@@ -508,8 +536,13 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               ),
               const SizedBox(width: 8),
               TextContext(
-                text:
-                    "(${allReviews.length} rating${allReviews.length == 1 ? '' : 's'})",
+                text: allReviews.length == 1
+                    ? '(${ 'product_detail.rating_count'.tr(
+                  args: [allReviews.length.toString()],
+                )})'
+                    : '(${ 'product_detail.ratings_count'.tr(
+                  args: [allReviews.length.toString()],
+                )})',
                 fontSize: 12.5,
                 fontWeight: FontWeight.w400,
                 color: ColorConstant.labelTextColor,
@@ -523,13 +556,37 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   /// ---------------- PRICE ----------------
   Widget _buildPriceBlock(Size size, ProductDetailViewModel vm) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         TextContext(
           text: vm.effectiveFormattedPrice,
           fontSize: 24,
           fontWeight: FontWeight.w800,
         ),
+        if (vm.hasDiscount) ...[
+          const SizedBox(width: 8),
+          Text(
+            vm.formattedCostPrice,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              fontFamily: "Poppins",
+              color: ColorConstant.labelTextColor,
+              decoration: TextDecoration.lineThrough,
+              decorationColor: ColorConstant.labelTextColor,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "${vm.discountPercent}% off",
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: "Poppins",
+              color: Colors.green,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -641,8 +698,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TextContext(
-            text: "DELIVERY DETAILS",
+          TextContext(
+            text: 'product_detail.delivery_details'.tr(),
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -658,8 +715,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   style: const TextStyle(fontSize: 13.5, fontFamily: "Poppins"),
                   decoration: InputDecoration(
                     isDense: true,
-                    hintText: "Enter Pincode",
-                    hintStyle: const TextStyle(
+                    hintText: 'product_detail.enter_pincode'.tr(),                    hintStyle: const TextStyle(
                       fontSize: 13.5,
                       color: ColorConstant.placeholderColor,
                       fontFamily: "Poppins",
@@ -694,7 +750,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               ),
               const SizedBox(width: 10),
               CustomButton(
-                text: "Check",
+                text: 'product_detail.check'.tr(),
                 width: 80,
                 height: 44,
                 fontSize: 13,
@@ -749,7 +805,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
         ),
         if (!vm.isInStock)
           TextContext(
-            text: "Out of stock",
+            text: 'product_detail.out_of_stock'.tr(),
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: ColorConstant.orangeColor,
@@ -760,7 +816,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               const _PulsingDot(),
               const SizedBox(width: 6),
               TextContext(
-                text: "Only ${vm.effectiveStock} left!",
+                text: 'product_detail.only_left'.tr(
+                  args: [vm.effectiveStock.toString()],
+                ),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.orangeColor,
@@ -803,8 +861,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           return Column(
             children: [
               InkWell(
-                onTap: () =>
-                    setState(() => _accordionExpanded[index] = !isExpanded),
+                onTap: () => setState(() => _accordionExpanded[index] = !isExpanded),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -849,24 +906,38 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   String _accordionBody(
-    int index,
-    ProductDetailModel product,
-    ProductDetailViewModel vm,
-  ) {
+      int index,
+      ProductDetailModel product,
+      ProductDetailViewModel vm,
+      ) {
     switch (index) {
       case 0:
         return (product.description != null &&
-                product.description!.trim().isNotEmpty)
+            product.description!.trim().isNotEmpty)
             ? product.description!
-            : "No description available for this product.";
+            : 'product_detail.no_description'.tr();
+
       case 1:
         final attrs = vm.selectedVariant?.attributeMap ?? const {};
-        if (attrs.isEmpty) return "No additional details available.";
-        return attrs.entries.map((e) => "${e.key}: ${e.value}").join(' • ');
+
+        if (attrs.isEmpty) {
+          return 'product_detail.no_additional_details'.tr();
+        }
+
+        return attrs.entries
+            .map((e) => "${e.key}: ${e.value}")
+            .join(' • ');
+
       case 2:
-        return "Delivery and return details will be shown here once available for this product.";
+        if (product.effectiveReturnPolicyText != null) {
+          return product.effectiveReturnPolicyText!;
+        }
+        return product.isReturnable
+            ? 'product_detail.delivery_return_details'.tr()
+            : 'This product is not eligible for return or exchange.';
+
       default:
-        return "Warranty details will be shown here once available for this product.";
+        return 'product_detail.warranty_details'.tr();
     }
   }
 
@@ -886,7 +957,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextContext(
-          text: "Customer Reviews",
+          text: 'product_detail.customer_reviews'.tr(),
           fontSize: 15,
           fontWeight: FontWeight.w600,
         ),
@@ -894,7 +965,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
 
         if (reviews.isEmpty)
           TextContext(
-            text: "No reviews yet for this product.",
+            text: 'product_detail.no_reviews'.tr(),
             fontSize: 13,
             fontWeight: FontWeight.w400,
             color: ColorConstant.labelTextColor,
@@ -912,7 +983,13 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   ),
                   const SizedBox(height: 4),
                   TextContext(
-                    text: "$total review${total == 1 ? '' : 's'}",
+                    text: total == 1
+                        ? 'product_detail.review_count'.tr(
+                      args: [total.toString()],
+                    )
+                        : 'product_detail.reviews_count'.tr(
+                      args: [total.toString()],
+                    ),
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: ColorConstant.labelTextColor,
@@ -1116,8 +1193,12 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
 
     // 🔧 NEW — user ko batao kyu button kaam nahi kar raha
     String? blockedReason() {
-      if (!vm.isInStock) return "This item is out of stock right now";
-      if (!vm.isSelectionComplete) return "Please select all options first";
+      if (!vm.isInStock) {
+        return 'product_detail.out_of_stock_now'.tr();
+      }
+      if (!vm.isSelectionComplete) {
+        return 'product_detail.select_options'.tr();
+      }
       return null;
     }
 
@@ -1145,10 +1226,10 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
             Expanded(
               child: CustomButton(
                 text: isAddToCartLoading
-                    ? "Adding..."
+                    ? 'product_detail.adding'.tr()
                     : alreadyInCart
-                    ? "Go to Cart"
-                    : "Add to Cart",
+                    ? 'product_detail.go_to_cart'.tr()
+                    : 'product_detail.add_to_cart'.tr(),
                 outlined: !alreadyInCart,
                 height: 52,
                 icon: alreadyInCart
@@ -1182,7 +1263,9 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
             SizedBox(width: size.width * 0.03),
             Expanded(
               child: CustomButton(
-                text: _isBuyNowLoading ? "Please wait..." : "Buy Now",
+                text: _isBuyNowLoading
+                    ? 'product_detail.please_wait'.tr()
+                    : 'product_detail.buy_now'.tr(),
                 height: 52,
                 color: !canAct ? ColorConstant.placeholderColor : null, // 🔧
                 onTap: isBusy
@@ -1225,8 +1308,10 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     final cartItem =
                     cartVm.cart.findItem(product.id, variantId);
                     if (cartItem == null) {
-                      AppUtils.error(context,
-                          'Something went wrong. Please try again.');
+                      AppUtils.error(
+                        context,
+                        'product_detail.something_wrong'.tr(),
+                      );
                       return;
                     }
 
@@ -1249,7 +1334,6 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 }
 
-/// Small pulsing dot used next to the "Only X left!" urgency text.
 class _PulsingDot extends StatefulWidget {
   const _PulsingDot();
 
@@ -1292,8 +1376,6 @@ class _PulsingDotState extends State<_PulsingDot>
   }
 }
 
-/// Holds the reviewer name/comment/rating shown under a review image
-/// in the full-screen viewer.
 class _ReviewOverlayInfo {
   final String name;
   final String? comment;
@@ -1306,12 +1388,6 @@ class _ReviewOverlayInfo {
   });
 }
 
-/// ---------------- SHARED FULL-SCREEN ZOOMABLE IMAGE VIEWER ----------------
-/// Used for both the product gallery and review photos.
-/// - Pinch/double-tap to zoom (InteractiveViewer)
-/// - Swipe left/right to move between all images from the API
-/// - If [reviewInfo] is provided, shows customer name + comment + stars
-///   below the image (Flipkart-style review photo viewer)
 class _FullScreenImageViewer extends StatefulWidget {
   final List<String> images;
   final int initialIndex;

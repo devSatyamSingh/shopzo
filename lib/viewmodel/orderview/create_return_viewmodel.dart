@@ -103,16 +103,18 @@ class CreateReturnViewModel extends ChangeNotifier {
             .toList();
       }
     } catch (_) {
+      // variants fetch fail hone par bhi exchange allowed rahega
+      // (product ka koi variant hi na ho, ya fetch fail ho jaye — dono cases me
+      // exchange same-product replacement ke roop me process ho sakta hai)
     }
     _status = CreateReturnStatus.idle;
     notifyListeners();
   }
 
+  // Backend ab variant-less product ke liye bhi exchange allow karta hai —
+  // isliye exchangeVariants.isEmpty ke basis par ab kabhi block nahi karte.
   bool get canSubmit {
-    if (requestType == ReturnRequestType.exchange) {
-      if (isLoadingVariants) return false;
-      if (exchangeVariants.isEmpty) return false;
-    }
+    if (isLoadingVariants) return false;
     return true;
   }
 
@@ -129,7 +131,10 @@ class CreateReturnViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    // Variant sirf tab required hai jab actually alternate variants available hain.
+    // Variant-less product ke exchange me ye step skip ho jata hai.
     if (requestType == ReturnRequestType.exchange &&
+        exchangeVariants.isNotEmpty &&
         (selectedExchangeVariantId == null || selectedExchangeVariantId!.isEmpty)) {
       _errorMessage = 'Exchange ke liye variant select karein';
       _status = CreateReturnStatus.error;
@@ -151,7 +156,9 @@ class CreateReturnViewModel extends ChangeNotifier {
       reason: reason!.trim(),
       reasonNote: reasonNote.trim(),
       quantity: quantity,
-      exchangeVariantId: requestType == ReturnRequestType.exchange ? selectedExchangeVariantId : null,
+      exchangeVariantId: requestType == ReturnRequestType.exchange
+          ? selectedExchangeVariantId
+          : null,
       images: images,
     );
 
@@ -161,7 +168,8 @@ class CreateReturnViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } else {
-      _errorMessage = response.message ?? 'Return request create nahi ho payi';
+      // Sirf backend ka message — koi frontend hardcoded fallback nahi.
+      _errorMessage = response.message;
       _status = CreateReturnStatus.error;
       notifyListeners();
       return false;

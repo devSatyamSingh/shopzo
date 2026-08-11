@@ -6,6 +6,7 @@ import 'package:shopzo/model/product/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import 'flash_deals_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class FlashDealsSection extends StatefulWidget {
   final List<ProductModel> products;
@@ -78,7 +79,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
           child: Row(
             children: [
               TextContext(
-                text: 'Flash Deals',
+                text: 'flash_deals.title'.tr(),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
@@ -115,7 +116,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
               GestureDetector(
                 onTap: widget.onSeeAllTap ?? () => _navigateToFlashDealsScreen(context),
                 child: TextContext(
-                  text: 'See All',
+                  text: 'flash_deals.see_all'.tr(),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: ColorConstant.primaryColor,

@@ -10,6 +10,7 @@ import '../../utils/skelton_box.dart';
 import '../../viewmodel/address/address_viewmodel.dart';
 import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import 'checkout_stepper.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 class CheckoutAddressScreen extends StatefulWidget {
@@ -66,7 +67,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
       backgroundColor: ColorConstant.scaffoldBgColor,
       appBar: AppBar(
         backgroundColor: ColorConstant.whiteColor,
-        title: const Text('Checkout'),
+        title: Text('checkout.checkout'.tr()),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -105,7 +106,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                             TextButton(
                               onPressed: () => viewModel.fetchAddresses(forceRefresh: true),
                               child: TextContext(
-                                text: 'Retry',
+                                text: 'checkout.actions.retry'.tr(),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: ColorConstant.primaryColor,
@@ -140,7 +141,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                   Expanded(
                                     child: _ModeButton(
                                       icon: Icons.home_rounded,
-                                      label: 'Home Delivery',
+                                      label: 'checkout.delivery.home_delivery'.tr(),
                                       selected: _deliveryMode == 0,
                                       onTap: () => setState(() => _deliveryMode = 0),
                                     ),
@@ -149,7 +150,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                   Expanded(
                                     child: _ModeButton(
                                       icon: Icons.storefront_rounded,
-                                      label: 'Store Pickup',
+                                      label: 'checkout.delivery.store_pickup'.tr(),
                                       selected: _deliveryMode == 1,
                                       onTap: () => setState(() => _deliveryMode = 1),
                                     ),
@@ -188,13 +189,13 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         TextContext(
-                                          text: 'Estimated delivery',
+                                          text: 'checkout.delivery.estimated_delivery'.tr(),
                                           fontSize: 12.5,
                                           fontWeight: FontWeight.w500,
                                           color: ColorConstant.successColor,
                                         ),
                                         TextContext(
-                                          text: 'Within 3-5 business days',
+                                          text: 'checkout.delivery.within_days'.tr(),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                           color: ColorConstant.successColor,
@@ -211,13 +212,15 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   TextContext(
-                                    text: 'Saved Addresses',
+                                    text: 'checkout.address.saved_addresses'.tr(),
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: ColorConstant.headlineTextColor,
                                   ),
                                   TextContext(
-                                    text: '${addresses.length} addresses',
+                                    text: 'checkout.address.address_count'.tr(
+                                      args: [addresses.length.toString()],
+                                    ),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w400,
                                     color: ColorConstant.labelTextColor,
@@ -233,7 +236,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                   padding: EdgeInsets.symmetric(vertical: size.height * 0.03),
                                   child: Center(
                                     child: TextContext(
-                                      text: 'No saved addresses yet. Add one to continue.',
+                                      text: 'checkout.address.no_saved'.tr(),
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       textAlign: TextAlign.center,
@@ -278,7 +281,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                                       ),
                                       const SizedBox(width: 10),
                                       TextContext(
-                                        text: 'Add New Address',
+                                        text: 'checkout.address.add_new'.tr(),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: ColorConstant.primaryColor,
@@ -301,7 +304,7 @@ class _CheckoutAddressScreenState extends State<CheckoutAddressScreen> {
                           vertical: size.height * 0.015,
                         ),
                         child: CustomButton(
-                          text: 'Continue to Summary',
+                          text: 'checkout.actions.continue_summary'.tr(),
                           onTap: addresses.isEmpty ? null : () => _onContinue(addresses),
                           color: ColorConstant.primaryColor,
                           icon: Icons.arrow_forward,
@@ -381,7 +384,10 @@ class _AddressCard extends StatelessWidget {
   IconData get _typeIcon =>
       address.type == 'BILLING' ? Icons.receipt_long_rounded : Icons.local_shipping_rounded;
 
-  String get _typeLabel => address.type == 'BILLING' ? 'Billing Address' : 'Shipping Address';
+  String get _typeLabel =>
+      address.type == 'BILLING'
+          ? 'checkout.address.billing'.tr()
+          : 'checkout.address.shipping'.tr();
 
   @override
   Widget build(BuildContext context) {
@@ -433,8 +439,8 @@ class _AddressCard extends StatelessWidget {
                             color: ColorConstant.primaryColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text(
-                            'DEFAULT',
+                          child: Text(
+                            'checkout.address.default'.tr(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 9.5,

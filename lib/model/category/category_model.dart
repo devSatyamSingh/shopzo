@@ -7,6 +7,9 @@ class CategoryModel {
   final String? parentId;
   final String? taxRate;
   final int productCount;
+  final String? taxClassId;
+  final bool isReturnable;          // ⬅️ agar missing hai to add karo
+  final String? returnPolicyText;
 
   CategoryModel({
     required this.id,
@@ -16,6 +19,9 @@ class CategoryModel {
     this.parentId,
     this.taxRate,
     this.productCount = 0,
+    this.taxClassId,
+    this.isReturnable = true,       // default true rakh sakte ho
+    this.returnPolicyText,
   });
 
   /// Top-level category = no parent (Beauty, Fashion, test, etc.)
@@ -37,6 +43,9 @@ class CategoryModel {
       parentId: json['parentId']?.toString(),
       taxRate: json['taxRate']?.toString(),
       productCount: productCount,
+      taxClassId: json['taxClassId']?.toString(),
+      isReturnable: json['isReturnable'] == true,               // ⬅️ NEW
+      returnPolicyText: json['returnPolicyText']?.toString(),
     );
   }
 }

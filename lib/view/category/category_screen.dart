@@ -10,6 +10,7 @@ import '../../viewmodel/category_subcategory/category_viewmodel.dart';
 import '../best_seller_screen.dart';
 import 'sub_category_screen.dart';
 import 'category_product_list.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 class CategoryScreen extends StatefulWidget {
@@ -29,22 +30,22 @@ class CategoryScreen extends StatefulWidget {
 
   static const List<_QuickChip> _quickChips = [
     _QuickChip(
-      label: "New Arrivals",
+      label: "category.new_arrivals",
       icon: Icons.verified_rounded,
       color: ColorConstant.successColor,
     ),
     _QuickChip(
-      label: "Best Sellers",
+      label: "category.best_sellers",
       icon: Icons.local_fire_department_rounded,
       color: ColorConstant.orangeColor,
     ),
     _QuickChip(
-      label: "Deals",
+      label: "category.deals",
       icon: Icons.sell_rounded,
       color: ColorConstant.primaryColor,
     ),
     _QuickChip(
-      label: "Top Brands",
+      label: "category.top_brands",
       icon: Icons.workspace_premium_rounded,
       color: ColorConstant.infoColor,
     ),
@@ -159,9 +160,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
         //   ),
         // ),
         // SizedBox(width: size.width * 0.03),
-        const Expanded(
+        Expanded(
           child: TextContext(
-            text: "All Categories",
+            text: 'category.all_categories'.tr(),
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: ColorConstant.primaryDark,
@@ -175,7 +176,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Widget _buildSearchBar(Size size) {
     return CustomTextField(
       controller: _searchController,
-      hintText: "Search categories or products",
+      hintText: 'category.search_categories_products'.tr(),
       prefixIcon: const Icon(
         Icons.search_rounded,
         color: ColorConstant.placeholderColor,
@@ -232,7 +233,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Trending: Summer\nCollection",
+                  'category.trending_summer'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: (size.width * 0.044).clamp(17.0, 21.0),
@@ -244,9 +245,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 const SizedBox(height: 10),
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text(
-                      "Explore",
+                      'category.explore'.tr(),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 13.5,
@@ -273,7 +274,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       children: CategoryScreen._quickChips.map((chip) {
         return GestureDetector(
           onTap: () {
-            if (chip.label == "Best Sellers") {
+            if (chip.label == "category.best_sellers") {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const BestSellerScreen()));
             }
             // TODO: baaki chips (New Arrivals, Deals, Top Brands) ke liye
@@ -294,7 +295,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
               const SizedBox(height: 8),
               TextContext(
-                text: chip.label,
+                text: chip.label.tr(),
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: ColorConstant.headlineTextColor,
@@ -338,8 +339,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   Icon(Icons.wifi_off_rounded, size: 40, color: ColorConstant.placeholderColor),
                   SizedBox(height: size.height * 0.012),
                   TextContext(
-                    text: viewModel.errorMessage ?? 'Failed to load categories',
-                    fontSize: 13.5,
+                    text: viewModel.errorMessage ?? 'category.failed_load_categories'.tr(),                    fontSize: 13.5,
                     fontWeight: FontWeight.w500,
                     textAlign: TextAlign.center,
                     color: ColorConstant.labelTextColor,
@@ -348,8 +348,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   TextButton(
                     onPressed: () => viewModel.fetchCategories(forceRefresh: true),
                     child: TextContext(
-                      text: 'Retry',
-                      fontSize: 14,
+                      text: 'category.retry'.tr(),                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: ColorConstant.primaryColor,
                     ),
@@ -369,7 +368,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             padding: EdgeInsets.symmetric(vertical: size.height * 0.05),
             child: Center(
               child: TextContext(
-                text: 'No categories found',
+                text: 'category.no_categories_found'.tr(),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: ColorConstant.labelTextColor,

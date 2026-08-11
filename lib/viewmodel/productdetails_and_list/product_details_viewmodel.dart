@@ -29,6 +29,22 @@ class ProductDetailViewModel extends ChangeNotifier {
 
   int _quantity = 1;
   int get quantity => _quantity;
+  double? get effectiveCostPrice => _product?.costPrice;
+
+  bool get hasDiscount =>
+      effectiveCostPrice != null && effectiveCostPrice! > effectivePrice;
+
+  String get formattedCostPrice {
+    if (effectiveCostPrice == null) return '';
+    final whole = effectiveCostPrice!.toStringAsFixed(0);
+    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+    return '₹$withCommas';
+  }
+
+  int get discountPercent {
+    if (!hasDiscount) return 0;
+    return (((effectiveCostPrice! - effectivePrice) / effectiveCostPrice!) * 100).round();
+  }
 
   bool _isDisposed = false; // ⬅️ ADD
 

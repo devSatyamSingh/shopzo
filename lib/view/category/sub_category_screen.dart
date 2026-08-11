@@ -6,6 +6,7 @@ import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/skelton_box.dart';
 import '../../viewmodel/category_subcategory/category_viewmodel.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 
 class SubCategoryScreen extends StatefulWidget {
@@ -23,8 +24,6 @@ class SubCategoryScreen extends StatefulWidget {
 }
 
 class _SubCategoryScreenState extends State<SubCategoryScreen> {
-  // Same tint cycle as CategoryScreen, so a category feels visually
-  // consistent whichever screen it's shown on.
   static const List<Color> _tints = [
     Color(0xFFE0EEF7),
     Color(0xFFF3E9E3),
@@ -105,8 +104,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       Icon(Icons.wifi_off_rounded, size: 46, color: ColorConstant.placeholderColor),
                       SizedBox(height: size.height * 0.015),
                       TextContext(
-                        text: viewModel.errorMessage ?? 'Something went wrong',
-                        fontSize: 14,
+                        text: viewModel.errorMessage ?? 'category.something_wrong'.tr(),                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         textAlign: TextAlign.center,
                         color: ColorConstant.labelTextColor,
@@ -115,7 +113,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       TextButton(
                         onPressed: () => viewModel.fetchCategories(forceRefresh: true),
                         child: TextContext(
-                          text: 'Retry',
+                          text: 'category.retry'.tr(),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: ColorConstant.primaryColor,
@@ -133,7 +131,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
             if (children.isEmpty) {
               return Center(
                 child: TextContext(
-                  text: 'No subcategories found',
+                  text: 'category.no_subcategories'.tr(),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: ColorConstant.labelTextColor,
@@ -253,7 +251,9 @@ class _SubCategoryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     TextContext(
-                      text: '${category.productCount} items',
+                      text: 'category.items'.tr(
+                        args: [category.productCount.toString()],
+                      ),
                       fontSize: 10,
                       fontWeight: FontWeight.w400,
                       color: ColorConstant.labelTextColor,

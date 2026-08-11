@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/model/product/product_model.dart';
@@ -27,7 +28,7 @@ class TrendingNowSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextContext(
-            text: 'Trending Now',
+            text: 'trending_now'.tr(),
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: ColorConstant.headlineTextColor,

@@ -10,6 +10,7 @@ import '../../viewmodel/cart/cart_viewmodel.dart';
 import '../../viewmodel/coupon/coupon_viewmodel.dart';
 import '../../viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import '../account/coupons_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -85,7 +86,7 @@ class _CartScreenState extends State<CartScreen> {
         couponVm.removeCoupon();
         AppUtils.warning(
           context,
-          "Coupon removed — your cart selection changed",
+            'cart.coupon_removed'.tr()
         );
       });
     }
@@ -166,17 +167,21 @@ class _CartScreenState extends State<CartScreen> {
               if (item.isLowStock && !item.isUnavailable)
                 _buildLowStockBanner(
                   size,
-                  "Only ${item.availableStock} left in stock — order soon",
+                    'cart.only_left_in_stock'.tr(
+                      args: [item.availableStock.toString()],
+                    )
                 ),
               if (!item.inStockEnough && !item.isUnavailable && !item.isOutOfStock)   // 🔧 changed condition
                 _buildLowStockBanner(
                   size,
-                  "Only ${item.availableStock} available. Reduce quantity to continue.",
+                    'cart.only_available'.tr(
+                      args: [item.availableStock.toString()],
+                    )
                 ),
               if (item.isOutOfStock && !item.isUnavailable)                          // 🔧 NEW banner
                 _buildLowStockBanner(
                   size,
-                  "This item is out of stock. Please remove it to continue.",
+                    'cart.out_of_stock_remove'.tr()
                 ),
               SizedBox(height: size.height * 0.018),
             ],
@@ -211,8 +216,8 @@ class _CartScreenState extends State<CartScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextContext(
-                  text: "My Cart",
+                TextContext(
+                  text: 'cart.my_cart'.tr(),
                   fontSize: 19,
                   color: ColorConstant.primaryColor,
                   fontWeight: FontWeight.w600,
@@ -220,7 +225,13 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(height: 2),
                 TextContext(
                   text: vm.hasLoadedOnce
-                      ? "${vm.cart.totalLines} item${vm.cart.totalLines == 1 ? '' : 's'}"
+                      ? vm.cart.totalLines == 1
+                      ? 'cart.item'.tr(
+                    args: [vm.cart.totalLines.toString()],
+                  )
+                      : 'cart.items'.tr(
+                    args: [vm.cart.totalLines.toString()],
+                  )
                       : " ",
                   fontSize: 12.5,
                   fontWeight: FontWeight.w400,
@@ -282,14 +293,15 @@ class _CartScreenState extends State<CartScreen> {
                         _selectedItemIds.clear();
                       }
                     });
-                    // Selection just changed the total — the coupon guard in
-                    // build() will pick this up on the next frame and drop
-                    // the coupon automatically if it no longer matches.
                   },
           ),
           TextContext(
-            text:
-                "Select All (${_selectedItemIds.length}/${selectableItems.length})",
+            text: 'cart.select_all'.tr(
+              args: [
+                _selectedItemIds.length.toString(),
+                selectableItems.length.toString(),
+              ],
+            ),
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: ColorConstant.headlineTextColor,
@@ -322,15 +334,15 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             SizedBox(height: size.height * 0.024),
-            const TextContext(
-              text: "Your cart is empty",
-              fontSize: 17,
+             TextContext(
+              text: 'cart.your_cart_empty'.tr(),
+               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: ColorConstant.headlineTextColor,
             ),
             SizedBox(height: size.height * 0.008),
-            const TextContext(
-              text: "Looks like you haven't added anything yet",
+            TextContext(
+              text: 'cart.empty_cart_message'.tr(),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: ColorConstant.labelTextColor,
@@ -338,7 +350,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             SizedBox(height: size.height * 0.028),
             CustomButton(
-              text: "Start Shopping",
+              text: 'cart.start_shopping'.tr(),
               height: 46,
               fontSize: 14,
               onTap: () {
@@ -369,15 +381,14 @@ class _CartScreenState extends State<CartScreen> {
               size: 46,
             ),
             SizedBox(height: size.height * 0.02),
-            const TextContext(
-              text: "Couldn't load your cart",
+             TextContext(
+              text: 'cart.couldnt_load_cart'.tr(),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
             SizedBox(height: size.height * 0.008),
             TextContext(
-              text:
-                  vm.errorMessage ?? "Something went wrong. Please try again.",
+              text: vm.errorMessage ?? 'cart.something_wrong_retry'.tr(),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: ColorConstant.labelTextColor,
@@ -385,7 +396,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             SizedBox(height: size.height * 0.024),
             CustomButton(
-              text: "Retry",
+              text: 'cart.retry'.tr(),
               height: 44,
               fontSize: 14,
               onTap: () => vm.fetchCart(),
@@ -607,15 +618,15 @@ class _CartScreenState extends State<CartScreen> {
                               ],
                               const SizedBox(height: 8),
                               if (isUnavailable)
-                                const TextContext(
-                                  text: "Currently unavailable",
+                                TextContext(
+                                  text: 'cart.currently_unavailable'.tr(),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.errorColor,
                                 )
                               else if (item.isOutOfStock)                    // 🔧 NEW branch
-                                const TextContext(
-                                  text: "Out of stock",
+                                TextContext(
+                                  text: 'cart.out_of_stock'.tr(),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: ColorConstant.errorColor,
@@ -662,7 +673,7 @@ class _CartScreenState extends State<CartScreen> {
                           borderRadius: BorderRadius.circular(8),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
+                            children: [
                               Icon(
                                 Icons.delete_outline_rounded,
                                 size: 17,
@@ -670,7 +681,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               SizedBox(width: 4),
                               TextContext(
-                                text: "Remove",
+                                text: 'cart.remove'.tr(),
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w600,
                                 color: ColorConstant.errorColor,
@@ -706,7 +717,9 @@ class _CartScreenState extends State<CartScreen> {
                                         }
                                       : () => AppUtils.warning(
                                           context,
-                                          "Only ${item.availableStock} in stock",
+                                          'cart.only_in_stock'.tr(
+                                            args: [item.availableStock.toString()],
+                                          )
                                         ),
                                   onDecrement: () async {
                                     await vm.decrementQuantity(
@@ -814,14 +827,17 @@ class _CartScreenState extends State<CartScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextContext(
-                        text: "${couponVm.appliedCoupon!.code} Applied",
+                        text: '${couponVm.appliedCoupon!.code} ${'cart.applied'.tr()}',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: ColorConstant.successColor,
                       ),
                       TextContext(
-                        text:
-                            "You saved ${AppUtils.formatCurrency(effectiveDiscount)}",
+                        text: 'cart.you_saved'.tr(
+                          args: [
+                            AppUtils.formatCurrency(effectiveDiscount),
+                          ],
+                        ),
                         fontSize: 11.5,
                         fontWeight: FontWeight.w400,
                         color: ColorConstant.successColor,
@@ -831,8 +847,8 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 InkWell(
                   onTap: couponVm.removeCoupon,
-                  child: const TextContext(
-                    text: "Remove",
+                  child: TextContext(
+                    text: 'cart.remove'.tr(),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: ColorConstant.errorColor,
@@ -841,8 +857,8 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
           ] else ...[
-            const TextContext(
-              text: "Have a coupon code?",
+            TextContext(
+              text: 'cart.have_coupon'.tr(),
               fontSize: 13.5,
               fontWeight: FontWeight.w600,
             ),
@@ -867,10 +883,10 @@ class _CartScreenState extends State<CartScreen> {
                         fontWeight: FontWeight.w600,
                         fontFamily: "Poppins",
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         isDense: true,
                         border: InputBorder.none,
-                        hintText: "ENTER CODE",
+                        hintText: 'cart.enter_code'.tr(),
                         hintStyle: TextStyle(
                           fontSize: 12.5,
                           color: ColorConstant.placeholderColor,
@@ -885,7 +901,7 @@ class _CartScreenState extends State<CartScreen> {
                   height: 42,
                   width: 84,
                   child: CustomButton(
-                    text: isTypedCodeValidating ? "" : "Apply",
+                    text: isTypedCodeValidating ? "" : 'cart.apply'.tr(),
                     height: 42,
                     fontSize: 13,
                     borderRadius: BorderRadius.circular(10),
@@ -896,7 +912,7 @@ class _CartScreenState extends State<CartScreen> {
                             if (code.isEmpty) {
                               AppUtils.warning(
                                 context,
-                                "Please enter a coupon code",
+                                  'cart.please_enter_coupon'.tr()
                               );
                               return;
                             }
@@ -909,14 +925,14 @@ class _CartScreenState extends State<CartScreen> {
                             if (ok) {
                               AppUtils.success(
                                 context,
-                                couponVm.validationMessage ?? "Coupon applied",
+                                  couponVm.validationMessage ?? 'cart.coupon_applied'.tr(),
                               );
                               _couponController.clear();
                               AppUtils.hideKeyboard(context);
                             } else {
                               AppUtils.error(
                                 context,
-                                couponVm.validationMessage ?? "Invalid coupon",
+                                  couponVm.validationMessage ?? 'cart.invalid_coupon'.tr()
                               );
                             }
                           },
@@ -926,8 +942,8 @@ class _CartScreenState extends State<CartScreen> {
             ),
             if (_selectedItemIds.isEmpty) ...[
               const SizedBox(height: 6),
-              const TextContext(
-                text: "Select at least one item to apply a coupon",
+               TextContext(
+                text: 'cart.select_item_coupon'.tr(),
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
                 color: ColorConstant.placeholderColor,
@@ -959,7 +975,7 @@ class _CartScreenState extends State<CartScreen> {
                     },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Icon(
                     Icons.local_offer_outlined,
                     size: 15,
@@ -967,7 +983,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   SizedBox(width: 6),
                   TextContext(
-                    text: "View all coupons",
+                    text: 'cart.view_all_coupons'.tr(),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                     color: ColorConstant.primaryColor,
@@ -1019,27 +1035,33 @@ class _CartScreenState extends State<CartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TextContext(
-                text: "Bill Details",
+              TextContext(
+                text: 'cart.bill_details'.tr(),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
               SizedBox(height: size.height * 0.016),
               _billRow(
-                "Item Total (${_selectedItemIds.length} item${_selectedItemIds.length == 1 ? '' : 's'})",
-                AppUtils.formatCurrency(itemTotal),
+    _selectedItemIds.length == 1
+    ? 'cart.item_total'.tr(
+    args: [_selectedItemIds.length.toString()],
+    )
+        : 'cart.items_total'.tr(
+    args: [_selectedItemIds.length.toString()],
+    ),
+    AppUtils.formatCurrency(itemTotal),
               ),
               if (discount > 0) ...[
                 SizedBox(height: size.height * 0.012),
                 _billRow(
-                  "Coupon Discount",
+                  'cart.coupon_discount'.tr(),
                   "-${AppUtils.formatCurrency(discount)}",
                   valueColor: ColorConstant.successColor,
                 ),
               ],
               SizedBox(height: size.height * 0.012),
               _billRow(
-                "Delivery Fee",
+               'cart.platform_fee'.tr(),
                 deliveryFee == 0
                     ? "FREE"
                     : AppUtils.formatCurrency(deliveryFee),
@@ -1050,15 +1072,15 @@ class _CartScreenState extends State<CartScreen> {
               SizedBox(height: size.height * 0.012),
               _billRow(
                 "Platform Fee",
-                platformFee == 0
-                    ? "FREE"
+                deliveryFee == 0
+                    ? 'cart.free'.tr()
                     : AppUtils.formatCurrency(platformFee),
               ),
               SizedBox(height: size.height * 0.016),
               const Divider(height: 1, color: ColorConstant.dividerColor),
               SizedBox(height: size.height * 0.016),
               _billRow(
-                "To Pay",
+                'cart.to_pay'.tr(),
                 AppUtils.formatCurrency(totalPayable),
                 bold: true,
                 valueColor: ColorConstant.primaryColor,
@@ -1146,7 +1168,13 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   TextContext(
                     text:
-                        "${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} selected",
+                    selectedItems.length == 1
+                        ? 'cart.selected'.tr(
+                      args: [selectedItems.length.toString()],
+                    )
+                        : 'cart.selected_plural'.tr(
+                      args: [selectedItems.length.toString()],
+                    ),
                     fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     color: ColorConstant.labelTextColor,
@@ -1159,10 +1187,10 @@ class _CartScreenState extends State<CartScreen> {
               flex: 6,
               child: CustomButton(
                 text: selectedItems.isEmpty
-                    ? "Select Items"
+                    ? 'cart.select_items'.tr()
                     : hasBlockingIssue
-                    ? "Review Cart"
-                    : "Proceed to Checkout",
+                    ? 'cart.review_cart'.tr()
+                    : 'cart.proceed_checkout'.tr(),
                 height: 49,
                 fontSize: 14,
                 icon: Icons.arrow_forward_rounded,
@@ -1172,8 +1200,8 @@ class _CartScreenState extends State<CartScreen> {
                         AppUtils.warning(
                           context,
                           selectedItems.isEmpty
-                              ? "Select at least one item to continue"
-                              : "Please remove unavailable / out-of-stock items to continue",
+                              ? 'cart.select_at_least_one'.tr()
+                              : 'cart.remove_unavailable'.tr(),
                         );
                       }
                     : () {
@@ -1207,9 +1235,11 @@ class _CartScreenState extends State<CartScreen> {
   ) async {
     final confirmed = await AppUtils.showConfirmDialog(
       context,
-      title: "Remove item?",
-      message: "Remove \"${item.productName}\" from your cart?",
-      confirmText: "Remove",
+      title: 'cart.remove_item_title'.tr(),
+      message: 'cart.remove_item_message'.tr(
+        args: [item.productName],
+      ),
+      confirmText: 'cart.remove'.tr(),
       isDestructive: true,
     );
     if (confirmed) {
@@ -1223,9 +1253,9 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _confirmClearCart(BuildContext context, CartViewModel vm) async {
     final confirmed = await AppUtils.showConfirmDialog(
       context,
-      title: "Clear cart?",
-      message: "This will remove all items from your cart.",
-      confirmText: "Clear",
+      title: 'cart.clear_cart_title'.tr(),
+      message: 'cart.clear_cart_message'.tr(),
+      confirmText: 'cart.clear'.tr(),
       isDestructive: true,
     );
     if (confirmed) {

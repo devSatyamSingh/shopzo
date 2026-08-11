@@ -1,0 +1,679 @@
+{
+  "common": {
+    "or": "અથવા"
+  },
+  "auth": {
+    "welcome_back": "પાછા આવકાર",
+    "login_subtitle": "તમારા મોબાઇલ નંબર અને પાસવર્ડથી લોગિન કરો.",
+    "mobile_number": "મોબાઇલ નંબર",
+    "mobile_hint": "તમારો મોબાઇલ નંબર દાખલ કરો",
+    "password": "પાસવર્ડ",
+    "password_hint": "તમારો પાસવર્ડ દાખલ કરો",
+    "forgot_password": "પાસવર્ડ ભૂલી ગયા?",
+    "log_in": "લોગિન કરો",
+    "new_to_shopzo": "Shopzo માં નવા છો?",
+    "create_account_subtitle": "શરૂ કરવા માટે ખાતું બનાવો",
+    "terms_prefix": "આગળ વધીને, તમે Shopzo ની ",
+    "terms_of_service": "સેવાની શરતો",
+    "terms_middle": " અને ",
+    "privacy_policy": "ગોપનીયતા નીતિ",
+    "terms_suffix": " સાથે સહમત છો.",
+    "invalid_mobile": "મહેરબાની કરીને માન્ય મોબાઇલ નંબર દાખલ કરો",
+    "empty_password": "મહેરબાની કરીને તમારો પાસવર્ડ દાખલ કરો",
+    "login_success": "લોગિન સફળ",
+    "login_failed": "લોગિન નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો."
+  },
+  "onboarding": {
+    "skip": "છોડી દો",
+    "next": "આગળ",
+    "get_started": "શરૂ કરો",
+    "title1": "અદ્ભુત ઉત્પાદનો શોધો",
+    "desc1": "તમારી આંગળીઓ પર ટોચના રેટેડ વિક્રેતાઓના હજારો ઉત્પાદનોનું અન્વેષણ કરો.",
+    "title2": "સુરક્ષિત અને સરળ ચૂકવણી",
+    "desc2": "તમારી સુરક્ષા અમારી પ્રાથમિકતા છે. ચિંતા-મુક્ત શોપિંગ માટે બહુવિધ સુરક્ષિત ચૂકવણી વિકલ્પોનો આનંદ લો.",
+    "title3": "ઝડપી અને વિશ્વસનીય ડિલિવરી",
+    "desc3": "તમારા ઓર્ડરને રીઅલ-ટાઇમમાં ટ્રૅક કરો અને તેને ઝડપથી તમારા ઘરે પહોંચાડો."
+  },
+  "settings": {
+    "language": "ભાષા",
+    "language_subtitle": "એપ ભાષા બદલો",
+    "select_language": "ભાષા પસંદ કરો"
+  },
+  "profile": {
+    "guest_user": "મહેમાન વપરાશકર્તા",
+    "member_since": "થી સભ્ય",
+
+    "orders": "ઓર્ડર",
+    "orders_subtitle": "તમારા પેકેજો ટ્રૅક કરો",
+
+    "wishlist": "વિશલિસ્ટ",
+    "wishlist_subtitle": "તમારી પસંદીદા વસ્તુઓ",
+
+    "coupons": "કૂપન્સ",
+    "coupons_subtitle": "વિશેષ ઑફર્સ",
+
+    "help_center": "સહાય કેન્દ્ર",
+    "help_center_subtitle": "ગ્રાહક સહાય",
+
+    "account_settings": "એકાઉન્ટ સેટિંગ્સ",
+
+    "profile_information": "પ્રોફાઇલ માહિતી",
+    "profile_information_subtitle": "નામ, ઇમેઇલ, ફોન",
+
+    "saved_addresses": "સાચવેલ સરનામાં",
+    "saved_addresses_subtitle": "ડિલિવરી સ્થાનો મેનેજ કરો",
+
+    "payment_methods": "ચૂકવણી પદ્ધતિઓ",
+    "payment_methods_subtitle": "સાચવેલ કાર્ડ અને UPI",
+
+    "more": "વધુ",
+
+    "about_shopzo": "Shopzo વિશે",
+    "terms_of_service": "સેવાની શરતો",
+    "privacy_policy": "ગોપનીયતા નીતિ",
+    "return_policy": "રિટર્ન નીતિ",
+
+    "log_out": "લૉગ આઉટ",
+    "logout_message": "શું તમે ખરેખર તમારા Shopzo ખાતામાંથી લૉગ આઉટ કરવા માંગો છો?",
+    "cancel": "રદ કરો"
+  },
+  "bottom_nav": {
+    "home": "હોમ",
+    "categories": "કેટેગરીઝ",
+    "cart": "કાર્ટ",
+    "orders": "ઓર્ડર",
+    "profile": "પ્રોફાઇલ"
+  },
+  "coupons": {
+    "title": "કૂપન્સ",
+    "all_coupons": "બધા કૂપન્સ",
+    "copy_instruction": "કોઈપણ કૂપનને કોડ કોપી કરવા માટે ટેપ કરો, પછી ચેકઆઉટ પર લાગુ કરો",
+    "retry": "ફરી પ્રયાસ કરો",
+    "no_coupons": "હાલમાં કોઈ કૂપન્સ ઉપલબ્ધ નથી",
+    "expired": "સમાપ્ત",
+    "tap_to_copy": "કોપી કરવા માટે ટેપ કરો",
+    "add_more": "આ ઑફર અનલૉક કરવા માટે ₹ વધુ ઉમેરો",
+    "code_copied": "'{}' કોડ કોપી થયો — લાગુ કરવા માટે ચેકઆઉટ પર પેસ્ટ કરો"
+  },
+  "address": {
+    "finding_location": "તમારું સ્થાન શોધી રહ્યા છીએ...",
+    "location_permission_denied": "સ્થાન પરવાનગી નામંજૂર",
+    "search_or_move_map": "તમારું સરનામું સેટ કરવા માટે શોધો અથવા નકશો ખસેડો",
+    "unknown_location": "અજ્ઞાત સ્થાન",
+    "could_not_fetch_address": "આ સ્થાન માટે સરનામું મેળવી શક્યા નહીં",
+    "could_not_fetch_address_short": "સરનામું મેળવી શક્યા નહીં",
+    "could_not_detect_location": "તમારું સ્થાન શોધી શક્યા નહીં. કૃપા કરીને મેન્યુઅલી શોધો.",
+    "turn_on_gps": "ચાલુ રાખવા માટે કૃપા કરીને ડિવાઇસ લોકેશન (GPS) ચાલુ કરો.",
+    "permission_required": "તમારું સરનામું શોધવા માટે સ્થાન પરવાનગી જરૂરી છે.",
+    "permission_permanently_denied": "સ્થાન પરવાનગી કાયમી ધોરણે નામંજૂર કરવામાં આવી છે. તેને એપ સેટિંગ્સમાંથી સક્ષમ કરો.",
+    "location_not_found": "સ્થાન મળ્યું નહીં.",
+
+    "edit_address": "સરનામું સંપાદિત કરો",
+    "confirm_location": "તમારું સ્થાન કન્ફર્મ કરો",
+
+    "house_flat_block": "ઘર/ફ્લેટ/બ્લોક નં.",
+    "house_flat_hint": "દા.ત. ફ્લેટ 402, બ્લોક B",
+
+    "apartment_building": "એપાર્ટમેન્ટ/ઇમારતનું નામ",
+    "apartment_building_hint": "દા.ત. સનશાઈન એપાર્ટમેન્ટ્સ",
+
+    "landmark": "લેન્ડમાર્ક (વૈકલ્પિક)",
+    "landmark_hint": "દા.ત. મેટ્રો સ્ટેશન પાસે",
+
+    "city": "શહેર",
+    "pincode": "પિનકોડ",
+    "state": "રાજ્ય",
+
+    "save_address_as": "સરનામું આ રીતે સાચવો",
+    "home": "ઘર",
+    "work": "કાર્ય",
+    "other": "અન્ય",
+
+    "receiver_name": "પ્રાપ્તકર્તાનું નામ",
+    "receiver_name_hint": "દા.ત. રાહુલ શર્મા",
+
+    "receiver_phone": "પ્રાપ્તકર્તાનો ફોન નંબર",
+    "mobile_number": "મોબાઇલ નંબર",
+
+    "set_as_default": "ડિફોલ્ટ સરનામા તરીકે સેટ કરો",
+    "default_address_subtitle": "આને તમામ ભાવિ ઓર્ડર માટે વાપરો",
+
+    "update_address": "સરનામું અપડેટ કરો",
+    "save_address": "સરનામું સાચવો",
+
+    "fill_required": "કૃપા કરીને બધા જરૂરી ફીલ્ડ ભરો.",
+    "address_updated": "સરનામું અપડેટ થયું",
+    "address_saved": "સરનામું સાચવાયું",
+    "save_failed": "સરનામું સાચવવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "search_area_hint": "વિસ્તાર, શેરીનું નામ શોધો..."
+  },
+  "select_address": {
+    "title": "સરનામું પસંદ કરો",
+
+    "use_current_location": "વર્તમાન સ્થાન વાપરો",
+    "detecting_location": "તમારું સ્થાન શોધી રહ્યા છીએ...",
+    "detect_location_subtitle": "તમારું સ્થાન આપમેળે શોધો",
+    "detecting_location_subtitle": "કૃપા કરીને રાહ જુઓ જ્યારે અમે તમારું સ્થાન શોધી રહ્યા છીએ",
+
+    "saved_addresses": "સાચવેલ સરનામાં",
+    "addresses_count": "સરનામાં",
+    "no_saved_addresses": "હજી સુધી કોઈ સાચવેલ સરનામાં નથી",
+
+    "add_new_address": "નવું સરનામું ઉમેરો",
+    "deliver_here": "અહીં ડિલિવર કરો",
+
+    "billing_address": "બિલિંગ સરનામું",
+    "shipping_address": "શિપિંગ સરનામું",
+    "default": "ડિફોલ્ટ",
+
+    "edit": "સંપાદિત કરો",
+    "delete": "કાઢી નાખો",
+    "cancel": "રદ કરો",
+
+    "delete_address": "સરનામું કાઢી નાખો",
+    "delete_confirmation": "શું તમે ખરેખર આ સરનામું કાઢી નાખવા માંગો છો?",
+
+    "address_deleted": "સરનામું કાઢી નાખ્યું",
+    "delete_failed": "સરનામું કાઢી નાખવામાં નિષ્ફળ",
+
+    "something_went_wrong": "કંઈક ખોટું થયું",
+    "retry": "ફરી પ્રયાસ કરો",
+
+    "could_not_fetch_location": "તમારા સ્થાન માટે સરનામું મેળવી શક્યા નહીં.",
+    "could_not_detect_location": "તમારું સ્થાન શોધી શક્યા નહીં. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "turn_on_gps": "ચાલુ રાખવા માટે કૃપા કરીને ડિવાઇસ લોકેશન (GPS) ચાલુ કરો.",
+    "permission_required": "તમારું સરનામું શોધવા માટે સ્થાન પરવાનગી જરૂરી છે.",
+    "permission_permanently_denied": "સ્થાન પરવાનગી કાયમી ધોરણે નામંજૂર કરવામાં આવી છે. તેને એપ સેટિંગ્સમાંથી સક્ષમ કરો.",
+
+    "current_location": "વર્તમાન સ્થાન",
+    "location_added": "વર્તમાન સ્થાન સફળતાપૂર્વક ઉમેરાયું!"
+  },
+  "profiles": {
+    "edit_profile": "પ્રોફાઇલ સંપાદિત કરો",
+    "profile_information": "પ્રોફાઇલ માહિતી",
+
+    "personal_details": "વ્યક્તિગત વિગતો",
+
+    "full_name": "પૂર્ણ નામ",
+    "full_name_hint": "તમારું પૂર્ણ નામ દાખલ કરો",
+
+    "email_address": "ઇમેઇલ સરનામું",
+    "email_hint": "તમારો ઇમેઇલ દાખલ કરો",
+
+    "phone_number": "ફોન નંબર",
+    "phone_hint": "તમારો મોબાઇલ નંબર દાખલ કરો",
+
+    "date_of_birth": "જન્મ તારીખ",
+    "date_hint": "DD/MM/YYYY",
+
+    "gender": "લિંગ",
+    "select_gender": "લિંગ પસંદ કરો",
+
+    "male": "પુરુષ",
+    "female": "સ્ત્રી",
+    "other": "અન્ય",
+
+    "member_since": "થી સભ્ય",
+    "your_profile": "તમારી પ્રોફાઇલ",
+    "not_set": "સેટ નથી",
+
+    "save_changes": "ફેરફારો સાચવો",
+
+    "profile_updated": "તમારી પ્રોફાઇલ અપડેટ થઈ ગઈ છે",
+    "update_failed": "પ્રોફાઇલ અપડેટ કરવામાં નિષ્ફળ",
+    "member_since_label": "થી સભ્ય",
+
+    "failed_load_profile": "પ્રોફાઇલ લોડ કરવામાં નિષ્ફળ",
+    "retry": "ફરી પ્રયાસ કરો"
+  },
+  "home": {
+    "deliver_to": "ડિલિવર કરો",
+    "trending_now": "હવે ટ્રેન્ડિંગ",
+    "search_placeholder": "ઉત્પાદનો, બ્રાન્ડ્સ અને વધુ શોધો",
+
+    "loyalty_title_line1": "વિશેષ લોયલ્ટી રિવોર્ડ્સ",
+    "loyalty_title_line2": "₹500 સુધી કેશબેક",
+    "loyalty_subtitle": "₹1,999 થી વધુની તમામ UPI ટ્રાન્ઝેક્શન પર",
+
+    "retry": "ફરી પ્રયાસ કરો",
+
+    "failed_to_load_products": "ઉત્પાદનો લોડ કરવામાં નિષ્ફળ",
+
+    "results": "પરિણામો ({})",
+    "clear_filters": "ફિલ્ટર્સ સાફ કરો",
+
+    "no_products_found": "કોઈ ઉત્પાદનો મળ્યાં નહીં",
+    "try_adjusting_filters": "તમારા ફિલ્ટર્સને સમાયોજિત કરવાનો પ્રયાસ કરો",
+    "no_products_available": "હાલમાં કોઈ ઉત્પાદનો ઉપલબ્ધ નથી",
+
+    "category_load_error": "કેટેગરીઓ લોડ કરી શક્યા નહીં — ફરી પ્રયાસ કરવા માટે ટેપ કરો"
+  },
+  "filters": {
+    "sort": "ક્રમ",
+    "price": "કિંમત",
+    "filters": "ફિલ્ટર્સ",
+    "filters_count": "ફિલ્ટર્સ ({})",
+
+    "sort_by": "આ રીતે ક્રમ આપો",
+    "price_low_high": "કિંમત: ઓછી → વધારે",
+    "price_high_low": "કિંમત: વધારે → ઓછી",
+    "rating": "રેટિંગ",
+    "newest": "નવીનતમ",
+
+    "price_range": "કિંમત શ્રેણી",
+    "reset": "રીસેટ કરો",
+
+    "cancel": "રદ કરો",
+    "apply": "લાગુ કરો",
+
+    "categories": "કેટેગરીઝ",
+    "clear_all": "બધું સાફ કરો",
+
+    "gender": "લિંગ",
+    "men": "પુરુષો",
+    "women": "સ્ત્રીઓ",
+    "unisex": "યુનિસેક્સ"
+  },
+  "wishlist": {
+    "update_failed": "વિશલિસ્ટ અપડેટ કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "added": "વિશલિસ્ટમાં ઉમેરાયું",
+    "removed": "વિશલિસ્ટમાંથી દૂર કરાયું",
+    "my_wishlist": "મારી વિશલિસ્ટ",
+    "item": "વસ્તુ",
+    "items": "વસ્તુઓ",
+
+    "removed_success": "વિશલિસ્ટમાંથી દૂર કરાયું",
+    "remove_failed": "વસ્તુ દૂર કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+
+    "moved_to_cart": "કાર્ટમાં ખસેડાયું",
+    "move_to_cart_failed": "વસ્તુ કાર્ટમાં ખસેડવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+
+    "out_of_stock": "સ્ટોકમાં નથી",
+    "notify_me": "મને સૂચિત કરો",
+    "adding": "ઉમેરી રહ્યા છીએ...",
+    "add_to_cart": "કાર્ટમાં ઉમેરો",
+
+    "load_failed": "વિશલિસ્ટ લોડ કરવામાં નિષ્ફળ",
+    "retry": "ફરી પ્રયાસ કરો",
+
+    "empty_title": "તમારી વિશલિસ્ટ ખાલી છે",
+    "empty_message": "તમને ગમતી વસ્તુઓ સાચવો અને તેને કોઈપણ સમયે અહીં શોધો",
+    "browse_products": "ઉત્પાદનો બ્રાઉઝ કરો",
+
+    "looking_for_more": "વધુ શોધી રહ્યા છો?",
+    "explore_trending": "તમારા માટે તૈયાર કરેલા ટ્રેન્ડિંગ પિક્સ અન્વેષણ કરો"
+  },
+  "flash_deals": {
+    "title": "ફ્લેશ ડીલ્સ",
+    "time_left": "બાકી સમય:",
+    "items": "વસ્તુઓ",
+    "no_deals": "કોઈ ફ્લેશ ડીલ્સ ઉપલબ્ધ નથી",
+    "check_back": "શાનદાર ઑફર્સ માટે પછી ફરી તપાસો!",
+    "see_all": "બધું જુઓ"
+  },
+  "top_picks": {
+    "title": "તમારા માટે ટોચની પસંદગીઓ",
+    "badge": "ટોચની પસંદગી",
+    "no_picks": "હાલમાં કોઈ ટોચની પસંદગીઓ નથી",
+    "something_wrong": "કંઈક ખોટું થયું",
+    "retry": "ફરી પ્રયાસ કરો"
+  },
+  "brands": {
+    "all_brands": "બધી બ્રાન્ડ્સ",
+    "search": "બ્રાન્ડ્સ શોધો",
+    "no_brands_found": "કોઈ બ્રાન્ડ્સ મળી નહીં",
+    "view_all": "બધું જુઓ",
+    "shop_by_brand": "બ્રાન્ડ દ્વારા શોપિંગ કરો",
+    "products": "ઉત્પાદનો"
+  },
+  "quick_categories": {
+    "category_load_error": "કેટેગરીઓ લોડ કરી શક્યા નહીં — ફરી પ્રયાસ કરવા માટે ટેપ કરો",
+    "more": "વધુ",
+    "hide": "છુપાવો"
+  },
+  "product": {
+    "out_of_stock": "સ્ટોકમાં નથી"
+  },
+  "product_detail": {
+    "failed_to_load": "ઉત્પાદન લોડ કરવામાં નિષ્ફળ",
+    "retry": "ફરી પ્રયાસ કરો",
+
+    "delivery_details": "ડિલિવરી વિગતો",
+    "enter_pincode": "પિનકોડ દાખલ કરો",
+    "check": "તપાસો",
+
+    "out_of_stock": "સ્ટોકમાં નથી",
+    "only_left": "ફક્ત બાકી છે!",
+
+    "product_details": "ઉત્પાદન વિગતો",
+    "features": "વિશેષતાઓ",
+    "delivery_returns": "ડિલિવરી અને રિટર્ન",
+    "warranty_info": "વોરંટી માહિતી",
+
+    "no_description": "આ ઉત્પાદન માટે કોઈ વર્ણન ઉપલબ્ધ નથી.",
+    "no_additional_details": "કોઈ વધારાની વિગતો ઉપલબ્ધ નથી.",
+    "delivery_return_details": "ડિલિવરી અને રિટર્ન વિગતો અહીં બતાવવામાં આવશે જ્યારે તે આ ઉત્પાદન માટે ઉપલબ્ધ થશે.",
+    "warranty_details": "વોરંટી વિગતો અહીં બતાવવામાં આવશે જ્યારે તે આ ઉત્પાદન માટે ઉપલબ્ધ થશે.",
+
+    "customer_reviews": "ગ્રાહક સમીક્ષાઓ",
+    "no_reviews": "આ ઉત્પાદન માટે હજી સુધી કોઈ સમીક્ષાઓ નથી.",
+    "review_count": "સમીક્ષા",
+    "reviews_count": "સમીક્ષાઓ",
+    "rating_count": "રેટિંગ",
+    "ratings_count": "રેટિંગ્સ",
+
+    "just_now": "હમણાં જ",
+    "time_week": "અઠવાડિયા પહેલા",
+    "time_weeks": "અઠવાડિયા પહેલા",
+    "time_day": "{િવસ પહેલા",
+    "time_days": "દિવસ પહેલા",
+    "time_hour": "કલાક પહેલા",
+    "time_hours": "કલાક પહેલા",
+
+    "failed_wishlist": "વિશલિસ્ટ અપડેટ કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "added_wishlist": "વિશલિસ્ટમાં ઉમેરાયું",
+    "removed_wishlist": "વિશલિસ્ટમાંથી દૂર કરાયું",
+
+    "adding": "ઉમેરી રહ્યા છીએ...",
+    "go_to_cart": "કાર્ટમાં જાઓ",
+    "add_to_cart": "કાર્ટમાં ઉમેરો",
+    "please_wait": "કૃપા કરીને રાહ જુઓ...",
+    "buy_now": "હમણાં ખરીદો",
+
+    "out_of_stock_now": "આ વસ્તુ હાલમાં સ્ટોકમાં નથી",
+    "select_options": "કૃપા કરીને પહેલા બધા વિકલ્પો પસંદ કરો",
+    "something_wrong": "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો."
+  },
+  "category": {
+    "all_categories": "બધી કેટેગરીઝ",
+    "search_categories_products": "કેટેગરીઝ અથવા ઉત્પાદનો શોધો",
+
+    "trending_summer": "ટ્રેન્ડિંગ: સમર\nકલેક્શન",
+    "explore": "અન્વેષણ કરો",
+
+    "new_arrivals": "નવા આગમન",
+    "best_sellers": "બેસ્ટ સેલર્સ",
+    "deals": "ડીલ્સ",
+    "top_brands": "ટોચની બ્રાન્ડ્સ",
+
+    "failed_load_categories": "કેટેગરીઓ લોડ કરવામાં નિષ્ફળ",
+    "retry": "ફરી પ્રયાસ કરો",
+    "no_categories_found": "કોઈ કેટેગરીઓ મળી નહીં",
+
+    "something_wrong": "કંઈક ખોટું થયું",
+
+    "no_subcategories": "કોઈ સબકેટેગરીઓ મળી નહીં",
+    "items": "વસ્તુઓ",
+
+    "out_of_stock": "સ્ટોકમાં નથી",
+    "only_left": "ફક્ત બાકી છે",
+
+    "product_count": "ઉત્પાદનો",
+
+    "popular_this_week": "આ અઠવાડિયે લોકપ્રિય",
+    "see_all": "બધું જુઓ"
+  },
+  "category_products": {
+    "failed_load": "કંઈક ખોટું થયું",
+    "retry": "ફરી પ્રયાસ કરો",
+    "no_products": "આ કેટેગરીમાં હજી સુધી કોઈ ઉત્પાદનો નથી",
+
+    "out_of_stock": "સ્ટોકમાં નથી",
+    "only_left": "ફક્ત બાકી છે"
+  },
+  "cart": {
+    "my_cart": "મારો કાર્ટ",
+    "item": "વસ્તુ",
+    "items": "વસ્તુઓ",
+
+    "select_all": "બધું પસંદ કરો ({} / {})",
+
+    "your_cart_empty": "તમારો કાર્ટ ખાલી છે",
+    "empty_cart_message": "લાગે છે કે તમે હજી સુધી કંઈ ઉમેર્યું નથી",
+    "start_shopping": "શોપિંગ શરૂ કરો",
+
+    "couldnt_load_cart": "તમારો કાર્ટ લોડ કરી શક્યા નહીં",
+    "something_wrong_retry": "કંઈક ખોટું થયું. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "retry": "ફરી પ્રયાસ કરો",
+
+    "currently_unavailable": "હાલમાં ઉપલબ્ધ નથી",
+    "out_of_stock": "સ્ટોકમાં નથી",
+    "remove": "દૂર કરો",
+
+    "only_in_stock": "ફક્ત સ્ટોકમાં છે",
+    "only_left_in_stock": "ફક્ત સ્ટોકમાં બાકી છે — ઝડપથી ઓર્ડર કરો",
+    "only_available": "ફક્ત ઉપલબ્ધ છે. ચાલુ રાખવા માટે જથ્થો ઘટાડો.",
+    "out_of_stock_remove": "આ વસ્તુ સ્ટોકમાં નથી. ચાલુ રાખવા માટે કૃપા કરીને તેને દૂર કરો.",
+
+    "coupon_removed": "કૂપન દૂર કરાયું — તમારી કાર્ટ પસંદગી બદલાઈ ગઈ",
+
+    "have_coupon": "કૂપન કોડ છે?",
+    "enter_code": "કોડ દાખલ કરો",
+    "apply": "લાગુ કરો",
+    "please_enter_coupon": "કૃપા કરીને કૂપન કોડ દાખલ કરો",
+    "coupon_applied": "કૂપન લાગુ થયું",
+    "invalid_coupon": "અમાન્ય કૂપન",
+    "select_item_coupon": "કૂપન લાગુ કરવા માટે ઓછામાં ઓછી એક વસ્તુ પસંદ કરો",
+    "view_all_coupons": "બધા કૂપન્સ જુઓ",
+    "applied": "લાગુ થયું",
+    "you_saved": "તમે બચાવ્યા",
+
+    "bill_details": "બિલ વિગતો",
+    "item_total": "વસ્તુઓનો કુલ (વસ્તુ)",
+    "items_total": "વસ્તુઓનો કુલ (વસ્તુઓ)",
+    "coupon_discount": "કૂપન ડિસ્કાઉન્ટ",
+    "delivery_fee": "ડિલિવરી ફી",
+    "platform_fee": "પ્લેટફોર્મ ફી",
+    "free": "મફત",
+    "to_pay": "ચૂકવવાનું",
+
+    "selected": "વસ્તુ પસંદ થઈ",
+    "selected_plural": "વસ્તુઓ પસંદ થઈ",
+
+    "select_items": "વસ્તુઓ પસંદ કરો",
+    "review_cart": "કાર્ટ સમીક્ષા કરો",
+    "proceed_checkout": "ચેકઆઉટ પર આગળ વધો",
+
+    "select_at_least_one": "ચાલુ રાખવા માટે ઓછામાં ઓછી એક વસ્તુ પસંદ કરો",
+    "remove_unavailable": "ચાલુ રાખવા માટે કૃપા કરીને અનુપલબ્ધ / સ્ટોકમાં ન હોય તેવી વસ્તુઓ દૂર કરો",
+
+    "remove_item_title": "વસ્તુ દૂર કરો?",
+    "remove_item_message": "તમારા કાર્ટમાંથી \"{}\" દૂર કરો?",
+    "clear_cart_title": "કાર્ટ સાફ કરો?",
+    "clear_cart_message": "આ તમારા કાર્ટમાંથી બધી વસ્તુઓ દૂર કરશે.",
+    "clear": "સાફ કરો"
+  },
+  "checkout": {
+    "checkout": "ચેકઆઉટ",
+
+    "steps": {
+      "address": "સરનામું",
+      "summary": "સારાંશ",
+      "payment": "ચૂકવણી"
+    },
+
+    "delivery": {
+      "home_delivery": "ઘર ડિલિવરી",
+      "store_pickup": "સ્ટોર પિકઅપ",
+      "estimated_delivery": "અંદાજિત ડિલિવરી",
+      "within_days": "3-5 કામકાજના દિવસોમાં"
+    },
+
+    "address": {
+      "saved_addresses": "સાચવેલ સરનામાં",
+      "address_count": "{} સરનામાં",
+      "no_saved": "હજી સુધી કોઈ સાચવેલ સરનામાં નથી. ચાલુ રાખવા માટે એક ઉમેરો.",
+      "add_new": "નવું સરનામું ઉમેરો",
+      "billing": "બિલિંગ સરનામું",
+      "shipping": "શિપિંગ સરનામું",
+      "default": "ડિફોલ્ટ",
+      "change": "બદલો",
+      "deliver_to": "ડિલિવર કરો:"
+    },
+
+    "order": {
+      "order_items": "ઓર્ડર વસ્તુઓ ({})",
+      "no_items": "ચેકઆઉટ માટે કોઈ વસ્તુઓ નથી",
+      "out_of_stock": "સ્ટોકમાં નથી",
+      "stock_warning": "કેટલીક વસ્તુઓ સ્ટોકમાં નથી. કૃપા કરીને પાછા જાઓ અને તમારો કાર્ટ અપડેટ કરો.",
+      "quantity": "જથ્થો: {}"
+    },
+
+    "coupon": {
+      "have_code": "કૂપન કોડ છે?",
+      "enter_code": "કૂપન કોડ દાખલ કરો",
+      "apply": "લાગુ કરો",
+      "remove": "દૂર કરો",
+      "applied": "{} લાગુ થયું",
+      "saved": "તમે {} બચાવ્યા",
+      "please_enter": "કૃપા કરીને કૂપન કોડ દાખલ કરો",
+      "invalid": "અમાન્ય કૂપન",
+      "success": "કૂપન લાગુ થયું"
+    },
+
+    "bill": {
+      "bill_details": "બિલ વિગતો",
+      "item_total": "વસ્તુઓનો કુલ",
+      "tax": "કર",
+      "delivery_fee": "ડિલિવરી ફી",
+      "free": "મફત",
+      "coupon_discount": "કૂપન ડિસ્કાઉન્ટ",
+      "platform_fee": "પ્લેટફોર્મ ફી",
+      "to_pay": "ચૂકવવાનું"
+    },
+
+    "payment": {
+      "amount_to_pay": "ચૂકવવાની રકમ",
+      "payment_method": "ચૂકવણી પદ્ધતિ",
+      "cash_on_delivery": "ડિલિવરી પર રોકડ",
+      "upi": "UPI",
+      "credit_debit_card": "ક્રેડિટ / ડેબિટ કાર્ડ",
+      "net_banking": "નેટ બેંકિંગ",
+      "coming_soon": "ટૂંક સમયમાં આવી રહ્યું છે",
+      "secure_payments": "100% સુરક્ષિત ચૂકવણીઓ",
+      "placing_order": "ઓર્ડર મૂકી રહ્યા છીએ...",
+      "pay": "{} ચૂકવો",
+      "payment_coming_soon": "{} ટૂંક સમયમાં આવી રહ્યું છે — કૃપા કરીને હમણાં માટે ડિલિવરી પર રોકડ વાપરો"
+    },
+
+    "actions": {
+      "retry": "ફરી પ્રયાસ કરો",
+      "continue_summary": "સારાંશ પર આગળ વધો",
+      "continue_payment": "ચૂકવણી પર આગળ વધો",
+      "go_to_cart": "કાર્ટમાં જાઓ"
+    },
+
+    "errors": {
+      "something_wrong": "કંઈક ખોટું થયું",
+      "failed_place_order": "ઓર્ડર મૂકવામાં નિષ્ફળ"
+    }
+  },
+  "orders": {
+    "orders": "ઓર્ડર",
+    "order_details": "ઓર્ડર વિગતો",
+    "order": "ઓર્ડર",
+    "placed_on": "આ તારીખે મૂકવામાં આવ્યો",
+    "order_status": "ઓર્ડર સ્થિતિ",
+    "order_items": "ઓર્ડર વસ્તુઓ",
+    "deliver_to": "ડિલિવર કરો",
+
+    "filters": {
+      "all": "બધા",
+      "processing": "પ્રક્રિયા થઈ રહી છે",
+      "shipped": "મોકલાઈ ગયું",
+      "delivered": "ડિલિવર થયું"
+    },
+
+    "status": {
+      "pending": "બાકી",
+      "processing": "પ્રક્રિયા થઈ રહી છે",
+      "delivered": "ડિલિવર થયું",
+      "cancelled": "રદ કરાયું",
+      "refunded": "રિફંડ થયું"
+    },
+
+    "timeline": {
+      "order_placed": "ઓર્ડર મૂકવામાં આવ્યો",
+      "processing": "પ્રક્રિયા થઈ રહી છે",
+      "delivered": "ડિલિવર થયું",
+      "cancelled": "રદ કરાયું",
+      "refund_initiated": "રિફંડ શરૂ કરાયું",
+      "refunded": "રિફંડ થયું"
+    },
+
+    "quantity": "જથ્થો: {}",
+    "items_count": "{} વસ્તુ",
+    "items_count_plural": "{} વસ્તુઓ",
+    "more_items": "+{} વધુ",
+
+    "payment": {
+      "paid_via": "{} દ્વારા ચૂકવાયું",
+      "subtotal": "ઉપ-કુલ",
+      "tax": "કર",
+      "discount": "ડિસ્કાઉન્ટ",
+      "total_paid": "કુલ ચૂકવાયું"
+    },
+
+    "actions": {
+      "view_details": "વિગતો જુઓ",
+      "track_cancel": "ટ્રૅક / રદ કરો",
+      "cancel_order": "ઓર્ડર રદ કરો",
+      "keep_order": "ઓર્ડર રાખો",
+      "confirm_cancel": "રદ કરવાની પુષ્ટિ કરો",
+      "cancelling": "રદ કરી રહ્યા છીએ...",
+      "retry": "ફરી પ્રયાસ કરો",
+      "start_shopping": "શોપિંગ શરૂ કરો"
+    },
+
+    "messages": {
+      "no_orders": "હજી સુધી કોઈ ઓર્ડર નથી",
+      "something_wrong": "કંઈક ખોટું થયું",
+      "order_cancelled": "આ ઓર્ડર રદ કરવામાં આવ્યો છે.",
+      "cancel_success": "ઓર્ડર સફળતાપૂર્વક રદ કરાયો",
+      "cancel_failed": "ઓર્ડર રદ કરવામાં નિષ્ફળ",
+      "cancel_reason": "રદ કરવાનું કારણ",
+      "cancel_reason_required": "કૃપા કરીને અમને જણાવો કે તમે શા માટે રદ કરી રહ્યા છો",
+      "cancel_reason_hint": "દા.ત. ભૂલથી ઓર્ડર કર્યો, સારી કિંમત મળી..."
+    },
+
+    "review": {
+      "rate_review": "રેટ કરો અને સમીક્ષા કરો",
+      "return_exchange": "રિટર્ન / એક્સચેન્જ"
+    }
+  },
+  "reviews": {
+    "rate_product": "તમે આ ઉત્પાદનને કેટલી રેટિંગ આપશો?",
+    "write_review": "તમારી સમીક્ષા લખો",
+    "share_experience": "તમારો અનુભવ શેર કરો...",
+    "add_photos": "ફોટો ઉમેરો",
+    "submitting": "સબમિટ કરી રહ્યા છીએ...",
+    "submit": "સમીક્ષા સબમિટ કરો",
+    "reviews": "સમીક્ષાઓ ({})",
+    "no_reviews": "હજી સુધી કોઈ સમીક્ષાઓ નથી. સમીક્ષા કરનાર પ્રથમ બનો!",
+    "rating_required": "સબમિટ કરતા પહેલા કૃપા કરીને ઉત્પાદનને રેટ કરો",
+    "submitted_title": "સમીક્ષા સબમિટ થઈ ગઈ!",
+    "submitted_message": "મંજૂરી મળ્યા પછી તે દેખાશે.",
+    "pending_message": "તમારી સમીક્ષા સબમિટ કરવામાં આવી છે અને મંજૂરીની રાહ જોઈ રહી છે. મંજૂરી મળ્યા પછી તે અહીં દેખાશે.",
+    "already_reviewed": "તમે આ ઉત્પાદનની પહેલેથી સમીક્ષા કરી લીધી છે.",
+    "failed": "સમીક્ષા સબમિટ કરવામાં નિષ્ફળ"
+  },
+  "help_support": {
+    "app_bar_title": "મદદ અને સહાય",
+    "common_issues": "સામાન્ય સમસ્યાઓ",
+    "orders_tracking": "ઓર્ડર અને ટ્રેકિંગ",
+    "payments_refunds": "ચૂકવણી અને રિફંડ",
+    "returns_exchanges": "રિટર્ન અને એક્સચેન્જ",
+    "account_security": "એકાઉન્ટ સુરક્ષા",
+    "search_hint": "મદદ, FAQ અથવા વિષયો શોધો...",
+    "still_need_help": "હજુ પણ મદદ જોઈએ છે?",
+    "support_description": "તમારી સમસ્યાનું વર્ણન કરો અને અમારી ટીમ 24 કલાકની અંદર તમારો સંપર્ક કરશે.",
+    "issue_title_hint": "સમસ્યાનું શીર્ષક",
+    "problem_hint": "તમારી સમસ્યા અહીં લખો...",
+    "send_now": "હમણાં મોકલો",
+    "sending": "મોકલી રહ્યા છીએ...",
+    "quick_contact": "ઝડપી સંપર્ક",
+    "call": "કૉલ કરો",
+    "chat": "ચેટ કરો",
+    "email": "ઇમેઇલ"
+  }
+}

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../res/button_context.dart';
@@ -172,7 +173,7 @@ class _HeroBannerSectionState extends State<HeroBannerSection> {
               width: size.width * 0.4,
               height: 32,
               child: CustomButton(
-                text: 'Retry',
+                text: 'home.retry'.tr(),
                 fontSize: 12,
                 onTap: () => vm.fetchBanners(),
               ),
