@@ -92,7 +92,7 @@
     "no_coupons": "No coupons available right now",
     "expired": "Expired",
     "tap_to_copy": "TAP TO COPY",
-    "add_more": "Add ₹ more to unlock this offer",
+    "add_more": "Add ₹{} more to unlock this offer",
     "code_copied": "Code '{}' copied — paste it at checkout to apply"
   },
   "address": {
@@ -156,7 +156,7 @@
     "detecting_location_subtitle": "Please wait while we find your location",
 
     "saved_addresses": "Saved Addresses",
-    "addresses_count": " addresses",
+    "addresses_count": "{} addresses",
     "no_saved_addresses": "No saved addresses yet",
 
     "add_new_address": "Add New Address",
@@ -281,13 +281,13 @@
     "added": "Added to wishlist",
     "removed": "Removed from wishlist",
     "my_wishlist": "My Wishlist",
-    "item": "item",
-    "items": "items",
+    "item": "{} item",
+    "items": "{} items",
 
     "removed_success": "Removed from wishlist",
     "remove_failed": "Failed to remove item. Please try again.",
 
-    "moved_to_cart": "moved to cart",
+    "moved_to_cart": "{} moved to cart",
     "move_to_cart_failed": "Failed to move item to cart. Please try again.",
 
     "out_of_stock": "Out of Stock",
@@ -308,7 +308,7 @@
   "flash_deals": {
     "title": "Flash Deals",
     "time_left": "Time Left:",
-    "items": "items",
+    "items": "{} items",
     "no_deals": "No Flash Deals Available",
     "check_back": "Check back later for great offers!",
     "see_all": "See All"
@@ -328,7 +328,7 @@
     "no_brands_found": "No brands found",
     "view_all": "View All",
     "shop_by_brand": "Shop By Brand",
-    "products": "Products"
+    "products": "{} Products"
   },
 
   "quick_categories": {
@@ -342,6 +342,7 @@
   },
   "product_detail": {
     "failed_to_load": "Failed to load product",
+    "similar_products": "You may also like",
     "retry": "Retry",
 
     "delivery_details": "DELIVERY DETAILS",
@@ -349,7 +350,7 @@
     "check": "Check",
 
     "out_of_stock": "Out of stock",
-    "only_left": "Only left!",
+    "only_left": "Only {} left!",
 
     "product_details": "Product Details",
     "features": "Features",
@@ -363,18 +364,18 @@
 
     "customer_reviews": "Customer Reviews",
     "no_reviews": "No reviews yet for this product.",
-    "review_count": "review",
-    "reviews_count": "reviews",
-    "rating_count": "rating",
-    "ratings_count": "ratings",
+    "review_count": "{} review",
+    "reviews_count": "{} reviews",
+    "rating_count": "{} rating",
+    "ratings_count": "{} ratings",
 
     "just_now": "Just now",
-    "time_week": "week ago",
-    "time_weeks": "weeks ago",
-    "time_day": "day ago",
-    "time_days": "days ago",
-    "time_hour": "hour ago",
-    "time_hours": "hours ago",
+    "time_week": "{} week ago",
+    "time_weeks": "{} weeks ago",
+    "time_day": "{} day ago",
+    "time_days": "{} days ago",
+    "time_hour": "{} hour ago",
+    "time_hours": "{} hours ago",
 
     "failed_wishlist": "Failed to update wishlist. Please try again.",
     "added_wishlist": "Added to wishlist",
@@ -399,6 +400,7 @@
 
     "new_arrivals": "New Arrivals",
     "best_sellers": "Best Sellers",
+    "best_sellers_subtitle": "Shop our most popular products",
     "deals": "Deals",
     "top_brands": "Top Brands",
 
@@ -409,12 +411,12 @@
     "something_wrong": "Something went wrong",
 
     "no_subcategories": "No subcategories found",
-    "items": "items",
+    "items": "{} items",
 
     "out_of_stock": "Out of stock",
-    "only_left": "Only left",
+    "only_left": "Only {} left",
 
-    "product_count": "Products",
+    "product_count": "{} Products",
 
     "popular_this_week": "Popular This Week",
     "see_all": "See All"
@@ -426,12 +428,12 @@
     "no_products": "No products in this category yet",
 
     "out_of_stock": "Out of stock",
-    "only_left": "Only left"
+    "only_left": "Only {} left"
   },
   "cart": {
     "my_cart": "My Cart",
-    "item": "item",
-    "items": "items",
+    "item": "{} item",
+    "items": "{} items",
 
     "select_all": "Select All ({} / {})",
 
@@ -447,9 +449,9 @@
     "out_of_stock": "Out of stock",
     "remove": "Remove",
 
-    "only_in_stock": "Only in stock",
-    "only_left_in_stock": "Only left in stock — order soon",
-    "only_available": "Only available. Reduce quantity to continue.",
+    "only_in_stock": "Only {} in stock",
+    "only_left_in_stock": "Only {} left in stock — order soon",
+    "only_available": "Only {} available. Reduce quantity to continue.",
     "out_of_stock_remove": "This item is out of stock. Please remove it to continue.",
 
     "coupon_removed": "Coupon removed — your cart selection changed",
@@ -466,16 +468,16 @@
     "you_saved": "You saved {}",
 
     "bill_details": "Bill Details",
-    "item_total": "Item Total (item)",
-    "items_total": "Item Total (items)",
+    "item_total": "Item Total ({} item)",
+    "items_total": "Item Total ({} items)",
     "coupon_discount": "Coupon Discount",
     "delivery_fee": "Delivery Fee",
     "platform_fee": "Platform Fee",
     "free": "FREE",
     "to_pay": "To Pay",
 
-    "selected": "item selected",
-    "selected_plural": "items selected",
+    "selected": "{} item selected",
+    "selected_plural": "{} items selected",
 
     "select_items": "Select Items",
     "review_cart": "Review Cart",
@@ -508,7 +510,7 @@
 
     "address": {
       "saved_addresses": "Saved Addresses",
-      "address_count": "addresses",
+      "address_count": "{} addresses",
       "no_saved": "No saved addresses yet. Add one to continue.",
       "add_new": "Add New Address",
       "billing": "Billing Address",
@@ -531,7 +533,7 @@
       "enter_code": "ENTER COUPON CODE",
       "apply": "Apply",
       "remove": "Remove",
-      "applied": "Applied",
+      "applied": "{} Applied",
       "saved": "You saved {}",
       "please_enter": "Please enter a coupon code",
       "invalid": "Invalid coupon",
@@ -560,7 +562,7 @@
       "secure_payments": "100% Secure Payments",
       "placing_order": "Placing order...",
       "pay": "Pay {}",
-      "payment_coming_soon": "coming soon — please use Cash on Delivery for now"
+      "payment_coming_soon": "{} coming soon — please use Cash on Delivery for now"
     },
 
     "actions": {
@@ -608,10 +610,10 @@
       "refunded": "Refunded"
     },
 
-    "quantity": "Qty: ",
+    "quantity": "Qty: {}",
     "items_count": "item",
     "items_count_plural": "items",
-    "more_items": "+more",
+    "more_items": "+{} more",
 
     "payment": {
       "paid_via": "Paid via {}",

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'color_constant.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomButton extends StatefulWidget {
   final String text;
   final VoidCallback? onTap;
 
@@ -59,80 +59,141 @@ class CustomButton extends StatelessWidget {
   });
 
   @override
+  State<CustomButton> createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+
+  bool get _isDisabled => widget.loading || widget.onTap == null;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 90),
+      reverseDuration: const Duration(milliseconds: 120),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (_isDisabled) return;
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (_isDisabled) return;
+    _controller.reverse();
+  }
+
+  void _handleTapCancel() {
+    if (_isDisabled) return;
+    _controller.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: loading ? null : onTap,
-      child: Container(
-        alignment: Alignment.center,
-        margin: margin,
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
-        height: height ?? 56,
-        width: width ?? screenWidth,
-        decoration: BoxDecoration(
-          color: outlined
-              ? ColorConstant.whiteColor
-              : (gradient == null ? (color ?? ColorConstant.primaryColor) : null),
-          gradient: outlined ? null : gradient,
-          borderRadius: borderRadius ?? BorderRadius.circular(16),
-          border: outlined
-              ? Border.all(
-                  color: borderColor ?? ColorConstant.primaryColor,
-                  width: 1.4,
-                )
-              : null,
-          boxShadow: outlined
-              ? null
-              : (boxShadow ??
-                  [
-                    BoxShadow(
-                      color: (color ?? ColorConstant.primaryColor).withOpacity(.25),
-                      blurRadius: 7,
-                      offset: const Offset(0, 4),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onTap: widget.loading ? null : widget.onTap,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          alignment: Alignment.center,
+          margin: widget.margin,
+          padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 14),
+          height: widget.height ?? 54,
+          width: widget.width ?? screenWidth,
+          decoration: BoxDecoration(
+            color: widget.outlined
+                ? ColorConstant.whiteColor
+                : (widget.gradient == null
+                ? (widget.color ?? ColorConstant.primaryColor)
+                : null),
+            gradient: widget.outlined ? null : widget.gradient,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+            border: widget.outlined
+                ? Border.all(
+              color: widget.borderColor ?? ColorConstant.primaryColor,
+              width: 1.4,
+            )
+                : null,
+            boxShadow: widget.outlined
+                ? null
+                : (widget.boxShadow ??
+                [
+                  BoxShadow(
+                    color: (widget.color ?? ColorConstant.primaryColor)
+                        .withOpacity(.25),
+                    blurRadius: 7,
+                    offset: const Offset(0, 4),
+                  ),
+                ]),
+          ),
+          child: widget.loading
+              ? SizedBox(
+            height: 22,
+            width: 22,
+            child: CircularProgressIndicator(
+              color: widget.outlined
+                  ? ColorConstant.primaryColor
+                  : Colors.white,
+              strokeWidth: 2.5,
+            ),
+          )
+              : widget.child ??
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(
+                      widget.icon,
+                      color: widget.iconColor ??
+                          (widget.outlined
+                              ? ColorConstant.primaryColor
+                              : Colors.white),
+                      size: widget.iconSize ?? 20,
                     ),
-                  ]),
-        ),
-        child: loading
-            ? SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  color: outlined ? ColorConstant.primaryColor : Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : child ??
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      Icon(
-                        icon,
-                        color: iconColor ??
-                            (outlined ? ColorConstant.primaryColor : Colors.white),
-                        size: iconSize ?? 20,
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Flexible(
-                      child: Text(
-                        text,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: fontSize ?? 16,
-                          color: textColor ??
-                              (outlined ? ColorConstant.primaryColor : Colors.white),
-                          fontWeight: fontWeight ?? FontWeight.w600,
-                          fontFamily: "Poppins",
-                          letterSpacing: .3,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(width: 10),
                   ],
-                ),
+                  Flexible(
+                    child: Text(
+                      widget.text,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: widget.fontSize ?? 16,
+                        color: widget.textColor ??
+                            (widget.outlined
+                                ? ColorConstant.primaryColor
+                                : Colors.white),
+                        fontWeight: widget.fontWeight ?? FontWeight.w600,
+                        fontFamily: "Poppins",
+                        letterSpacing: .3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+        ),
       ),
     );
   }

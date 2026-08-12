@@ -41,7 +41,7 @@
   },
   "profile": {
     "guest_user": "अतिथि उपयोगकर्ता",
-    "member_since": "से सदस्य",
+    "member_since": "{} से सदस्य",
 
     "orders": "ऑर्डर",
     "orders_subtitle": "अपने पैकेज ट्रैक करें",
@@ -92,7 +92,7 @@
     "no_coupons": "अभी कोई कूपन उपलब्ध नहीं है",
     "expired": "समाप्त",
     "tap_to_copy": "कॉपी करने के लिए टैप करें",
-    "add_more": "इस ऑफ़र को अनलॉक करने के लिए ₹ और जोड़ें",
+    "add_more": "इस ऑफ़र को अनलॉक करने के लिए ₹{} और जोड़ें",
     "code_copied": "कोड '{}' कॉपी हो गया — इसे लागू करने के लिए चेकआउट पर पेस्ट करें"
   },
   "address": {
@@ -156,7 +156,7 @@
     "detecting_location_subtitle": "कृपया प्रतीक्षा करें, हम आपका स्थान खोज रहे हैं",
 
     "saved_addresses": "सहेजे गए पते",
-    "addresses_count": "पते",
+    "addresses_count": "{} पते",
     "no_saved_addresses": "अभी कोई सहेजा गया पता नहीं है",
 
     "add_new_address": "नया पता जोड़ें",
@@ -212,7 +212,7 @@
     "female": "महिला",
     "other": "अन्य",
 
-    "member_since": "से सदस्य",
+    "member_since": "{} से सदस्य",
     "your_profile": "आपकी प्रोफ़ाइल",
     "not_set": "सेट नहीं है",
 
@@ -281,13 +281,13 @@
     "added": "विशलिस्ट में जोड़ा गया",
     "removed": "विशलिस्ट से हटाया गया",
     "my_wishlist": "मेरी विशलिस्ट",
-    "item": "आइटम",
-    "items": "आइटम",
+    "item": "{} आइटम",
+    "items": "{} आइटम",
 
     "removed_success": "विशलिस्ट से हटा दिया गया",
     "remove_failed": "आइटम हटाया नहीं जा सका। कृपया पुनः प्रयास करें।",
 
-    "moved_to_cart": "कार्ट में जोड़ दिया गया",
+    "moved_to_cart": "{} कार्ट में जोड़ दिया गया",
     "move_to_cart_failed": "आइटम कार्ट में नहीं जोड़ा जा सका। कृपया पुनः प्रयास करें।",
 
     "out_of_stock": "स्टॉक में नहीं है",
@@ -308,7 +308,7 @@
   "flash_deals": {
     "title": "फ्लैश डील्स",
     "time_left": "बाकी समय:",
-    "items": "आइटम",
+    "items": "{} आइटम",
     "no_deals": "अभी कोई फ्लैश डील उपलब्ध नहीं है",
     "check_back": "बेहतरीन ऑफर्स के लिए बाद में फिर देखें!",
     "see_all": "सभी देखें"
@@ -328,7 +328,7 @@
     "no_brands_found": "कोई ब्रांड नहीं मिला",
     "view_all": "सभी देखें",
     "shop_by_brand": "ब्रांड के अनुसार खरीदें",
-    "products": "प्रोडक्ट"
+    "products": "{} प्रोडक्ट"
   },
 
   "quick_categories": {
@@ -342,6 +342,7 @@
   },
   "product_detail": {
     "failed_to_load": "प्रोडक्ट लोड नहीं हो सका",
+    "similar_products": "आपको ये भी पसंद आ सकते हैं",
     "retry": "पुनः प्रयास करें",
 
     "delivery_details": "डिलीवरी विवरण",
@@ -349,7 +350,7 @@
     "check": "चेक करें",
 
     "out_of_stock": "स्टॉक में नहीं है",
-    "only_left": "केवल बचे हैं!",
+    "only_left": "केवल {} बचे हैं!",
 
     "product_details": "प्रोडक्ट विवरण",
     "features": "विशेषताएँ",
@@ -363,18 +364,18 @@
 
     "customer_reviews": "ग्राहक समीक्षाएँ",
     "no_reviews": "इस प्रोडक्ट के लिए अभी कोई समीक्षा नहीं है।",
-    "review_count": "समीक्षा",
-    "reviews_count": "समीक्षाएँ",
-    "rating_count": "रेटिंग",
-    "ratings_count": "रेटिंग",
+    "review_count": "{} समीक्षा",
+    "reviews_count": "{} समीक्षाएँ",
+    "rating_count": "{} रेटिंग",
+    "ratings_count": "{} रेटिंग",
 
     "just_now": "अभी-अभी",
-    "time_week": "सप्ताह पहले",
-    "time_weeks": "सप्ताह पहले",
-    "time_day": "दिन पहले",
-    "time_days": "दिन पहले",
-    "time_hour": "घंटे पहले",
-    "time_hours": "घंटे पहले",
+    "time_week": "{} सप्ताह पहले",
+    "time_weeks": "{} सप्ताह पहले",
+    "time_day": "{} दिन पहले",
+    "time_days": "{} दिन पहले",
+    "time_hour": "{} घंटे पहले",
+    "time_hours": "{} घंटे पहले",
 
     "failed_wishlist": "विशलिस्ट अपडेट नहीं हो सकी। कृपया पुनः प्रयास करें।",
     "added_wishlist": "विशलिस्ट में जोड़ा गया",
@@ -399,6 +400,7 @@
 
     "new_arrivals": "नए प्रोडक्ट",
     "best_sellers": "बेस्ट सेलर्स",
+    "best_sellers_subtitle": "हमारे सबसे लोकप्रिय उत्पाद खरीदें",
     "deals": "ऑफर्स",
     "top_brands": "टॉप ब्रांड्स",
 
@@ -409,12 +411,12 @@
     "something_wrong": "कुछ गलत हो गया",
 
     "no_subcategories": "कोई सब-कैटेगरी नहीं मिली",
-    "items": "आइटम",
+    "items": "{} आइटम",
 
     "out_of_stock": "स्टॉक में नहीं है",
-    "only_left": "केवल बचे हैं",
+    "only_left": "केवल {} बचे हैं",
 
-    "product_count": "प्रोडक्ट",
+    "product_count": "{} प्रोडक्ट",
 
     "popular_this_week": "इस सप्ताह लोकप्रिय",
     "see_all": "सभी देखें"
@@ -426,12 +428,12 @@
     "no_products": "इस कैटेगरी में अभी कोई प्रोडक्ट नहीं है",
 
     "out_of_stock": "स्टॉक में नहीं है",
-    "only_left": "केवल बचे हैं"
+    "only_left": "केवल {} बचे हैं"
   },
   "cart": {
     "my_cart": "मेरा कार्ट",
-    "item": "आइटम",
-    "items": "आइटम",
+    "item": "{} आइटम",
+    "items": "{} आइटम",
 
     "select_all": "सभी चुनें ({} / {})",
 
@@ -447,9 +449,9 @@
     "out_of_stock": "स्टॉक में नहीं है",
     "remove": "हटाएं",
 
-    "only_in_stock": "स्टॉक में केवल हैं",
-    "only_left_in_stock": "स्टॉक में केवल बचे हैं — जल्दी ऑर्डर करें",
-    "only_available": "केवल उपलब्ध हैं। जारी रखने के लिए मात्रा कम करें।",
+    "only_in_stock": "स्टॉक में केवल {} हैं",
+    "only_left_in_stock": "स्टॉक में केवल {} बचे हैं — जल्दी ऑर्डर करें",
+    "only_available": "केवल {} उपलब्ध हैं। जारी रखने के लिए मात्रा कम करें।",
     "out_of_stock_remove": "यह आइटम स्टॉक में नहीं है। जारी रखने के लिए इसे हटाएं।",
 
     "coupon_removed": "कूपन हटा दिया गया — आपके कार्ट का चयन बदल गया",
@@ -463,11 +465,11 @@
     "select_item_coupon": "कूपन लागू करने के लिए कम से कम एक आइटम चुनें",
     "view_all_coupons": "सभी कूपन देखें",
     "applied": "लागू",
-    "you_saved": "आपने बचाए",
+    "you_saved": "आपने {} बचाए",
 
     "bill_details": "बिल विवरण",
-    "item_total": "आइटम कुल (आइटम)",
-    "items_total": "आइटम कुल (आइटम)",
+    "item_total": "आइटम कुल ({} आइटम)",
+    "items_total": "आइटम कुल ({} आइटम)",
     "coupon_discount": "कूपन छूट",
     "delivery_fee": "डिलीवरी शुल्क",
     "platform_fee": "प्लेटफॉर्म शुल्क",
@@ -605,8 +607,8 @@
       "refunded": "रिफंड किया गया"
     },
     "quantity": "मात्रा: {}",
-    "items_count": "{} वस्तु",
-    "items_count_plural": "{} वस्तुएं",
+    "items_count": "वस्तु",
+    "items_count_plural": "वस्तुएं",
     "more_items": "+{} और",
     "payment": {
       "paid_via": "{} से भुगतान",

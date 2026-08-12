@@ -12,6 +12,8 @@ import '../../viewmodel/cart/cart_viewmodel.dart';
 import '../../viewmodel/wishlist_viewmodel.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'all_review_screen.dart';
+
 class ProductDetailScreen extends StatelessWidget {
   final String productId;
 
@@ -67,32 +69,20 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
       final weeks = (diff.inDays / 7).floor();
 
       return weeks == 1
-          ? 'product_detail.time_week'.tr(
-        args: [weeks.toString()],
-      )
-          : 'product_detail.time_weeks'.tr(
-        args: [weeks.toString()],
-      );
+          ? 'product_detail.time_week'.tr(args: [weeks.toString()])
+          : 'product_detail.time_weeks'.tr(args: [weeks.toString()]);
     }
 
     if (diff.inDays >= 1) {
       return diff.inDays == 1
-          ? 'product_detail.time_day'.tr(
-        args: [diff.inDays.toString()],
-      )
-          : 'product_detail.time_days'.tr(
-        args: [diff.inDays.toString()],
-      );
+          ? 'product_detail.time_day'.tr(args: [diff.inDays.toString()])
+          : 'product_detail.time_days'.tr(args: [diff.inDays.toString()]);
     }
 
     if (diff.inHours >= 1) {
       return diff.inHours == 1
-          ? 'product_detail.time_hour'.tr(
-        args: [diff.inHours.toString()],
-      )
-          : 'product_detail.time_hours'.tr(
-        args: [diff.inHours.toString()],
-      );
+          ? 'product_detail.time_hour'.tr(args: [diff.inHours.toString()])
+          : 'product_detail.time_hours'.tr(args: [diff.inHours.toString()]);
     }
 
     return 'product_detail.just_now'.tr();
@@ -160,7 +150,10 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     ),
                     const SizedBox(height: 10),
                     TextContext(
-                      text: vm.errorMessage ?? 'product_detail.failed_to_load'.tr(),                      fontSize: 13,
+                      text:
+                          vm.errorMessage ??
+                          'product_detail.failed_to_load'.tr(),
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: ColorConstant.labelTextColor,
                     ),
@@ -210,7 +203,13 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                             SizedBox(height: size.height * 0.022),
                             _buildAccordions(size, product, vm),
                             SizedBox(height: size.height * 0.024),
-                            _buildReviewsSection(size, product),
+                            _buildReviewsSection(context, size, product),
+                            SizedBox(height: size.height * 0.024),
+                            _buildRelatedProductsSection(
+                              context,
+                              size,
+                              vm,
+                            ), // ⬅️ CHANGED: product → vm
                             SizedBox(height: size.height * 0.02),
                           ],
                         ),
@@ -329,40 +328,52 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                     Consumer<WishlistViewModel>(
                       builder: (context, wishlistVm, _) {
                         final variantId = vm.selectedVariant?.id;
-                        final isWishlisted = wishlistVm.isWishlisted(vm.product!.id, variantId: variantId);
+                        final isWishlisted = wishlistVm.isWishlisted(
+                          vm.product!.id,
+                          variantId: variantId,
+                        );
 
                         return _circleIconButton(
                           icon: _isTogglingWishlist
-                              ? Icons.favorite_border_rounded // spinner ke waqt bhi icon jagah nahi badalti, neeche loader dikhega
-                              : (isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-                          iconColor: isWishlisted ? ColorConstant.wishlistColor : ColorConstant.headlineTextColor,
+                              ? Icons
+                                    .favorite_border_rounded // spinner ke waqt bhi icon jagah nahi badalti, neeche loader dikhega
+                              : (isWishlisted
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded),
+                          iconColor: isWishlisted
+                              ? ColorConstant.wishlistColor
+                              : ColorConstant.headlineTextColor,
                           onTap: _isTogglingWishlist
                               ? () {}
                               : () async {
-                            setState(() => _isTogglingWishlist = true);
-                            final result = await wishlistVm.toggleFromProductDetail(
-                              productId: vm.product!.id,
-                              variantId: variantId,
-                              productName: vm.product!.name,
-                              variantName: vm.selectedVariant?.name,
-                              slug: vm.product!.slug,
-                              displayPrice: vm.effectivePrice,
-                              stock: vm.effectiveStock,
-                            );
-                            if (!mounted) return;
-                            setState(() => _isTogglingWishlist = false);
+                                  setState(() => _isTogglingWishlist = true);
+                                  final result = await wishlistVm
+                                      .toggleFromProductDetail(
+                                        productId: vm.product!.id,
+                                        variantId: variantId,
+                                        productName: vm.product!.name,
+                                        variantName: vm.selectedVariant?.name,
+                                        slug: vm.product!.slug,
+                                        displayPrice: vm.effectivePrice,
+                                        stock: vm.effectiveStock,
+                                      );
+                                  if (!mounted) return;
+                                  setState(() => _isTogglingWishlist = false);
 
-                            if (result == null) {
-                              AppUtils.error(
-                                context,
-                                'product_detail.failed_wishlist'.tr(),
-                              );
-                            } else {
-                              AppUtils.success(
-                                context,
-                                result ? 'Added to wishlist' : 'Removed from wishlist',                              );
-                            }
-                          },
+                                  if (result == null) {
+                                    AppUtils.error(
+                                      context,
+                                      'product_detail.failed_wishlist'.tr(),
+                                    );
+                                  } else {
+                                    AppUtils.success(
+                                      context,
+                                      result
+                                          ? 'Added to wishlist'
+                                          : 'Removed from wishlist',
+                                    );
+                                  }
+                                },
                         );
                       },
                     ),
@@ -537,12 +548,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
               const SizedBox(width: 8),
               TextContext(
                 text: allReviews.length == 1
-                    ? '(${ 'product_detail.rating_count'.tr(
-                  args: [allReviews.length.toString()],
-                )})'
-                    : '(${ 'product_detail.ratings_count'.tr(
-                  args: [allReviews.length.toString()],
-                )})',
+                    ? '(${'product_detail.rating_count'.tr(args: [allReviews.length.toString()])})'
+                    : '(${'product_detail.ratings_count'.tr(args: [allReviews.length.toString()])})',
                 fontSize: 12.5,
                 fontWeight: FontWeight.w400,
                 color: ColorConstant.labelTextColor,
@@ -715,7 +722,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   style: const TextStyle(fontSize: 13.5, fontFamily: "Poppins"),
                   decoration: InputDecoration(
                     isDense: true,
-                    hintText: 'product_detail.enter_pincode'.tr(),                    hintStyle: const TextStyle(
+                    hintText: 'product_detail.enter_pincode'.tr(),
+                    hintStyle: const TextStyle(
                       fontSize: 13.5,
                       color: ColorConstant.placeholderColor,
                       fontFamily: "Poppins",
@@ -861,7 +869,8 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           return Column(
             children: [
               InkWell(
-                onTap: () => setState(() => _accordionExpanded[index] = !isExpanded),
+                onTap: () =>
+                    setState(() => _accordionExpanded[index] = !isExpanded),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -906,14 +915,14 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   String _accordionBody(
-      int index,
-      ProductDetailModel product,
-      ProductDetailViewModel vm,
-      ) {
+    int index,
+    ProductDetailModel product,
+    ProductDetailViewModel vm,
+  ) {
     switch (index) {
       case 0:
         return (product.description != null &&
-            product.description!.trim().isNotEmpty)
+                product.description!.trim().isNotEmpty)
             ? product.description!
             : 'product_detail.no_description'.tr();
 
@@ -924,9 +933,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
           return 'product_detail.no_additional_details'.tr();
         }
 
-        return attrs.entries
-            .map((e) => "${e.key}: ${e.value}")
-            .join(' • ');
+        return attrs.entries.map((e) => "${e.key}: ${e.value}").join(' • ');
 
       case 2:
         if (product.effectiveReturnPolicyText != null) {
@@ -942,8 +949,15 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   /// ---------------- REVIEWS SECTION ----------------
-  Widget _buildReviewsSection(Size size, ProductDetailModel product) {
+  Widget _buildReviewsSection(
+    BuildContext context,
+    Size size,
+    ProductDetailModel product,
+  ) {
     final reviews = product.reviews;
+
+    final previewReviews = reviews.length > 1 ? reviews.take(1).toList() : reviews;
+
 
     // rating distribution built from actual review data
     final Map<int, int> counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
@@ -985,11 +999,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                   TextContext(
                     text: total == 1
                         ? 'product_detail.review_count'.tr(
-                      args: [total.toString()],
-                    )
+                            args: [total.toString()],
+                          )
                         : 'product_detail.reviews_count'.tr(
-                      args: [total.toString()],
-                    ),
+                            args: [total.toString()],
+                          ),
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: ColorConstant.labelTextColor,
@@ -1041,9 +1055,32 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
             ],
           ),
           SizedBox(height: size.height * 0.02),
-          for (final review in reviews) ...[
+
+          for (final review in previewReviews) ...[
             _buildReviewCard(size, review),
             SizedBox(height: size.height * 0.014),
+          ],
+
+          if (reviews.length > 1) ...[
+            SizedBox(height: size.height * 0.006),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AllReviewsScreen(product: product),
+                    ),
+                  );
+                },
+                child: TextContext(
+                  text: 'View all ${reviews.length} reviews',
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: ColorConstant.primaryColor,
+                ),
+              ),
+            ),
           ],
         ],
       ],
@@ -1174,11 +1211,11 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   Widget _buildBottomActionBar(
-      BuildContext context,
-      Size size,
-      ProductDetailModel product,
-      ProductDetailViewModel vm,
-      ) {
+    BuildContext context,
+    Size size,
+    ProductDetailModel product,
+    ProductDetailViewModel vm,
+  ) {
     final cartVm = context.watch<CartViewModel>();
 
     final String? variantId = vm.selectedVariant?.id;
@@ -1242,22 +1279,22 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 onTap: isBusy
                     ? null
                     : () async {
-                  final reason = blockedReason();
-                  if (reason != null) {
-                    AppUtils.warning(context, reason);
-                    return;
-                  }
-                  if (alreadyInCart) {
-                    Navigator.pushNamed(context, RouteName.cart);
-                    return;
-                  }
-                  await cartVm.addToCart(
-                    productId: product.id,
-                    variantId: variantId,
-                    quantity: vm.quantity,
-                    context: context,
-                  );
-                },
+                        final reason = blockedReason();
+                        if (reason != null) {
+                          AppUtils.warning(context, reason);
+                          return;
+                        }
+                        if (alreadyInCart) {
+                          Navigator.pushNamed(context, RouteName.cart);
+                          return;
+                        }
+                        await cartVm.addToCart(
+                          productId: product.id,
+                          variantId: variantId,
+                          quantity: vm.quantity,
+                          context: context,
+                        );
+                      },
               ),
             ),
             SizedBox(width: size.width * 0.03),
@@ -1271,60 +1308,223 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 onTap: isBusy
                     ? null
                     : () async {
-                  final reason = blockedReason();
-                  if (reason != null) {
-                    AppUtils.warning(context, reason);   // 🔧 message on tap
-                    return;
-                  }
-                  setState(() => _isBuyNowLoading = true);
-                  try {
-                    final bool alreadyThere =
-                    cartVm.isInCart(product.id, variantId: variantId);
+                        final reason = blockedReason();
+                        if (reason != null) {
+                          AppUtils.warning(
+                            context,
+                            reason,
+                          ); // 🔧 message on tap
+                          return;
+                        }
+                        setState(() => _isBuyNowLoading = true);
+                        try {
+                          final bool alreadyThere = cartVm.isInCart(
+                            product.id,
+                            variantId: variantId,
+                          );
 
-                    if (!alreadyThere) {
-                      final added = await cartVm.addToCart(
-                        productId: product.id,
-                        variantId: variantId,
-                        quantity: vm.quantity,
-                        context: context,
-                        silent: true,
-                      );
-                      if (!added) return;
-                    } else {
-                      final existing =
-                      cartVm.cart.findItem(product.id, variantId);
-                      if (existing != null &&
-                          existing.quantity != vm.quantity) {
-                        await cartVm.updateQuantity(
-                          itemId: existing.id,
-                          quantity: vm.quantity,
-                          context: context,
+                          if (!alreadyThere) {
+                            final added = await cartVm.addToCart(
+                              productId: product.id,
+                              variantId: variantId,
+                              quantity: vm.quantity,
+                              context: context,
+                              silent: true,
+                            );
+                            if (!added) return;
+                          } else {
+                            final existing = cartVm.cart.findItem(
+                              product.id,
+                              variantId,
+                            );
+                            if (existing != null &&
+                                existing.quantity != vm.quantity) {
+                              await cartVm.updateQuantity(
+                                itemId: existing.id,
+                                quantity: vm.quantity,
+                                context: context,
+                              );
+                            }
+                          }
+
+                          if (!context.mounted) return;
+
+                          final cartItem = cartVm.cart.findItem(
+                            product.id,
+                            variantId,
+                          );
+                          if (cartItem == null) {
+                            AppUtils.error(
+                              context,
+                              'product_detail.something_wrong'.tr(),
+                            );
+                            return;
+                          }
+
+                          context.read<CheckoutViewModel>().startCheckout([
+                            CheckoutLineItem.fromCartItem(cartItem),
+                          ]);
+
+                          if (!context.mounted) return;
+                          Navigator.pushNamed(
+                            context,
+                            RouteName.checkoutAddress,
+                          );
+                        } finally {
+                          if (mounted) setState(() => _isBuyNowLoading = false);
+                        }
+                      },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ---------------- SIMILAR / RELATED PRODUCTS (slug-API se, alag se load hota hai) ----------------
+  Widget _buildRelatedProductsSection(
+    BuildContext context,
+    Size size,
+    ProductDetailViewModel vm,
+  ) {
+    // Abhi tak fetch hi shuru nahi hua ya fail ho gaya aur kuch data nahi hai — kuch mat dikhao
+    if (vm.relatedStatus == RelatedProductsStatus.idle) {
+      return const SizedBox.shrink();
+    }
+    if (vm.relatedStatus == RelatedProductsStatus.error &&
+        vm.relatedProducts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    if (vm.relatedStatus == RelatedProductsStatus.loaded &&
+        vm.relatedProducts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextContext(
+          text: 'product_detail.similar_products'.tr(),
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+        SizedBox(height: size.height * 0.016),
+        SizedBox(
+          height: size.height * 0.26,
+          child: vm.isRelatedLoading
+              // ---- SKELETON while related products load ho rahe hain ----
+              ? ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 4,
+                  separatorBuilder: (_, __) =>
+                      SizedBox(width: size.width * 0.035),
+                  itemBuilder: (_, __) =>
+                      _RelatedProductSkeletonCard(width: size.width * 0.38),
+                )
+              // ---- ACTUAL LIST ----
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: vm.relatedProducts.length,
+                  separatorBuilder: (_, __) =>
+                      SizedBox(width: size.width * 0.035),
+                  itemBuilder: (context, index) {
+                    final item = vm.relatedProducts[index];
+                    return _RelatedProductCard(
+                      product: item,
+                      width: size.width * 0.38,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ProductDetailScreen(productId: item.id),
+                          ),
                         );
-                      }
-                    }
+                      },
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
 
-                    if (!context.mounted) return;
+/// ---------------- RELATED PRODUCT SKELETON (shimmer pulse) ----------------
+class _RelatedProductSkeletonCard extends StatefulWidget {
+  final double width;
+  const _RelatedProductSkeletonCard({required this.width});
 
-                    final cartItem =
-                    cartVm.cart.findItem(product.id, variantId);
-                    if (cartItem == null) {
-                      AppUtils.error(
-                        context,
-                        'product_detail.something_wrong'.tr(),
-                      );
-                      return;
-                    }
+  @override
+  State<_RelatedProductSkeletonCard> createState() =>
+      _RelatedProductSkeletonCardState();
+}
 
-                    context.read<CheckoutViewModel>().startCheckout([
-                      CheckoutLineItem.fromCartItem(cartItem),
-                    ]);
+class _RelatedProductSkeletonCardState
+    extends State<_RelatedProductSkeletonCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
 
-                    if (!context.mounted) return;
-                    Navigator.pushNamed(context, RouteName.checkoutAddress);
-                  } finally {
-                    if (mounted) setState(() => _isBuyNowLoading = false);
-                  }
-                },
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _bar({double? width, double height = 12}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: ColorConstant.fieldFillColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(
+        begin: 0.45,
+        end: 1,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
+      child: Container(
+        width: widget.width,
+        decoration: BoxDecoration(
+          color: ColorConstant.cardBgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: ColorConstant.borderColor),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1.15,
+              child: Container(color: ColorConstant.fieldFillColor),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _bar(width: widget.width * 0.75, height: 11),
+                  const SizedBox(height: 6),
+                  _bar(width: widget.width * 0.45, height: 11),
+                  const SizedBox(height: 10),
+                  _bar(width: widget.width * 0.35, height: 14),
+                ],
               ),
             ),
           ],
@@ -1507,8 +1707,6 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                   ),
                 ),
               ),
-
-            // ---- Customer name + comment overlay (review images only) ----
             if (info != null)
               Positioned(
                 left: 0,
@@ -1595,6 +1793,105 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                   }),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// ---------------- RELATED PRODUCT CARD (Flipkart-style "Similar Products") ----------------
+class _RelatedProductCard extends StatelessWidget {
+  final RelatedProductModel product;
+  final double width;
+  final VoidCallback onTap;
+
+  const _RelatedProductCard({
+    required this.product,
+    required this.width,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        decoration: BoxDecoration(
+          color: ColorConstant.cardBgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: ColorConstant.borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ---- image ----
+            AspectRatio(
+              aspectRatio: 1.1,
+              child: Container(
+                color: ColorConstant.fieldFillColor,
+                child: product.image != null && product.image!.isNotEmpty
+                    ? Image.network(
+                        product.image!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                            child: SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.image_outlined,
+                          size: 34,
+                          color: ColorConstant.placeholderColor,
+                        ),
+                      )
+                    : Icon(
+                        Icons.image_outlined,
+                        size: 34,
+                        color: ColorConstant.placeholderColor,
+                      ),
+              ),
+            ),
+
+            // ---- name + price ----
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextContext(
+                    text: product.name,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    height: 1.3,
+                  ),
+                  const SizedBox(height: 9),
+                  TextContext(
+                    text: product.formattedPrice,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: ColorConstant.headlineTextColor,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -51,6 +51,7 @@ dependencies:
   shared_preferences: ^2.5.5
   razorpay_flutter: ^1.4.0
   easy_localization: ^3.0.8
+  flutter_html: ^3.0.0
 
 dev_dependencies:
   flutter_test:

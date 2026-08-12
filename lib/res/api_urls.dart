@@ -126,4 +126,15 @@ class ApiUrl {
   static const String profile = "$baseUrl/v1/profile";
   static const String updateProfile = "$baseUrl/v1/profile/update";
   static const String updateProfilePhoto = "$baseUrl/v1/profile/photo";
+
+  // Support ticket endpoints — same URL, GET = list, POST = create
+  static String get mySupportTickets => '$baseUrl/v1/website/support';
+  static String get createSupportTicket => '$baseUrl/v1/website/support';
+
+  // CMS website pages
+  static String get websitePages => '$baseUrl/v1/website/pages';
+  static String pageByType(String type) => '$baseUrl/v1/website/pages/$type';
+
+  // Slug-based product detail — sirf relatedProducts nikalne ke liye use ho raha hai
+  static String websiteProductBySlug(String slug) => '$baseUrl/v1/websiteProducts/$slug';
 }

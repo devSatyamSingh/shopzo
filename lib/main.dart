@@ -13,6 +13,7 @@ import 'package:shopzo/viewmodel/banner_viewmodel.dart';
 import 'package:shopzo/viewmodel/best_seller_viewmodel.dart';
 import 'package:shopzo/viewmodel/cart/cart_viewmodel.dart';
 import 'package:shopzo/viewmodel/category_subcategory/category_viewmodel.dart';
+import 'package:shopzo/viewmodel/cms_viewmodel.dart';
 import 'package:shopzo/viewmodel/coupon/coupon_viewmodel.dart';
 import 'package:shopzo/viewmodel/order_checkout/order_checkout_viewmodel.dart';
 import 'package:shopzo/viewmodel/orderview/create_return_viewmodel.dart';
@@ -24,6 +25,7 @@ import 'package:shopzo/viewmodel/productdetails_and_list/product_details_viewmod
 import 'package:shopzo/viewmodel/productdetails_and_list/product_list_viewmodel.dart';
 import 'package:shopzo/viewmodel/profile_viewmodel.dart';
 import 'package:shopzo/viewmodel/review/review_viewmodel.dart';
+import 'package:shopzo/viewmodel/support_viewmodel.dart';
 import 'package:shopzo/viewmodel/top_pick_viewmodel.dart';
 import 'package:shopzo/viewmodel/wishlist_viewmodel.dart';
 import 'res/color_constant.dart';
@@ -77,6 +79,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CreateReturnViewModel()),
         ChangeNotifierProvider(create: (_) => ReturnDetailViewModel()),
         ChangeNotifierProvider(create: (_) => ReturnListViewModel()),
+        ChangeNotifierProvider(create: (_) => SupportViewModel()),
+        ChangeNotifierProvider(create: (_) => CmsPageViewModel()),
       ],
       child: MaterialApp(
         title: "Shopzo",

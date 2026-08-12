@@ -1,22 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
+import 'package:shopzo/view/account/support_tickets_screen.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../../routes/route_name.dart';
+import '../../utils/utils.dart';
+import '../../viewmodel/support_viewmodel.dart';
 
 /// Shopzo — Help & Support screen.
-class HelpCenterScreen extends StatefulWidget {
+class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
   @override
-  State<HelpCenterScreen> createState() => _HelpCenterScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => SupportViewModel(),
+      child: const _HelpCenterView(),
+    );
+  }
 }
 
-class _HelpCenterScreenState extends State<HelpCenterScreen> {
+class _HelpCenterView extends StatefulWidget {
+  const _HelpCenterView();
+
+  @override
+  State<_HelpCenterView> createState() => _HelpCenterViewState();
+}
+
+class _HelpCenterViewState extends State<_HelpCenterView> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  bool _sending = false;
 
   static const List<_IssueData> _issues = [
     _IssueData(icon: Icons.card_giftcard, title: 'Orders & Tracking'),
@@ -29,20 +45,30 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     // 👉 navigate to FAQ / article list for this issue category
   }
 
-  void _onSend() {
-    if (_titleController.text.trim().isEmpty ||
-        _descriptionController.text.trim().isEmpty) {
+  void _openMyTickets() {
+    Navigator.pushNamed(context, RouteName.mySupportTickets);
+  }
+
+  Future<void> _onSend() async {
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (title.isEmpty || description.isEmpty) {
+      AppUtils.warning(context, 'Please fill both title and description');
       return;
     }
-    setState(() => _sending = true);
 
-    // 👉 call your support-ticket API here
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (!mounted) return;
-      setState(() => _sending = false);
+    final vm = context.read<SupportViewModel>();
+    final ok = await vm.createTicket(title: title, description: description);
+    if (!mounted) return;
+
+    if (ok) {
       _titleController.clear();
       _descriptionController.clear();
-    });
+      AppUtils.success(context, 'Support ticket submitted');
+    } else {
+      AppUtils.error(context, vm.createErrorMessage ?? 'Something went wrong');
+    }
   }
 
   void _onCall() {}
@@ -60,10 +86,21 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final sending = context.watch<SupportViewModel>().isSubmitting;
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
-      appBar: AppBar(title: Text('help_support.app_bar_title'.tr())),
+      appBar: AppBar(
+        title: Text('help_support.app_bar_title'.tr()),
+        actions: [
+          // 🔧 NEW — My Tickets button, list wale screen pe le jaata hai
+          IconButton(
+            tooltip: 'My Tickets',
+            icon: const Icon(Icons.receipt_long_rounded),
+            onPressed: _openMyTickets,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -73,9 +110,6 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ---------------- SEARCH BAR ----------------
-              // _SearchField(controller: _searchController),
-              // ---------------- COMMON ISSUES ----------------
               TextContext(
                 text: 'help_support.common_issues'.tr(),
                 fontSize: 17,
@@ -87,17 +121,15 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
               SizedBox(height: size.height * 0.03),
 
-              // ---------------- STILL NEED HELP CARD ----------------
               _SupportFormCard(
                 titleController: _titleController,
                 descriptionController: _descriptionController,
-                sending: _sending,
+                sending: sending,
                 onSend: _onSend,
               ),
 
               SizedBox(height: size.height * 0.035),
 
-              // ---------------- QUICK CONTACT ----------------
               Center(
                 child: TextContext(
                   text: 'help_support.quick_contact'.tr(),
@@ -122,6 +154,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 }
+
+// ---- niche saare _IssueData, _IssuesGrid, _IssueCard, _SupportFormCard,
+// ---- _QuickContactRow, _SearchField classes bilkul same rahenge, koi change nahi ----
 
 /// ---------------- SEARCH FIELD ----------------
 class _SearchField extends StatelessWidget {

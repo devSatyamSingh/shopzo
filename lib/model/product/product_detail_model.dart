@@ -64,6 +64,39 @@ class VariantAttributeValueModel {
   }
 }
 
+/// ---------------- RELATED / SIMILAR PRODUCT (lightweight card data) ----------------
+class RelatedProductModel {
+  final String id;
+  final String name;
+  final String slug;
+  final String? image;
+  final double displayPrice;
+
+  RelatedProductModel({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.image,
+    required this.displayPrice,
+  });
+
+  factory RelatedProductModel.fromJson(Map<String, dynamic> json) {
+    return RelatedProductModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      slug: json['slug']?.toString() ?? '',
+      image: json['image']?.toString(),
+      displayPrice: double.tryParse(json['displayPrice']?.toString() ?? '') ?? 0,
+    );
+  }
+
+  String get formattedPrice {
+    final whole = displayPrice.toStringAsFixed(0);
+    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+    return '₹$withCommas';
+  }
+}
+
 /// ---------------- VARIANT (e.g. "500ml" @ ₹100, stock 5) ----------------
 class ProductVariantModel {
   final String id;

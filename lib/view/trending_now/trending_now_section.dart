@@ -28,7 +28,7 @@ class TrendingNowSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextContext(
-            text: 'trending_now'.tr(),
+            text: 'home.trending_now'.tr(),
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: ColorConstant.headlineTextColor,

@@ -577,28 +577,31 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
               ),
               child: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextContext(
-                        text: AppUtils.formatCurrency(vm.total),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: ColorConstant.primaryColor,
-                      ),
-                      TextContext(
-                        text:
-                            '${vm.itemCount} item${vm.itemCount == 1 ? '' : 's'}',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: ColorConstant.labelTextColor,
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextContext(
+                          text: AppUtils.formatCurrency(vm.total),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: ColorConstant.primaryColor,
+                        ),
+                        TextContext(
+                          text:
+                              '${vm.itemCount} item${vm.itemCount == 1 ? '' : 's'}',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: ColorConstant.labelTextColor,
+                        ),
+                      ],
+                    ),
                   ),
                   Expanded(
+                    flex: 3,
                     child: SizedBox(
-                      width: size.width * 0.44,
+                      width: size.width * 0.4,
                       child: CustomButton(
                         text: 'checkout.actions.continue_payment'.tr(),
                         onTap:

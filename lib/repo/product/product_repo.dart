@@ -56,4 +56,23 @@ class ProductRepository {
       return ApiResponse.error('Something went wrong. Please try again.');
     }
   }
+
+  /// GET /websiteProducts/:slug — sirf "relatedProducts" nikalne ke liye use ho raha hai,
+  /// kyunki getProductById is field ko return nahi karta.
+  Future<ApiResponse<List<RelatedProductModel>>> getRelatedProductsBySlug(String slug) async {
+    try {
+      final response = await _apiServices.getGetApiResponse(ApiUrl.websiteProductBySlug(slug));
+      final data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>? ?? {};
+      final List<dynamic> rawList = (data['relatedProducts'] as List<dynamic>?) ?? [];
+
+      final related = rawList
+          .map((e) => RelatedProductModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.completed(related);
+    } on AppException catch (e) {
+      return ApiResponse.error(e.message.isNotEmpty ? e.message : e.toString());
+    } catch (e) {
+      return ApiResponse.error('Something went wrong. Please try again.');
+    }
+  }
 }

@@ -3,6 +3,7 @@ import '../../model/product/product_detail_model.dart';
 import '../../repo/product/product_repo.dart';
 
 enum ProductDetailStatus { idle, loading, loaded, error }
+enum RelatedProductsStatus { idle, loading, loaded, error }   // ⬅️ NEW
 
 class ProductDetailViewModel extends ChangeNotifier {
   final ProductRepository _repository = ProductRepository();
@@ -46,6 +47,33 @@ class ProductDetailViewModel extends ChangeNotifier {
     return (((effectiveCostPrice! - effectivePrice) / effectiveCostPrice!) * 100).round();
   }
 
+  // ---------------- RELATED PRODUCTS (slug-API se) ----------------  ⬅️ NEW
+  RelatedProductsStatus _relatedStatus = RelatedProductsStatus.idle;
+  RelatedProductsStatus get relatedStatus => _relatedStatus;
+  bool get isRelatedLoading => _relatedStatus == RelatedProductsStatus.loading;
+
+  List<RelatedProductModel> _relatedProducts = [];
+  List<RelatedProductModel> get relatedProducts => _relatedProducts;
+
+  Future<void> _fetchRelatedProducts(String slug) async {
+    if (slug.isEmpty) return;
+    _relatedStatus = RelatedProductsStatus.loading;
+    _safeNotify();
+
+    final result = await _repository.getRelatedProductsBySlug(slug);
+    if (_isDisposed) return;
+
+    if (result.isCompleted && result.data != null) {
+      _relatedProducts = result.data!;
+      _relatedStatus = RelatedProductsStatus.loaded;
+    } else {
+      _relatedProducts = [];
+      _relatedStatus = RelatedProductsStatus.error;
+    }
+    _safeNotify();
+  }
+  // ---------------------------------------------------------------
+
   bool _isDisposed = false; // ⬅️ ADD
 
   @override
@@ -65,8 +93,9 @@ class ProductDetailViewModel extends ChangeNotifier {
     _selectedAttributes.clear();
     _selectedVariant = null;
     _quantity = 1;
+    _relatedProducts = [];                          // ⬅️ NEW — pehle product ka data clear
+    _relatedStatus = RelatedProductsStatus.idle;     // ⬅️ NEW
     _safeNotify();
-    notifyListeners();
 
     final result = await _repository.getProductById(id);
     if (_isDisposed) return;
@@ -84,6 +113,11 @@ class ProductDetailViewModel extends ChangeNotifier {
         _selectedVariant = initial;
         _defaultAttributes.addAll(initial.attributeMap);
       }
+
+      // Main product load hone ke baad, uske slug se related products fetch karo —
+      // await nahi kar rahe taaki product screen turant render ho jaye, related
+      // products baad me skeleton ke saath aayenge
+      _fetchRelatedProducts(_product!.slug);
     } else {
       _errorMessage = result.message ?? 'Failed to load product';
       _status = ProductDetailStatus.error;

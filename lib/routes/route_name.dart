@@ -56,5 +56,7 @@ class RouteName {
   static const String register = '/register';
   static const String reviewRating = '/review-rating';
   static const String subCategory = '/sub-category';
+  // route_name.dart
+  static const String mySupportTickets = '/my-support-tickets';
 
 }

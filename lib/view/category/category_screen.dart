@@ -129,7 +129,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     SizedBox(height: size.height * 0.022),
                     _buildFeaturedBanner(size),
                     SizedBox(height: size.height * 0.026),
-                    _buildQuickChips(size),
+                    // _buildQuickChips(size),
+                    _buildBestSellerCard(size),
                     SizedBox(height: size.height * 0.026),
                     _buildCategoryGrid(size),
                     SizedBox(height: size.height * 0.025),
@@ -267,6 +268,103 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  Widget _buildBestSellerCard(Size size) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BestSellerScreen()),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: size.height * 0.1,
+        padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.045,
+          vertical: size.height * 0.01,
+        ),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFFF6B35),
+              Color(0xFFF7931E),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFF6B35).withOpacity(0.3),
+              blurRadius: 6,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: size.height * 0.05,
+              width: size.height * 0.05,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.local_fire_department_rounded,
+                color: Colors.white,
+                size: 27,
+              ),
+            ),
+            SizedBox(width: size.width * 0.03),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'category.best_sellers'.tr(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'category.best_sellers_subtitle'.tr(),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.85),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 36,
+              width: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// ---------------- QUICK-ACCESS CHIPS ----------------
   Widget _buildQuickChips(Size size) {
     return Row(
@@ -308,7 +406,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
   /// ---------------- MAIN CATEGORY GRID (API-backed) ----------------
   Widget _buildCategoryGrid(Size size) {
-    final double spacing = size.width * 0.026;
+    final double spacing = size.width * 0.013;
 
     return Consumer<CategoryViewModel>(
       builder: (context, viewModel, _) {
@@ -322,7 +420,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: spacing,
               mainAxisSpacing: spacing,
-              childAspectRatio: 0.99,
+              childAspectRatio: 0.9,
             ),
             itemBuilder: (context, index) => _buildCategoryCardSkeleton(),
           );
@@ -386,7 +484,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: spacing,
             mainAxisSpacing: spacing,
-            childAspectRatio: 0.99,
+            childAspectRatio: 1,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -424,7 +522,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              flex: 5,
+              flex: 16,
               child: Container(
                 color: tint,
                 alignment: Alignment.center,
@@ -454,7 +552,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             Expanded(
               flex: 4,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 11, 10),
+                padding: const EdgeInsets.fromLTRB(8, 8, 7, 1),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -505,7 +603,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
     );
   }
-
   Widget _buildCategoryCardSkeleton() {
     return Container(
       decoration: BoxDecoration(
@@ -544,7 +641,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
     );
   }
-
   /// ---------------- POPULAR THIS WEEK ----------------
   Widget _buildPopularThisWeek(Size size) {
     return Column(

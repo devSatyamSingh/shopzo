@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shopzo/routes/transition_animation.dart';
 import 'package:shopzo/view/account/prevacy_securty_screen.dart';
+import '../model/cms_page_model.dart';
+import '../view/account/support_tickets_screen.dart';
 import '../view/cms/about_us_screen.dart';
 import '../view/account/account_screen.dart';
 import '../view/account/coupons_screen.dart';
@@ -17,6 +19,7 @@ import '../view/category/category_screen.dart';
 import '../view/checkout/checkout_step1_screen.dart';
 import '../view/checkout/checkout_step2_screen.dart';
 import '../view/checkout/checkout_step3_screen.dart';
+import '../view/cms/cms_screen.dart';
 import '../view/home/home_screen.dart';
 import '../view/home/search_screen.dart';
 import '../view/category/sub_category_screen.dart';
@@ -267,31 +270,23 @@ class AppRoutes {
         );
 
       case RouteName.aboutUs:
-        return _getPageRoute(
-          const AboutUsScreen(),
-          settings,
-          transitionType: TransitionType.fade,
+        return MaterialPageRoute(
+          builder: (_) => const CmsPageScreen(type: CmsPageType.aboutUs),
         );
 
       case RouteName.termsConditions:
-        return _getPageRoute(
-          const TermsConditionsScreen(),
-          settings,
-          transitionType: TransitionType.fade,
+        return MaterialPageRoute(
+          builder: (_) => const CmsPageScreen(type: CmsPageType.termsAndConditions),
         );
 
       case RouteName.privacyPolicy:
-        return _getPageRoute(
-          const PrivacyPolicyScreen(),
-          settings,
-          transitionType: TransitionType.fade,
+        return MaterialPageRoute(
+          builder: (_) => const CmsPageScreen(type: CmsPageType.privacyPolicy),
         );
 
       case RouteName.returnRefund:
-        return _getPageRoute(
-          const ReturnRefundScreen(),
-          settings,
-          transitionType: TransitionType.fade,
+        return MaterialPageRoute(
+          builder: (_) => const CmsPageScreen(type: CmsPageType.returnAndRefundPolicy),
         );
 
       case RouteName.subCategory:
@@ -311,6 +306,10 @@ class AppRoutes {
       case RouteName.returnDetail:
         final returnId = settings.arguments as String;
         return MaterialPageRoute(builder: (_) => ReturnDetailScreen(returnId: returnId));
+
+    // app_routes.dart — generateRoute ke switch-case me add karo
+      case RouteName.mySupportTickets:
+        return MaterialPageRoute(builder: (_) => const MySupportTicketsScreen());
 
       // case RouteName.reviewRating:
       //   return _getPageRoute(
