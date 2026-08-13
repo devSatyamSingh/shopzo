@@ -125,7 +125,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     SizedBox(height: size.height * 0.012),
                     _buildHeader(context, size),
                     SizedBox(height: size.height * 0.018),
-                    _buildSearchBar(size),
+                    // _buildSearchBar(size),
                     SizedBox(height: size.height * 0.022),
                     _buildFeaturedBanner(size),
                     SizedBox(height: size.height * 0.026),
@@ -174,34 +174,34 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   /// ---------------- SEARCH BAR ----------------
-  Widget _buildSearchBar(Size size) {
-    return CustomTextField(
-      controller: _searchController,
-      hintText: 'category.search_categories_products'.tr(),
-      prefixIcon: const Icon(
-        Icons.search_rounded,
-        color: ColorConstant.placeholderColor,
-        size: 22,
-      ),
-      suffixIcon: InkWell(
-        onTap: () {
-          _searchController.clear();
-          setState(() => _query = '');
-        },
-        child: const Icon(
-          Icons.close_rounded,
-          color: ColorConstant.placeholderColor,
-          size: 20,
-        ),
-      ),
-      fillColor: ColorConstant.fieldFillColor,
-      borderRadius: 16,
-      showBorder: false,
-      onChanged: (value) {
-        setState(() => _query = value.trim().toLowerCase());
-      },
-    );
-  }
+  // Widget _buildSearchBar(Size size) {
+  //   return CustomTextField(
+  //     controller: _searchController,
+  //     hintText: 'category.search_categories_products'.tr(),
+  //     prefixIcon: const Icon(
+  //       Icons.search_rounded,
+  //       color: ColorConstant.placeholderColor,
+  //       size: 22,
+  //     ),
+  //     suffixIcon: InkWell(
+  //       onTap: () {
+  //         _searchController.clear();
+  //         setState(() => _query = '');
+  //       },
+  //       child: const Icon(
+  //         Icons.close_rounded,
+  //         color: ColorConstant.placeholderColor,
+  //         size: 20,
+  //       ),
+  //     ),
+  //     fillColor: ColorConstant.fieldFillColor,
+  //     borderRadius: 16,
+  //     showBorder: false,
+  //     onChanged: (value) {
+  //       setState(() => _query = value.trim().toLowerCase());
+  //     },
+  //   );
+  // }
 
   /// ---------------- FEATURED GRADIENT BANNER ----------------
   Widget _buildFeaturedBanner(Size size) {

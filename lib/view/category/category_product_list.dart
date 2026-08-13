@@ -10,7 +10,7 @@ import '../../viewmodel/product/product_viewmodel.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 
-class CategoryProductListScreen extends StatelessWidget {
+class CategoryProductListScreen extends StatefulWidget {
   final String categoryId;
   final String categoryName;
 
@@ -21,10 +21,27 @@ class CategoryProductListScreen extends StatelessWidget {
   });
 
   @override
+  State<CategoryProductListScreen> createState() =>
+      _CategoryProductListScreenState();
+}
+
+class _CategoryProductListScreenState
+    extends State<CategoryProductListScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoryProductViewModel>().fetchProducts(
+        categoryId: widget.categoryId,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<CategoryProductViewModel>(
-      create: (_) => CategoryProductViewModel()..fetchProducts(categoryId: categoryId),
-      child: _CategoryProductListView(categoryName: categoryName),
+    return _CategoryProductListView(
+      categoryName: widget.categoryName,
     );
   }
 }

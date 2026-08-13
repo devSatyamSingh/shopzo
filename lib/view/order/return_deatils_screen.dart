@@ -7,16 +7,31 @@ import '../../res/text_context.dart';
 import '../../viewmodel/orderview/return_details_viewmodel.dart';
 import '../../viewmodel/orderview/return_list_viewmodel.dart';
 
-class ReturnDetailScreen extends StatelessWidget {
+class ReturnDetailScreen extends StatefulWidget {
   final String returnId;
-  const ReturnDetailScreen({super.key, required this.returnId});
+
+  const ReturnDetailScreen({
+    super.key,
+    required this.returnId,
+  });
+
+  @override
+  State<ReturnDetailScreen> createState() => _ReturnDetailScreenState();
+}
+
+class _ReturnDetailScreenState extends State<ReturnDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReturnDetailViewModel>().fetchReturn(widget.returnId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ReturnDetailViewModel()..fetchReturn(returnId),
-      child: const _ReturnDetailView(),
-    );
+    return const _ReturnDetailView();
   }
 }
 
@@ -35,7 +50,9 @@ class _ReturnDetailView extends StatelessWidget {
             return Column(
               children: [
                 _buildHeader(context),
-                Expanded(child: _buildBody(context, size, vm)),
+                Expanded(
+                  child: _buildBody(context, size, vm),
+                ),
               ],
             );
           },

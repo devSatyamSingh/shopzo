@@ -55,18 +55,31 @@ class ApiUrl {
     int limit = 1000,
     String? categoryId,
     String? search,
+    double? minPrice,
+    double? maxPrice,
+    String? sort,
   }) {
     final params = <String, String>{
       'page': '$page',
       'limit': '$limit',
       if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
       if (search != null && search.isNotEmpty) 'search': search,
+      if (minPrice != null) 'minPrice': '$minPrice',
+      if (maxPrice != null) 'maxPrice': '$maxPrice',
+      if (sort != null && sort.isNotEmpty) 'sort': sort,
     };
     final query = params.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
         .join('&');
     return '$baseUrl/v1/websiteProducts?$query';
   }
+
+  static String searchSuggestions(String query, {int limit = 8}) =>
+      '$baseUrl/v1/website/search/suggestions?q=${Uri.encodeComponent(query)}&limit=$limit';
+
+  // ---- Home ----
+  static String recommendedProducts({int limit = 10}) =>
+      '$baseUrl/v1/websiteProducts/recommended?limit=$limit';
 
   /// Full product detail — includes variants, attributes and reviews.
   static String productById(String id) => '$baseUrl/v1/products/$id';

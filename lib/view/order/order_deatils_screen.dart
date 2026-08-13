@@ -13,16 +13,27 @@ import '../../viewmodel/orderview/order_details_viewmodel.dart';
 import '../../viewmodel/orderview/orderlist_viewmodel.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final String orderId;
   const OrderDetailScreen({super.key, required this.orderId});
 
   @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<OrderDetailViewModel>().fetchOrder(widget.orderId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => OrderDetailViewModel()..fetchOrder(orderId),
-      child: const _OrderDetailView(),
-    );
+    return const _OrderDetailView();
   }
 }
 

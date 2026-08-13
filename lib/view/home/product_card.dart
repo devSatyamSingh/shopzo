@@ -222,8 +222,8 @@ class ProductCard extends StatelessWidget {
                             onAddTap?.call();
                           },
                           child: Container(
-                            height: size.width * 0.08,
-                            width: size.width * 0.08,
+                            height: size.width * 0.075,
+                            width: size.width * 0.075,
                             decoration: BoxDecoration(
                               color: inCart ? ColorConstant.errorColor : ColorConstant.primaryColor,
                               shape: BoxShape.circle,
@@ -232,8 +232,7 @@ class ProductCard extends StatelessWidget {
                                 BoxShadow(
                                   color: (inCart ? ColorConstant.errorColor : ColorConstant.primaryColor)
                                       .withOpacity(.35),
-                                  blurRadius: 10,
-                                  offset: Offset(0, size.height * 0.004),
+                                  blurRadius: 5
                                 ),
                               ],
                             ),

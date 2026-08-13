@@ -7,15 +7,26 @@ import '../../res/button_context.dart';
 import '../../routes/route_name.dart';
 import '../../viewmodel/orderview/return_list_viewmodel.dart';
 
-class MyReturnsScreen extends StatelessWidget {
+class MyReturnsScreen extends StatefulWidget {
   const MyReturnsScreen({super.key});
 
   @override
+  State<MyReturnsScreen> createState() => _MyReturnsScreenState();
+}
+
+class _MyReturnsScreenState extends State<MyReturnsScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReturnListViewModel>().fetchReturns();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ReturnListViewModel()..fetchReturns(),
-      child: const _MyReturnsView(),
-    );
+    return const _MyReturnsView();
   }
 }
 

@@ -67,7 +67,6 @@ class _CustomButtonState extends State<CustomButton>
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
 
-
   bool get _isDisabled => widget.loading || widget.onTap == null;
 
   @override
@@ -78,9 +77,10 @@ class _CustomButtonState extends State<CustomButton>
       duration: const Duration(milliseconds: 90),
       reverseDuration: const Duration(milliseconds: 120),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.94,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -126,73 +126,73 @@ class _CustomButtonState extends State<CustomButton>
             color: widget.outlined
                 ? ColorConstant.whiteColor
                 : (widget.gradient == null
-                ? (widget.color ?? ColorConstant.primaryColor)
-                : null),
+                      ? (widget.color ?? ColorConstant.primaryColor)
+                      : null),
             gradient: widget.outlined ? null : widget.gradient,
             borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
             border: widget.outlined
                 ? Border.all(
-              color: widget.borderColor ?? ColorConstant.primaryColor,
-              width: 1.4,
-            )
+                    color: widget.borderColor ?? ColorConstant.primaryColor,
+                    width: 1.4,
+                  )
                 : null,
-            boxShadow: widget.outlined
-                ? null
-                : (widget.boxShadow ??
-                [
-                  BoxShadow(
-                    color: (widget.color ?? ColorConstant.primaryColor)
-                        .withOpacity(.25),
-                    blurRadius: 7,
-                    offset: const Offset(0, 4),
-                  ),
-                ]),
+            boxShadow: widget.outlined ? null : (widget.boxShadow ??
+                      [
+                        BoxShadow(
+                          color: (widget.color ?? ColorConstant.primaryColor)
+                              .withOpacity(.25),
+                          blurRadius: 7,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]),
           ),
           child: widget.loading
               ? SizedBox(
-            height: 22,
-            width: 22,
-            child: CircularProgressIndicator(
-              color: widget.outlined
-                  ? ColorConstant.primaryColor
-                  : Colors.white,
-              strokeWidth: 2.5,
-            ),
-          )
-              : widget.child ??
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.icon != null) ...[
-                    Icon(
-                      widget.icon,
-                      color: widget.iconColor ??
-                          (widget.outlined
-                              ? ColorConstant.primaryColor
-                              : Colors.white),
-                      size: widget.iconSize ?? 20,
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                  Flexible(
-                    child: Text(
-                      widget.text,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: widget.fontSize ?? 16,
-                        color: widget.textColor ??
-                            (widget.outlined
-                                ? ColorConstant.primaryColor
-                                : Colors.white),
-                        fontWeight: widget.fontWeight ?? FontWeight.w600,
-                        fontFamily: "Poppins",
-                        letterSpacing: .3,
-                      ),
-                    ),
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(
+                    color: widget.outlined
+                        ? ColorConstant.primaryColor
+                        : Colors.white,
+                    strokeWidth: 2.5,
                   ),
-                ],
-              ),
+                )
+              : widget.child ??
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (widget.icon != null) ...[
+                          Icon(
+                            widget.icon,
+                            color:
+                                widget.iconColor ??
+                                (widget.outlined
+                                    ? ColorConstant.primaryColor
+                                    : Colors.white),
+                            size: widget.iconSize ?? 20,
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                        Flexible(
+                          child: Text(
+                            widget.text,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: widget.fontSize ?? 16,
+                              color:
+                                  widget.textColor ??
+                                  (widget.outlined
+                                      ? ColorConstant.primaryColor
+                                      : Colors.white),
+                              fontWeight: widget.fontWeight ?? FontWeight.w600,
+                              fontFamily: "Poppins",
+                              letterSpacing: .3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
         ),
       ),
     );
