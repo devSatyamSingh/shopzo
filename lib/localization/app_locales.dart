@@ -9,6 +9,7 @@ class AppLocales {
   static const Locale marathi = Locale('mr');
   static const Locale gujarati = Locale('gu');
   static const Locale bengali = Locale('bn');
+  static const Locale urdu = Locale('ur');
 
   static const Locale defaultLocale = english;
 
@@ -18,6 +19,7 @@ class AppLocales {
     marathi,
     gujarati,
     bengali,
+    urdu,
   ];
 
   static const List<LanguageModel> languages = [
@@ -26,5 +28,6 @@ class AppLocales {
     LanguageModel(code: 'mr', name: 'Marathi', nativeName: 'मराठी'),
     LanguageModel(code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી'),
     LanguageModel(code: 'bn', name: 'Bengali', nativeName: 'বাংলা'),
+    LanguageModel(code: 'ur', name: 'Urdu', nativeName: 'اردو'),
   ];
 }

@@ -3,7 +3,7 @@ import '../../model/product/product_detail_model.dart';
 import '../../repo/product/product_repo.dart';
 
 enum ProductDetailStatus { idle, loading, loaded, error }
-enum RelatedProductsStatus { idle, loading, loaded, error }   // ⬅️ NEW
+enum RelatedProductsStatus { idle, loading, loaded, error }
 
 class ProductDetailViewModel extends ChangeNotifier {
   final ProductRepository _repository = ProductRepository();
@@ -21,33 +21,32 @@ class ProductDetailViewModel extends ChangeNotifier {
   ProductDetailModel? _product;
   ProductDetailModel? get product => _product;
 
-  /// Currently chosen value per attribute name, e.g. {"Net Quantity": "500ml"}
+  /// Currently chosen value per attribute name, e.g. {"Color": "White"}
   final Map<String, String> _selectedAttributes = {};
-  Map<String, String> get selectedAttributes => Map.unmodifiable(_selectedAttributes);
+  Map<String, String> get selectedAttributes =>
+      Map.unmodifiable(_selectedAttributes);
 
   ProductVariantModel? _selectedVariant;
   ProductVariantModel? get selectedVariant => _selectedVariant;
 
   int _quantity = 1;
   int get quantity => _quantity;
-  double? get effectiveCostPrice => _product?.costPrice;
+
+  /// Selected variant ka MRP hai to wahi, warna base product ka MRP.
+  double? get effectiveMrp =>
+      _selectedVariant != null ? _selectedVariant!.mrp : _product?.mrp;
 
   bool get hasDiscount =>
-      effectiveCostPrice != null && effectiveCostPrice! > effectivePrice;
+      effectiveMrp != null && effectiveMrp! > effectivePrice;
 
-  String get formattedCostPrice {
-    if (effectiveCostPrice == null) return '';
-    final whole = effectiveCostPrice!.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
-  }
+  String get formattedMrp => effectiveMrp == null ? '' : _formatCurrency(effectiveMrp!);
 
   int get discountPercent {
     if (!hasDiscount) return 0;
-    return (((effectiveCostPrice! - effectivePrice) / effectiveCostPrice!) * 100).round();
+    return (((effectiveMrp! - effectivePrice) / effectiveMrp!) * 100).round();
   }
 
-  // ---------------- RELATED PRODUCTS (slug-API se) ----------------  ⬅️ NEW
+  // ---------------- RELATED PRODUCTS (slug-API se) ----------------
   RelatedProductsStatus _relatedStatus = RelatedProductsStatus.idle;
   RelatedProductsStatus get relatedStatus => _relatedStatus;
   bool get isRelatedLoading => _relatedStatus == RelatedProductsStatus.loading;
@@ -74,16 +73,23 @@ class ProductDetailViewModel extends ChangeNotifier {
   }
   // ---------------------------------------------------------------
 
-  bool _isDisposed = false; // ⬅️ ADD
+  bool _isDisposed = false;
 
   @override
-  void dispose() {              // ⬅️ ADD
+  void dispose() {
     _isDisposed = true;
     super.dispose();
   }
 
-  void _safeNotify() {          // ⬅️ ADD
+  void _safeNotify() {
     if (!_isDisposed) notifyListeners();
+  }
+
+  String _formatCurrency(double value) {
+    final whole = value.toStringAsFixed(0);
+    final withCommas =
+    whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+    return '₹$withCommas';
   }
 
   Future<void> fetchProduct(String id) async {
@@ -93,8 +99,8 @@ class ProductDetailViewModel extends ChangeNotifier {
     _selectedAttributes.clear();
     _selectedVariant = null;
     _quantity = 1;
-    _relatedProducts = [];                          // ⬅️ NEW — pehle product ka data clear
-    _relatedStatus = RelatedProductsStatus.idle;     // ⬅️ NEW
+    _relatedProducts = [];
+    _relatedStatus = RelatedProductsStatus.idle;
     _safeNotify();
 
     final result = await _repository.getProductById(id);
@@ -165,7 +171,8 @@ class ProductDetailViewModel extends ChangeNotifier {
 
   bool isAttributeValueAvailable(String attributeName, String value) {
     if (_product == null) return false;
-    final trial = Map<String, String>.from(_selectedAttributes)..[attributeName] = value;
+    final trial = Map<String, String>.from(_selectedAttributes)
+      ..[attributeName] = value;
     return _product!.variants.any((v) {
       final map = v.attributeMap;
       return trial.entries.every((e) => map[e.key] == e.value);
@@ -181,8 +188,8 @@ class ProductDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
   bool get hasVariants => _product?.hasVariants ?? false;
+
   bool get isSelectionComplete {
     if (!hasVariants) return true;
     final options = _product!.attributeOptions;
@@ -190,20 +197,20 @@ class ProductDetailViewModel extends ChangeNotifier {
     return _selectedVariant != null;
   }
 
-  double get effectivePrice =>
-      _selectedVariant != null ? _selectedVariant!.price : (_product?.price ?? 0);
+  double get effectivePrice => _selectedVariant != null
+      ? _selectedVariant!.price
+      : (_product?.price ?? 0);
 
-  String get effectiveFormattedPrice {
-    final whole = effectivePrice.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
-  }
+  String get effectiveFormattedPrice => _formatCurrency(effectivePrice);
 
-  int get effectiveStock => _selectedVariant != null ? _selectedVariant!.stock : (_product?.stock ?? 0);
+  int get effectiveStock =>
+      _selectedVariant != null ? _selectedVariant!.stock : (_product?.stock ?? 0);
 
-  bool get isInStock => hasVariants ? (_selectedVariant?.inStock ?? false) : effectiveStock > 0;
+  bool get isInStock =>
+      hasVariants ? (_selectedVariant?.inStock ?? false) : effectiveStock > 0;
 
-  bool get isLowStock => effectiveStock > 0 && effectiveStock <= (_product?.lowStockThreshold ?? 0);
+  bool get isLowStock =>
+      effectiveStock > 0 && effectiveStock <= (_product?.lowStockThreshold ?? 0);
 
   List<String> get effectiveImages {
     if (_selectedVariant != null && _selectedVariant!.images.isNotEmpty) {

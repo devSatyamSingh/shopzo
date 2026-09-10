@@ -9,6 +9,101 @@ import '../../viewmodel/wishlist_viewmodel.dart';
 
 enum ProductCardVariant { deal, pick, trending }
 
+class _CardMetrics {
+  final double cardPadding;
+  final double cardRadius;
+  final double imageRadius;
+  final double imageHeight;
+  final double contentGapAfterImage;
+  final double gapRatingName;
+  final double gapNamePrice;
+  final double bottomPadding;
+  final double nameFontSize;
+  final double priceFontSize;
+  final double ratingFontSize;
+  final double badgeIconSize;
+  final double horizontalTextPad;
+  final double buttonSize;
+  final double totalHeight;
+
+  _CardMetrics._({
+    required this.cardPadding,
+    required this.cardRadius,
+    required this.imageRadius,
+    required this.imageHeight,
+    required this.contentGapAfterImage,
+    required this.gapRatingName,
+    required this.gapNamePrice,
+    required this.bottomPadding,
+    required this.nameFontSize,
+    required this.priceFontSize,
+    required this.ratingFontSize,
+    required this.badgeIconSize,
+    required this.horizontalTextPad,
+    required this.buttonSize,
+    required this.totalHeight,
+  });
+
+  factory _CardMetrics(
+      Size screenSize,
+      double width,
+      ProductCardVariant variant,
+      bool hasRating,
+      ) {
+    final cardPadding = width * 0.032;
+    final cardRadius = width * 0.055;
+    final imageRadius = width * 0.045;
+    final imageHeight = width * 0.92;
+    final horizontalTextPad = screenSize.width * 0.020;
+    final nameFontSize = screenSize.width * 0.029;
+    final priceFontSize = screenSize.width * 0.025;
+    final ratingFontSize = screenSize.width * 0.022;
+    final badgeIconSize = screenSize.width * 0.028;
+    final buttonSize = width * 0.19;
+
+    // Sirf 'trending' variant me floating add-to-cart button image ke
+    // bottom edge se HALF overlap karta hai — usko clear karne ke liye
+    // itna hi extra gap milta hai. Baaki sab kuch SAME rehta hai.
+    final gapAfterImage = screenSize.height * 0.010 +
+        (variant == ProductCardVariant.trending ? (buttonSize / 2) + 4 : 0);
+
+    const gapRatingName = 4.0;
+    const gapNamePrice = 6.0;
+    const bottomPadding = 8.0; // <-- ab HAR variant me SAME hai
+
+    final showsRating = hasRating && variant != ProductCardVariant.deal;
+    final ratingBlock = showsRating ? (ratingFontSize * 1.2) + gapRatingName : 0.0;
+
+    final totalHeight = (cardPadding * 2) +
+        imageHeight +
+        gapAfterImage +
+        ratingBlock +
+        (nameFontSize * 1.3) + // 1-line name
+        gapNamePrice +
+        (priceFontSize * 1.9) + // price chip
+        bottomPadding +
+        5; // safety buffer, taaki kabhi 1-2px overflow na aaye
+
+    return _CardMetrics._(
+      cardPadding: cardPadding,
+      cardRadius: cardRadius,
+      imageRadius: imageRadius,
+      imageHeight: imageHeight,
+      contentGapAfterImage: gapAfterImage,
+      gapRatingName: gapRatingName,
+      gapNamePrice: gapNamePrice,
+      bottomPadding: bottomPadding,
+      nameFontSize: nameFontSize,
+      priceFontSize: priceFontSize,
+      ratingFontSize: ratingFontSize,
+      badgeIconSize: badgeIconSize,
+      horizontalTextPad: horizontalTextPad,
+      buttonSize: buttonSize,
+      totalHeight: totalHeight,
+    );
+  }
+}
+
 class ProductCard extends StatelessWidget {
   final ProductModel product;
   final ProductCardVariant variant;
@@ -26,6 +121,19 @@ class ProductCard extends StatelessWidget {
     this.onWishlistTap,
     this.onAddTap,
   });
+
+  /// Horizontal lists (Flash Deals / Top Picks / Trending) apne SizedBox
+  /// wrapper ke liye is height ko use karein — na kam na zyada, jitni
+  /// card ko chahiye utni hi. Isse "niche extra space" wala issue khatam.
+  static double previewHeight(
+      BuildContext context,
+      double width, {
+        ProductCardVariant variant = ProductCardVariant.pick,
+        bool hasRating = true,
+      }) {
+    final size = MediaQuery.of(context).size;
+    return _CardMetrics(size, width, variant, hasRating).totalHeight;
+  }
 
   bool get _isNetworkImage => product.image.startsWith('http');
 
@@ -82,27 +190,17 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    // ---- responsive tokens, sab jagah inhi se derive honge ----
-    final double cardPadding = size.width * 0.022;
-    final double cardRadius = size.width * 0.05;
-    final double imageRadius = size.width * 0.042;
-    final double imageHeight = width * 0.88;
-    final double contentGap = size.height * 0.006;
-    final double horizontalTextPad = size.width * 0.020;
-    final double nameFontSize = size.width * 0.029;
-    final double priceFontSize = size.width * 0.025;
-    final double ratingFontSize = size.width * 0.022;
-    final double badgeIconSize = size.width * 0.028;
+    final hasRating = product.rating != null;
+    final m = _CardMetrics(size, width, variant, hasRating);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: width,
-        padding: EdgeInsets.all(cardPadding),
+        padding: EdgeInsets.all(m.cardPadding),
         decoration: BoxDecoration(
           color: ColorConstant.cardBgColor,
-          borderRadius: BorderRadius.circular(cardRadius),
+          borderRadius: BorderRadius.circular(m.cardRadius),
           boxShadow: [
             BoxShadow(
               color: ColorConstant.blackColor.withOpacity(.06),
@@ -112,6 +210,7 @@ class ProductCard extends StatelessWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min, // <-- content jitna hai utni hi height, extra gap nahi banega
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ---------------- FRAMED IMAGE ----------------
@@ -119,11 +218,10 @@ class ProductCard extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(imageRadius),
-                  child: _buildImage(imageHeight, imageRadius),
+                  borderRadius: BorderRadius.circular(m.imageRadius),
+                  child: _buildImage(m.imageHeight, m.imageRadius),
                 ),
 
-                // ---- top-left badge (discount % OR NEW/BESTSELLER) ----
                 if (variant == ProductCardVariant.deal && product.discountPercent != null)
                   Positioned(
                     top: size.height * 0.01,
@@ -147,7 +245,6 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
 
-                // ---- top-right wishlist heart (glassy floating circle) ----
                 if (variant == ProductCardVariant.deal)
                   Positioned(
                     top: size.height * 0.009,
@@ -155,7 +252,6 @@ class ProductCard extends StatelessWidget {
                     child: Consumer<WishlistViewModel>(
                       builder: (context, wishlistVm, _) {
                         final isWishlisted = wishlistVm.isWishlisted(product.id!);
-
                         return GestureDetector(
                           onTap: onWishlistTap ??
                                   () async {
@@ -183,7 +279,7 @@ class ProductCard extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Icon(
                               isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              size: badgeIconSize,
+                              size: m.badgeIconSize,
                               color: ColorConstant.wishlistColor,
                             ),
                           ),
@@ -192,11 +288,13 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
 
-                // ---- signature: floating add-to-cart circle, half over
-                // the image's bottom edge (trending variant) ----
+                // ---- floating add-to-cart circle: ab genuinely image ke
+                // bottom edge se HALF bahar overlap karta hai. Pehle
+                // 'bottom: 0' tha jisse ye button image ke andar hi
+                // baitha rehta tha (bug), signature look nahi mil raha tha ----
                 if (variant == ProductCardVariant.trending)
                   Positioned(
-                    bottom: -(size.width * 0.0),
+                    bottom: -(m.buttonSize / 2),
                     right: size.width * 0.018,
                     child: Consumer<CartViewModel>(
                       builder: (context, cartVm, _) {
@@ -222,31 +320,31 @@ class ProductCard extends StatelessWidget {
                             onAddTap?.call();
                           },
                           child: Container(
-                            height: size.width * 0.075,
-                            width: size.width * 0.075,
+                            height: m.buttonSize,
+                            width: m.buttonSize,
                             decoration: BoxDecoration(
                               color: inCart ? ColorConstant.errorColor : ColorConstant.primaryColor,
                               shape: BoxShape.circle,
-                              border: Border.all(color: ColorConstant.cardBgColor, width: size.width * 0.005),
+                              border: Border.all(color: ColorConstant.cardBgColor, width: width * 0.012),
                               boxShadow: [
                                 BoxShadow(
                                   color: (inCart ? ColorConstant.errorColor : ColorConstant.primaryColor)
                                       .withOpacity(.35),
-                                  blurRadius: 5
+                                  blurRadius: 5,
                                 ),
                               ],
                             ),
                             alignment: Alignment.center,
                             child: isAdding
                                 ? SizedBox(
-                              height: size.width * 0.045,
-                              width: size.width * 0.045,
+                              height: m.buttonSize * 0.4,
+                              width: m.buttonSize * 0.4,
                               child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
                                 : Icon(
                               inCart ? Icons.remove_rounded : Icons.add_rounded,
                               color: Colors.white,
-                              size: size.width * 0.05,
+                              size: m.buttonSize * 0.5,
                             ),
                           ),
                         );
@@ -256,44 +354,42 @@ class ProductCard extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: variant == ProductCardVariant.trending ? contentGap * 2.2 : contentGap * 1.4),
-
-            // ---------------- RATING (pick / trending) ----------------
-            if (variant != ProductCardVariant.deal && product.rating != null)
+            SizedBox(height: m.contentGapAfterImage),
+            if (variant != ProductCardVariant.deal) ...[
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalTextPad),
-                child: Row(
-                  children: [
-                    Icon(Icons.star_rounded, size: ratingFontSize * 1.2, color: ColorConstant.ratingStarColor),
-                    SizedBox(width: size.width * 0.008),
-                    TextContext(
-                      text: product.rating!.toStringAsFixed(1),
-                      fontSize: ratingFontSize,
-                      fontWeight: FontWeight.w700,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                    if (product.reviewCount != null) ...[
+                padding: EdgeInsets.symmetric(horizontal: m.horizontalTextPad),
+                child: Opacity(
+                  opacity: hasRating ? 1 : 0,
+                  child: Row(
+                    children: [
+                      Icon(Icons.star_rounded, size: m.ratingFontSize * 1.2, color: ColorConstant.ratingStarColor),
                       SizedBox(width: size.width * 0.008),
                       TextContext(
-                        text: '(${product.reviewCount})',
-                        fontSize: ratingFontSize * 0.92,
+                        text: (product.rating ?? 0.0).toStringAsFixed(1),
+                        fontSize: m.ratingFontSize,
+                        fontWeight: FontWeight.w700,
+                        color: ColorConstant.headlineTextColor,
+                      ),
+                      SizedBox(width: size.width * 0.008),
+                      TextContext(
+                        text: '(${product.reviewCount ?? 0})',
+                        fontSize: m.ratingFontSize * 0.92,
                         fontWeight: FontWeight.w500,
                         color: ColorConstant.labelTextColor,
                       ),
                     ],
-                  ],
+                  ),
                 ),
               ),
-
-            if (variant != ProductCardVariant.deal && product.rating != null)
-              SizedBox(height: contentGap * 0.5),
+              SizedBox(height: m.gapRatingName),
+            ],
 
             // ---------------- NAME ----------------
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalTextPad),
+              padding: EdgeInsets.symmetric(horizontal: m.horizontalTextPad),
               child: TextContext(
                 text: product.name,
-                fontSize: nameFontSize,
+                fontSize: m.nameFontSize,
                 fontWeight: FontWeight.w500,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -301,11 +397,11 @@ class ProductCard extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: contentGap * 0.8),
+            SizedBox(height: m.gapNamePrice),
 
             // ---------------- PRICE TAG ----------------
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalTextPad),
+              padding: EdgeInsets.symmetric(horizontal: m.horizontalTextPad),
               child: Row(
                 children: [
                   Container(
@@ -320,7 +416,7 @@ class ProductCard extends StatelessWidget {
                     child: Text(
                       product.formattedPrice,
                       style: TextStyle(
-                        fontSize: priceFontSize,
+                        fontSize: m.priceFontSize,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
                         fontFamily: 'Poppins',
@@ -334,7 +430,7 @@ class ProductCard extends StatelessWidget {
                         product.formattedOriginalPrice!,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: priceFontSize * 0.7,
+                          fontSize: m.priceFontSize * 0.7,
                           fontFamily: 'Poppins',
                           color: ColorConstant.placeholderColor,
                           decoration: TextDecoration.lineThrough,
@@ -345,8 +441,7 @@ class ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-
-            SizedBox(height: variant == ProductCardVariant.trending ? contentGap * 1.8 : contentGap * 0.9),
+            SizedBox(height: m.bottomPadding), // <-- ab teeno variant me SAME
           ],
         ),
       ),

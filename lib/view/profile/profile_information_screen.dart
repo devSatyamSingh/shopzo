@@ -56,7 +56,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                             const SizedBox(height: 10),
                             TextContext(
                               text: vm.errorMessage ??
-                                  'profile.failed_load_profile'.tr(),
+                                  'profiles.failed_load_profile'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w500,
                               color: ColorConstant.labelTextColor,
@@ -84,48 +84,48 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                           _buildAvatarBlock(size, profile),
                           SizedBox(height: size.height * 0.03),
                           _SectionLabel(
-                            text: 'profile.personal_details'.tr(),
+                            text: 'profiles.personal_details'.tr(),
                           ),
                           SizedBox(height: size.height * 0.012),
                           _InfoCard(
                             tiles: [
                               _InfoTileData(
                                 icon: Icons.person_outline_rounded,
-                                label: 'profile.full_name',
+                                label: 'profiles.full_name',
                                 value: profile.name.isNotEmpty
                                     ? profile.name
                                     : '—',
                               ),
                               _InfoTileData(
                                 icon: Icons.mail_outline_rounded,
-                                label: 'profile.email_address',
+                                label: 'profiles.email_address',
                                 value: profile.email.isNotEmpty
                                     ? profile.email
                                     : '—',
                               ),
                               _InfoTileData(
                                 icon: Icons.call_outlined,
-                                label: 'profile.phone_number',
+                                label: 'profiles.phone_number',
                                 value: profile.phone.isNotEmpty
                                     ? profile.phone
                                     : '—',
                               ),
                               _InfoTileData(
                                 icon: Icons.cake_outlined,
-                                label: 'profile.date_of_birth',
+                                label: 'profiles.date_of_birth',
                                 value: profile.dob != null
                                     ? _formatDate(profile.dob!)
-                                    : 'profile.not_set',
+                                    : 'profiles.not_set',
                               ),
                               _InfoTileData(
                                 icon: Icons.wc_rounded,
-                                label: 'profile.gender',
-                                value: profile.genderLabel ?? 'profile.not_set',
+                                label: 'profiles.gender',
+                                value: profile.genderLabel ?? 'profiles.not_set',
                                 translateValue: profile.genderLabel != null,
                               ),
                               _InfoTileData(
                                 icon: Icons.calendar_today_outlined,
-                                label: 'profile.member_since_label',
+                                label: 'profiles.member_since_label',
                                 value: profile.createdAt != null
                                     ? _formatMonthYear(profile.createdAt!)
                                     : '—',
@@ -135,7 +135,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                           ),
                           SizedBox(height: size.height * 0.035),
                           CustomButton(
-                            text: 'profile.edit_profile'.tr(),
+                            text: 'profiles.edit_profile'.tr(),
                             height: 52,
                             icon: Icons.edit_rounded,
                             iconSize: 18,
@@ -170,7 +170,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
           ),
           Expanded(
             child: TextContext(
-              text: 'profile.profile_information'.tr(),
+              text: 'profiles.profile_information'.tr(),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               textAlign: TextAlign.center,
@@ -207,7 +207,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
           TextContext(
             text: profile.name.isNotEmpty
                 ? profile.name
-                : 'profile.your_profile'.tr(),
+                : 'profiles.your_profile'.tr(),
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -217,7 +217,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(color: ColorConstant.primaryLight, borderRadius: BorderRadius.circular(20)),
               child: TextContext(
-                text: 'profile.member_since'.tr(
+                text: 'profiles.member_since'.tr(
                   args: [
                     _formatMonthYear(profile.createdAt!),
                   ],
@@ -306,7 +306,7 @@ class _InfoTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 TextContext(
                   text: data.translateValue
-                      ? 'profile.${data.value.toLowerCase()}'.tr()
+                      ? 'profiles.${data.value.toLowerCase()}'.tr()
                       : data.value.tr(),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

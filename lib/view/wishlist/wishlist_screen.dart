@@ -75,7 +75,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
               child: Consumer<WishlistViewModel>(
                 builder: (context, vm, _) {
                   if (vm.isLoading && vm.items.isEmpty) {
-                    return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
+                    return const Center(
+                      child: CircularProgressIndicator(color: ColorConstant.primaryColor, strokeWidth: 2.6),
+                    );
                   }
 
                   if (vm.hasError && vm.items.isEmpty) {
@@ -115,10 +117,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
   /// ---------------- HEADER ----------------
   Widget _buildHeader(BuildContext context, Size size) {
     return Container(
-      padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.012, size.width * 0.045, size.height * 0.016),
+      padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.014, size.width * 0.045, size.height * 0.018),
       decoration: BoxDecoration(
         color: ColorConstant.whiteColor,
-        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.045), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -126,9 +128,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
             onTap: () => Navigator.of(context).maybePop(),
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(color: ColorConstant.fieldFillColor, borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.arrow_back_rounded, color: ColorConstant.headlineTextColor, size: 22),
+              child: const Icon(Icons.arrow_back_rounded, color: ColorConstant.headlineTextColor, size: 20),
             ),
           ),
           Expanded(
@@ -136,33 +138,43 @@ class _WishlistScreenState extends State<WishlistScreen> {
               builder: (context, vm, _) {
                 return Column(
                   children: [
-                    TextContext(
-                      text: 'wishlist.my_wishlist'.tr(),
-                      fontSize: 17,
-                      color: ColorConstant.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      textAlign: TextAlign.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.favorite_rounded, color: ColorConstant.wishlistColor, size: 15),
+                        const SizedBox(width: 6),
+                        TextContext(
+                          text: 'wishlist.my_wishlist'.tr(),
+                          fontSize: 17,
+                          color: ColorConstant.headlineTextColor,
+                          fontWeight: FontWeight.w700,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    TextContext(
-                      text: vm.items.length == 1
-                          ? 'wishlist.item'.tr(
-                        args: [vm.items.length.toString()],
-                      )
-                          : 'wishlist.items'.tr(
-                        args: [vm.items.length.toString()],
+                    const SizedBox(height: 3),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: ColorConstant.primaryLight,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: ColorConstant.labelTextColor,
-                      textAlign: TextAlign.center,
+                      child: TextContext(
+                        text: vm.items.length == 1
+                            ? 'wishlist.item'.tr(args: [vm.items.length.toString()])
+                            : 'wishlist.items'.tr(args: [vm.items.length.toString()]),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: ColorConstant.primaryColor,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 );
               },
             ),
           ),
-          const SizedBox(width: 34), // symmetry
+          const SizedBox(width: 38), // symmetry
         ],
       ),
     );
@@ -206,13 +218,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
     final bool isRemoving = vm.isRemoving(item.id);
     final bool isMoving = vm.isMoving(item.id);
 
-    return Opacity(
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
       opacity: isRemoving ? 0.5 : 1,
       child: Container(
         decoration: BoxDecoration(
           color: ColorConstant.cardBgColor,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 6))],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: ColorConstant.borderColor.withOpacity(0.4), width: 1),
+          boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.05), blurRadius: 14, offset: const Offset(0, 6))],
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -274,8 +288,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(color: Colors.black.withOpacity(0.65), borderRadius: BorderRadius.circular(20)),
                           child: Text(
-                              'wishlist.out_of_stock'.tr(),
-                              style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600, fontFamily: "Poppins")),
+                            'wishlist.out_of_stock'.tr(),
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
+                          ),
                         ),
                       ),
                     ),
@@ -291,12 +306,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         decoration: BoxDecoration(
                           color: ColorConstant.whiteColor,
                           shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.08), blurRadius: 6)],
+                          boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.1), blurRadius: 6, offset: const Offset(0, 2))],
                         ),
                         alignment: Alignment.center,
                         child: isRemoving
-                            ? const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Icon(Icons.favorite_rounded, color: ColorConstant.wishlistColor, size: 16),
+                            ? const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2, color: ColorConstant.primaryColor))
+                            : const Icon(Icons.favorite_rounded, color: ColorConstant.wishlistColor, size: 16),
                       ),
                     ),
                   ),
@@ -307,9 +322,20 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextContext(text: item.displayName, fontSize: 13.5, fontWeight: FontWeight.w600, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    TextContext(
+                      text: item.displayName,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 6),
-                    TextContext(text: "₹${item.displayPrice.toStringAsFixed(0)}", fontSize: 14, fontWeight: FontWeight.w600, color: ColorConstant.primaryColor),
+                    TextContext(
+                      text: "₹${item.displayPrice.toStringAsFixed(0)}",
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: ColorConstant.primaryColor,
+                    ),
                     const SizedBox(height: 12),
                     isOutOfStock
                         ? CustomButton(
@@ -325,9 +351,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       },
                     )
                         : CustomButton(
-                      text: isMoving
-                          ? 'wishlist.adding'.tr()
-                          : 'wishlist.add_to_cart'.tr(),                      height: 40,
+                      text: isMoving ? 'wishlist.adding'.tr() : 'wishlist.add_to_cart'.tr(),
+                      height: 40,
                       fontSize: 13,
                       outlined: true,
                       borderColor: ColorConstant.primaryColor,
@@ -351,11 +376,29 @@ class _WishlistScreenState extends State<WishlistScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 42, color: ColorConstant.placeholderColor),
-            const SizedBox(height: 12),
-        TextContext(
-          text: vm.errorMessage ?? 'wishlist.load_failed'.tr(),),            const SizedBox(height: 16),
-            CustomButton(text: 'wishlist.retry'.tr(), width: 140, height: 44, onTap: () => vm.fetchWishlist()),
+            Container(
+              height: 72,
+              width: 72,
+              decoration: BoxDecoration(color: ColorConstant.errorColor.withOpacity(0.1), shape: BoxShape.circle),
+              alignment: Alignment.center,
+              child: const Icon(Icons.wifi_off_rounded, size: 30, color: ColorConstant.errorColor),
+            ),
+            SizedBox(height: size.height * 0.018),
+            TextContext(
+              text: vm.errorMessage ?? 'wishlist.load_failed'.tr(),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: ColorConstant.labelTextColor,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: size.height * 0.02),
+            CustomButton(
+              text: 'wishlist.retry'.tr(),
+              width: 140,
+              height: 44,
+              borderRadius: BorderRadius.circular(30),
+              onTap: () => vm.fetchWishlist(),
+            ),
           ],
         ),
       ),
@@ -370,14 +413,27 @@ class _WishlistScreenState extends State<WishlistScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 64,
-              width: 64,
-              decoration: const BoxDecoration(color: ColorConstant.primaryLight, shape: BoxShape.circle),
+              height: 88,
+              width: 88,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [ColorConstant.wishlistColor.withOpacity(0.15), ColorConstant.wishlistColor.withOpacity(0.05)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+              ),
               alignment: Alignment.center,
-              child: const Icon(Icons.favorite_border_rounded, color: ColorConstant.primaryColor, size: 28),
+              child: const Icon(Icons.favorite_border_rounded, color: ColorConstant.wishlistColor, size: 34),
             ),
-            SizedBox(height: size.height * 0.02),
-            TextContext(text: 'wishlist.empty_title'.tr(), fontSize: 15, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
+            SizedBox(height: size.height * 0.022),
+            TextContext(
+              text: 'wishlist.empty_title'.tr(),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: ColorConstant.headlineTextColor,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 6),
             TextContext(
               text: 'wishlist.empty_message'.tr(),
@@ -386,8 +442,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
               color: ColorConstant.labelTextColor,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: size.height * 0.02),
-            CustomButton(text: 'wishlist.browse_products'.tr(), width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
+            SizedBox(height: size.height * 0.024),
+            CustomButton(
+              text: 'wishlist.browse_products'.tr(),
+              width: size.width * 0.55,
+              height: 48,
+              icon: Icons.arrow_forward_rounded,
+              borderRadius: BorderRadius.circular(30),
+              onTap: () => Navigator.of(context).maybePop(),
+            ),
           ],
         ),
       ),
@@ -396,23 +459,53 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
   Widget _buildBrowseMoreFooter(BuildContext context, Size size) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.035),
-      decoration: BoxDecoration(color: ColorConstant.primaryLight, borderRadius: BorderRadius.circular(20)),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.032),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [ColorConstant.primaryColor.withOpacity(0.08), ColorConstant.primaryColor.withOpacity(0.03)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: ColorConstant.primaryColor.withOpacity(0.12), width: 1),
+      ),
       child: Column(
         children: [
           Container(
-            height: 48,
-            width: 48,
-            decoration: const BoxDecoration(color: ColorConstant.whiteColor, shape: BoxShape.circle),
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              color: ColorConstant.whiteColor,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
             alignment: Alignment.center,
             child: const Icon(Icons.favorite_border_rounded, color: ColorConstant.primaryColor, size: 24),
           ),
           SizedBox(height: size.height * 0.016),
-          TextContext(text: 'wishlist.looking_for_more'.tr(), fontSize: 14, fontWeight: FontWeight.w600, textAlign: TextAlign.center),
+          TextContext(
+            text: 'wishlist.looking_for_more'.tr(),
+            fontSize: 14.5,
+            fontWeight: FontWeight.w700,
+            color: ColorConstant.headlineTextColor,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 4),
-          TextContext(text: 'wishlist.explore_trending'.tr(), fontSize: 12.5, fontWeight: FontWeight.w400, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
+          TextContext(
+            text: 'wishlist.explore_trending'.tr(),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w400,
+            color: ColorConstant.labelTextColor,
+            textAlign: TextAlign.center,
+          ),
           SizedBox(height: size.height * 0.02),
-          CustomButton(text: 'wishlist.browse_products'.tr(), width: size.width * 0.55, height: 46, borderRadius: BorderRadius.circular(30), onTap: () => Navigator.of(context).maybePop()),
+          CustomButton(
+            text: 'wishlist.browse_products'.tr(),
+            width: size.width * 0.55,
+            height: 46,
+            borderRadius: BorderRadius.circular(30),
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
         ],
       ),
     );

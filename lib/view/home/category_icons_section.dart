@@ -57,40 +57,51 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.05,
         vertical: size.height * 0.015,
       ),
       child: Consumer<CategoryViewModel>(
         builder: (context, viewModel, _) {
+          // ---------------- SKELETON ----------------
           if (viewModel.isLoading && viewModel.categories.isEmpty) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(4, (index) {
-                return Column(
-                  children: [
-                    SkeletonBox(width: circleSize, height: circleSize, shape: BoxShape.circle),
-                    SizedBox(height: size.height * 0.007),
-                    SkeletonBox(width: circleSize * 0.7, height: 10, borderRadius: BorderRadius.circular(4)),
-                  ],
-                );
-              }),
+            return SizedBox(
+              height: circleSize + size.height * 0.007 + 12,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                itemCount: 5,
+                separatorBuilder: (_, __) => SizedBox(width: size.width * 0.05),
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      SkeletonBox(width: circleSize, height: circleSize, shape: BoxShape.circle),
+                      SizedBox(height: size.height * 0.007),
+                      SkeletonBox(width: circleSize * 0.7, height: 10, borderRadius: BorderRadius.circular(4)),
+                    ],
+                  );
+                },
+              ),
             );
           }
 
           // ---------------- ERROR ----------------
           if (viewModel.status == CategoryLoadStatus.error && viewModel.categories.isEmpty) {
-            return GestureDetector(
-              onTap: () => viewModel.fetchCategories(forceRefresh: true),
-              child: Row(
-                children: [
-                  Icon(Icons.refresh_rounded, size: 18, color: ColorConstant.labelTextColor),
-                  const SizedBox(width: 8),
-                  TextContext(
-                    text: 'home.category_load_error'.tr(),                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                    color: ColorConstant.labelTextColor,
-                  ),
-                ],
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+              child: GestureDetector(
+                onTap: () => viewModel.fetchCategories(forceRefresh: true),
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh_rounded, size: 18, color: ColorConstant.labelTextColor),
+                    const SizedBox(width: 8),
+                    TextContext(
+                      text: 'home.category_load_error'.tr(),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                      color: ColorConstant.labelTextColor,
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -99,72 +110,91 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
           if (items.isEmpty) return const SizedBox.shrink();
 
           // ---------------- REAL DATA ----------------
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(items.length, (index) {
-              final bool isActive = index == _selectedIndex;
-              final category = items[index];
-              final tint = _tints[index % _tints.length];
+          // Row + spaceBetween sirf tab tak theek chalta hai jab tak items
+          // fixed screen width mein fit ho jayein. 5+ categories aane par
+          // total width > screen width ho jaata hai -> overflow error.
+          // Isliye ab horizontal scrollable ListView use kar rahe hain.
+          return SizedBox(
+            height: circleSize + size.height * 0.007 + 16,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => SizedBox(width: size.width * 0.05),
+              itemBuilder: (context, index) {
+                final bool isActive = index == _selectedIndex;
+                final category = items[index];
+                final tint = _tints[index % _tints.length];
 
-              return GestureDetector(
-                onTap: () => _onItemTap(index, category.id, category.name),
-                child: Column(
-                  children: [
-                    Container(
-                      height: circleSize,
-                      width: circleSize,
-                      decoration: BoxDecoration(
-                        color: isActive ? ColorConstant.whiteColor : tint,
-                        shape: BoxShape.circle,
-                        border: isActive
-                            ? Border.all(color: ColorConstant.whiteColor, width: 1.6)
-                            : null,
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      alignment: Alignment.center,
-                      child: category.image != null
-                          ? Image.network(
-                        category.image!,
-                        fit: BoxFit.cover,
-                        width: circleSize,
+                return GestureDetector(
+                  onTap: () => _onItemTap(index, category.id, category.name),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
                         height: circleSize,
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return SkeletonBox(
-                            width: circleSize,
-                            height: circleSize,
-                            shape: BoxShape.circle,
-                          );
-                        },
-                        errorBuilder: (context, error, stack) => Icon(
+                        width: circleSize,
+                        decoration: BoxDecoration(
+                          color: isActive ? ColorConstant.whiteColor : tint,
+                          shape: BoxShape.circle,
+                          border: isActive
+                              ? Border.all(color: ColorConstant.whiteColor, width: 1.6)
+                              : null,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        alignment: Alignment.center,
+                        child: category.image != null
+                            ? Image.network(
+                          category.image!,
+                          fit: BoxFit.cover,
+                          width: circleSize,
+                          height: circleSize,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return SkeletonBox(
+                              width: circleSize,
+                              height: circleSize,
+                              shape: BoxShape.circle,
+                            );
+                          },
+                          errorBuilder: (context, error, stack) => Icon(
+                            Icons.category_rounded,
+                            size: circleSize * 0.42,
+                            color: isActive
+                                ? ColorConstant.primaryColor
+                                : ColorConstant.labelTextColor,
+                          ),
+                        )
+                            : Icon(
                           Icons.category_rounded,
                           size: circleSize * 0.42,
                           color: isActive
                               ? ColorConstant.primaryColor
                               : ColorConstant.labelTextColor,
                         ),
-                      )
-                          : Icon(
-                        Icons.category_rounded,
-                        size: circleSize * 0.42,
-                        color: isActive
-                            ? ColorConstant.primaryColor
-                            : ColorConstant.labelTextColor,
                       ),
-                    ),
-                    SizedBox(height: size.height * 0.007),
-                    TextContext(
-                      text: category.name,
-                      fontSize: 11,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                      color: isActive
-                          ? ColorConstant.primaryColor
-                          : ColorConstant.labelTextColor,
-                    ),
-                  ],
-                ),
-              );
-            }),
+                      SizedBox(height: size.height * 0.007),
+                      // width cap laga di taaki lamba category name bhi
+                      // ellipsis ho jaye, layout na tute
+                      SizedBox(
+                        width: circleSize + 14,
+                        child: TextContext(
+                          text: category.name,
+                          fontSize: 11,
+                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                          color: isActive
+                              ? ColorConstant.primaryColor
+                              : ColorConstant.labelTextColor,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

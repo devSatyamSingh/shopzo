@@ -79,9 +79,9 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
               itemCount: vm.products.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: size.height * 0.02,
+                mainAxisSpacing: size.height * 0.016,
                 crossAxisSpacing: size.width * 0.04,
-                childAspectRatio: cardWidth / (size.height * 0.30),
+                childAspectRatio: cardWidth / (size.height * 0.28),
               ),
               itemBuilder: (context, index) {
                 final product = vm.products[index];

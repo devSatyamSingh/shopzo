@@ -80,13 +80,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (ok) {
       AppUtils.success(
         context,
-        'profile.profile_updated'.tr(),
+        'profiles.profile_updated'.tr(),
       );
       Navigator.of(context).maybePop();
     } else {
       AppUtils.error(
         context,
-        vm.saveError ?? 'profile.update_failed'.tr(),
+        vm.saveError ?? 'profiles.update_failed'.tr(),
       );
     }
   }
@@ -124,14 +124,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(height: size.height * 0.03),
 
                           TextContext(
-                            text: 'profile.full_name'.tr(),
+                            text: 'profiles.full_name'.tr(),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                           SizedBox(height: size.height * 0.01),
                           CustomTextField(
                             controller: _nameController,
-                            hintText: 'profile.full_name_hint'.tr(),
+                            hintText: 'profiles.full_name_hint'.tr(),
                             prefixIcon: const Icon(
                               Icons.person_outline_rounded,
                               color: ColorConstant.placeholderColor,
@@ -139,13 +139,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             validator: (v) => AppUtils.validateNotEmpty(
                               v,
-                              field: 'profile.full_name'.tr(),
+                              field: 'profiles.full_name'.tr(),
                             ),
                           ),
                           SizedBox(height: size.height * 0.02),
 
                           TextContext(
-                            text: 'profile.email_address'.tr(),
+                            text: 'profiles.email_address'.tr(),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -153,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           CustomTextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            hintText: 'profile.email_hint'.tr(),
+                            hintText: 'profiles.email_hint'.tr(),
                             prefixIcon: const Icon(
                               Icons.mail_outline_rounded,
                               color: ColorConstant.placeholderColor,
@@ -164,7 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(height: size.height * 0.02),
 
                           TextContext(
-                            text: 'profile.phone_number'.tr(),
+                            text: 'profiles.phone_number'.tr(),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -173,14 +173,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
-                            hintText: 'profile.phone_hint'.tr(),
+                            hintText: 'profiles.phone_hint'.tr(),
                             prefixText: "+91  ",
                             validator: (v) => AppUtils.validatePhone(v),
                           ),
                           SizedBox(height: size.height * 0.02),
                           CustomDatePickerField(
-                            title: 'profile.date_of_birth'.tr(),
-                            hintText: 'profile.date_hint'.tr(),
+                            title: 'profiles.date_of_birth'.tr(),
+                            hintText: 'profiles.date_hint'.tr(),
                             controller: _dobController,
                             prefixIcon: Icons.cake_outlined,
                             lastDate: DateTime.now(),
@@ -188,8 +188,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           SizedBox(height: size.height * 0.02),
                           CustomDropdownField<String>(
-                            title: 'profile.gender'.tr(),
-                            hintText: 'profile.select_gender'.tr(),
+                            title: 'profiles.gender'.tr(),
+                            hintText: 'profiles.select_gender'.tr(),
                             value: _selectedGender,
                             prefixIcon: Icons.wc_rounded,
                             items: _genderOptions.map(
@@ -197,7 +197,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 return DropdownMenuItem<String>(
                                   value: gender,
                                   child: Text(
-                                    'profile.${gender.toLowerCase()}'.tr(),
+                                    'profiles.${gender.toLowerCase()}'.tr(),
                                   ),
                                 );
                               },
@@ -211,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(height: size.height * 0.04),
 
                           CustomButton(
-                            text: 'profile.save_changes'.tr(),
+                            text: 'profiles.save_changes'.tr(),
                             height: 54,
                             loading: vm.isSaving,
                             icon: Icons.check_rounded,
@@ -246,7 +246,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           Expanded(
             child: TextContext(
-              text: 'profile.edit_profile'.tr(),
+              text: 'profiles.edit_profile'.tr(),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               textAlign: TextAlign.center,

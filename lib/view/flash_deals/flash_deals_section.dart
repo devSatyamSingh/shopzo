@@ -127,14 +127,18 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
         ),
 
         SizedBox(height: size.height * 0.015),
-
         SizedBox(
-          height: size.height * 0.24,
+          height: ProductCard.previewHeight(
+            context,
+            size.width * 0.4,
+            variant: ProductCardVariant.deal,
+            hasRating: false,
+          ),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
             itemCount: widget.products.length,
-            separatorBuilder: (_, __) => SizedBox(width: size.width * 0.035),
+            separatorBuilder: (_, __) => SizedBox(width: size.width * 0.03),
             itemBuilder: (context, index) {
               final product = widget.products[index];
               return ProductCard(

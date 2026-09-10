@@ -332,13 +332,13 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
                 right: size.width * 0.04,
                 child: Row(
                   children: [
-                    _circleIconButton(
-                      icon: Icons.share_rounded,
-                      onTap: () {
-                        // TODO: share product link
-                      },
-                    ),
-                    const SizedBox(width: 10),
+                    // _circleIconButton(
+                    //   icon: Icons.share_rounded,
+                    //   onTap: () {
+                    //     // TODO: share product link
+                    //   },
+                    // ),
+                    // const SizedBox(width: 10),
                     Consumer<WishlistViewModel>(
                       builder: (context, wishlistVm, _) {
                         final variantId = vm.selectedVariant?.id;
@@ -349,8 +349,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
 
                         return _circleIconButton(
                           icon: _isTogglingWishlist
-                              ? Icons
-                                    .favorite_border_rounded // spinner ke waqt bhi icon jagah nahi badalti, neeche loader dikhega
+                              ? Icons.favorite_border_rounded // spinner ke waqt bhi icon jagah nahi badalti, neeche loader dikhega
                               : (isWishlisted
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_border_rounded),
@@ -575,6 +574,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
   }
 
   /// ---------------- PRICE ----------------
+  /// ---------------- PRICE ----------------
   Widget _buildPriceBlock(Size size, ProductDetailViewModel vm) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -587,7 +587,7 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
         if (vm.hasDiscount) ...[
           const SizedBox(width: 8),
           Text(
-            vm.formattedCostPrice,
+            vm.formattedMrp,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -611,7 +611,6 @@ class _ProductDetailViewState extends State<_ProductDetailView> {
       ],
     );
   }
-
   /// ---------------- VARIANT / ATTRIBUTE SELECTORS ----------------
   Widget _buildVariantSelectors(Size size, ProductDetailViewModel vm) {
     final options = vm.product!.attributeOptions;

@@ -1,5 +1,13 @@
 import '../category/category_model.dart';
 
+/// Shared currency formatter — "15000" -> "₹15,000"
+String _formatCurrency(double value) {
+  final whole = value.toStringAsFixed(0);
+  final withCommas =
+  whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
+  return '₹$withCommas';
+}
+
 /// ---------------- ATTRIBUTE (e.g. "Net Quantity", "Packaging Type") ----------------
 class ProductAttributeModel {
   final String id;
@@ -86,24 +94,22 @@ class RelatedProductModel {
       name: json['name']?.toString() ?? '',
       slug: json['slug']?.toString() ?? '',
       image: json['image']?.toString(),
-      displayPrice: double.tryParse(json['displayPrice']?.toString() ?? '') ?? 0,
+      displayPrice:
+      double.tryParse(json['displayPrice']?.toString() ?? '') ?? 0,
     );
   }
 
-  String get formattedPrice {
-    final whole = displayPrice.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
-  }
+  String get formattedPrice => _formatCurrency(displayPrice);
 }
 
-/// ---------------- VARIANT (e.g. "500ml" @ ₹100, stock 5) ----------------
+/// ---------------- VARIANT (e.g. "White - 6" @ ₹1575, MRP ₹21000, stock 4) ----------------
 class ProductVariantModel {
   final String id;
   final String productId;
   final String name;
   final String sku;
   final double price;
+  final double? mrp; // ⬅️ NEW — strikethrough price ke liye
   final int stock;
   final List<String> images;
   final List<VariantAttributeValueModel> attributeValues;
@@ -114,6 +120,7 @@ class ProductVariantModel {
     required this.name,
     required this.sku,
     required this.price,
+    this.mrp,
     required this.stock,
     required this.images,
     required this.attributeValues,
@@ -126,26 +133,36 @@ class ProductVariantModel {
       name: json['name']?.toString() ?? '',
       sku: json['sku']?.toString() ?? '',
       price: double.tryParse(json['price']?.toString() ?? '') ?? 0,
+      mrp: json['mrp'] != null ? double.tryParse(json['mrp'].toString()) : null,
       stock: int.tryParse(json['stock']?.toString() ?? '') ?? 0,
-      images: (json['images'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      images: (json['images'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       attributeValues: (json['attributeValues'] as List<dynamic>? ?? [])
-          .map((e) => VariantAttributeValueModel.fromJson(e as Map<String, dynamic>))
+          .map((e) =>
+          VariantAttributeValueModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
-  /// e.g. { "Net Quantity": "500ml", "Packaging Type": "Tube" }
+  /// e.g. { "Color": "White", "Size": "6" }
   Map<String, String> get attributeMap => {
-    for (final av in attributeValues) av.attributeValue.attribute.name: av.attributeValue.value,
+    for (final av in attributeValues)
+      av.attributeValue.attribute.name: av.attributeValue.value,
   };
 
   bool get inStock => stock > 0;
 
-  String get formattedPrice {
-    final whole = price.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
+  bool get hasDiscount => mrp != null && mrp! > price;
+
+  int get discountPercent {
+    if (!hasDiscount) return 0;
+    return (((mrp! - price) / mrp!) * 100).round();
   }
+
+  String get formattedPrice => _formatCurrency(price);
+
+  String get formattedMrp => mrp == null ? '' : _formatCurrency(mrp!);
 }
 
 /// ---------------- REVIEW ----------------
@@ -179,11 +196,14 @@ class ProductReviewModel {
       customerId: json['customerId']?.toString() ?? '',
       rating: int.tryParse(json['rating']?.toString() ?? '') ?? 0,
       comment: json['comment']?.toString(),
-      images: (json['images'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      images: (json['images'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       isApproved: json['isApproved'] == true,
       createdAt: json['createdAt']?.toString() ?? '',
-      customerName:
-      (json['customer'] as Map<String, dynamic>?)?['name']?.toString() ?? 'Anonymous',
+      customerName: (json['customer'] as Map<String, dynamic>?)?['name']
+          ?.toString() ??
+          'Anonymous',
     );
   }
 }
@@ -196,8 +216,9 @@ class ProductDetailModel {
   final String? description;
   final String sku;
   final double price;
-  final double? costPrice;
-  final double? taxRate;
+  final double? mrp; // ⬅️ NEW — customer-facing strikethrough price
+  final double? costPrice; // internal cost, kept for future use — never shown to customer
+  final String? taxClassId; // ⬅️ CHANGED from taxRate (double?) — API ab classId bhejta hai
   final List<String> images;
   final bool isActive;
   final bool isReturnable;
@@ -218,8 +239,9 @@ class ProductDetailModel {
     this.description,
     required this.sku,
     required this.price,
+    this.mrp,
     this.costPrice,
-    this.taxRate,
+    this.taxClassId,
     required this.images,
     required this.isActive,
     required this.isReturnable,
@@ -242,19 +264,26 @@ class ProductDetailModel {
       description: json['description']?.toString(),
       sku: json['sku']?.toString() ?? '',
       price: double.tryParse(json['price']?.toString() ?? '') ?? 0,
-      costPrice: json['costPrice'] != null ? double.tryParse(json['costPrice'].toString()) : null,
-      taxRate: json['taxRate'] != null ? double.tryParse(json['taxRate'].toString()) : null,
-      images: (json['images'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      mrp: json['mrp'] != null ? double.tryParse(json['mrp'].toString()) : null,
+      costPrice: json['costPrice'] != null
+          ? double.tryParse(json['costPrice'].toString())
+          : null,
+      taxClassId: json['taxClassId']?.toString(),
+      images: (json['images'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       isActive: json['isActive'] == true,
-      isReturnable: json['isReturnable'] == true,                 // ⬅️ NEW
+      isReturnable: json['isReturnable'] == true,
       returnPolicyText: json['returnPolicyText']?.toString(),
       stock: int.tryParse(json['stock']?.toString() ?? '') ?? 0,
-      lowStockThreshold: int.tryParse(json['lowStockThreshold']?.toString() ?? '') ?? 0,
+      lowStockThreshold:
+      int.tryParse(json['lowStockThreshold']?.toString() ?? '') ?? 0,
       categoryId: json['categoryId']?.toString() ?? '',
       createdAt: json['createdAt']?.toString() ?? '',
       updatedAt: json['updatedAt']?.toString() ?? '',
-      category:
-      json['category'] != null ? CategoryModel.fromJson(json['category'] as Map<String, dynamic>) : null,
+      category: json['category'] != null
+          ? CategoryModel.fromJson(json['category'] as Map<String, dynamic>)
+          : null,
       variants: (json['variants'] as List<dynamic>? ?? [])
           .map((e) => ProductVariantModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -266,23 +295,19 @@ class ProductDetailModel {
 
   bool get hasVariants => variants.isNotEmpty;
 
-  List<ProductReviewModel> get approvedReviews => reviews.where((r) => r.isApproved).toList();
+  List<ProductReviewModel> get approvedReviews =>
+      reviews.where((r) => r.isApproved).toList();
 
   double get avgRating {
     if (reviews.isEmpty) return 0;
-    return reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
+    return reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+        reviews.length;
   }
 
-  String get formattedPrice {
-    final whole = price.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
-  }
-
-
+  String get formattedPrice => _formatCurrency(price);
 
   /// Distinct attribute groups across all variants, in first-seen order.
-  /// e.g. { "Net Quantity": ["500ml","600ml","100ml","1000ml"], "Packaging Type": ["Tube"] }
+  /// e.g. { "Color": ["White"], "Size": ["6","8","7","9"] }
   Map<String, List<String>> get attributeOptions {
     final map = <String, List<String>>{};
     for (final v in variants) {
@@ -294,32 +319,27 @@ class ProductDetailModel {
     return map;
   }
 
-  /// Product-level text nahi mila to category-level fallback — jo bhi pehle available ho wahi dikhega
+  /// Product-level text nahi mila to category-level fallback
   String? get effectiveReturnPolicyText {
     if (returnPolicyText != null && returnPolicyText!.trim().isNotEmpty) {
       return returnPolicyText;
     }
-    if (category?.returnPolicyText != null && category!.returnPolicyText!.trim().isNotEmpty) {
+    if (category?.returnPolicyText != null &&
+        category!.returnPolicyText!.trim().isNotEmpty) {
       return category!.returnPolicyText;
     }
     return null;
   }
 
-  /// Return allowed hai ya nahi — product ka flag priority, warna category ka
   bool get effectiveIsReturnable => isReturnable;
 
-  /// MRP jaisa strikethrough price — sirf tabhi dikhana jab costPrice, selling price se zyada ho
-  bool get hasDiscount => costPrice != null && costPrice! > price;
+  /// MRP strikethrough — sirf tabhi jab mrp, selling price se zyada ho
+  bool get hasDiscount => mrp != null && mrp! > price;
 
-  String get formattedCostPrice {
-    if (costPrice == null) return '';
-    final whole = costPrice!.toStringAsFixed(0);
-    final withCommas = whole.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',');
-    return '₹$withCommas';
-  }
+  String get formattedMrp => mrp == null ? '' : _formatCurrency(mrp!);
 
   int get discountPercent {
     if (!hasDiscount) return 0;
-    return (((costPrice! - price) / costPrice!) * 100).round();
+    return (((mrp! - price) / mrp!) * 100).round();
   }
 }

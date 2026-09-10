@@ -30,7 +30,7 @@ class HomeSearchBar extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.search_rounded,
-                  color: ColorConstant.placeholderColor, size: 22),
+                  color: ColorConstant.primaryColor, size: 22),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -43,11 +43,11 @@ class HomeSearchBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              GestureDetector(
-                onTap: onCameraTap,
-                child: Icon(Icons.camera_alt_outlined,
-                    color: ColorConstant.primaryColor, size: 21),
-              ),
+              // GestureDetector(
+              //   onTap: onCameraTap,
+              //   child: Icon(Icons.camera_alt_outlined,
+              //       color: ColorConstant.primaryColor, size: 21),
+              // ),
             ],
           ),
         ),

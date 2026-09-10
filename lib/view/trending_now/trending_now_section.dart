@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/model/product/product_model.dart';
 import '../../../res/color_constant.dart';
@@ -34,16 +35,13 @@ class TrendingNowSection extends StatelessWidget {
             color: ColorConstant.headlineTextColor,
           ),
           SizedBox(height: size.height * 0.02),
-          GridView.builder(
+          MasonryGridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: size.height * 0.02,
+            crossAxisSpacing: size.width * 0.04,
             itemCount: products.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: size.height * 0.02,
-              crossAxisSpacing: size.width * 0.04,
-              childAspectRatio: cardWidth / (size.height * 0.28),
-            ),
             itemBuilder: (context, index) {
               final product = products[index];
               return ProductCard(

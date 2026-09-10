@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/flash_deals/flash_deals_screen.dart';
 import 'package:shopzo/view/home/product_card.dart';
@@ -48,6 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
   // ka wait kiye bina turant skeleton dikh jaye
   bool _isRefreshing = false;
 
+  // ---------------- SCROLL-TO-TOP FAB ----------------
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollToTop = false;
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +60,29 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<ProductListViewModel>().fetchProducts();
       context.read<BannerViewModel>().fetchBanners();
     });
+
+    // 400px se zyada neeche scroll hone par hi button dikhega, warna
+    // upar hi rehte waqt button dikhane ka koi matlab nahi
+    _scrollController.addListener(() {
+      final shouldShow = _scrollController.offset > 400;
+      if (shouldShow != _showScrollToTop) {
+        setState(() => _showScrollToTop = shouldShow);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _openProductDetail(String productId) {
@@ -83,257 +111,300 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: ColorConstant.scaffoldBgColor,
       body: SafeArea(
         bottom: false,
-        child: Consumer3<FilterProvider, AddressProvider, ProductListViewModel>(
-          builder: (context, filterProvider, addressProvider, productListVm, child) {
-            // real API products, converted for ProductCard
-            final apiProducts =
-            productListVm.products.map((p) => ProductModel.fromApi(p)).toList();
-            final filteredProducts = filterProvider.applyFilters(apiProducts);
+        child: Stack(
+          children: [
+            Consumer3<FilterProvider, AddressProvider, ProductListViewModel>(
+              builder: (context, filterProvider, addressProvider, productListVm, child) {
+                // real API products, converted for ProductCard
+                final apiProducts =
+                productListVm.products.map((p) => ProductModel.fromApi(p)).toList();
+                final filteredProducts = filterProvider.applyFilters(apiProducts);
 
-            // ---------------- SINGLE UNIFIED LOADING FLAG ----------------
-            // Ye ek hi condition decide karta hai poore home screen ke liye:
-            // appbar, searchbar, aur neeche ka pura content — cold start ho
-            // ya pull-to-refresh, sab isi flag se skeleton dikhayenge.
-            final bool showSkeleton = _isRefreshing || productListVm.isLoading;
+                // ---------------- SINGLE UNIFIED LOADING FLAG ----------------
+                // Ye ek hi condition decide karta hai poore home screen ke liye:
+                // appbar, searchbar, aur neeche ka pura content — cold start ho
+                // ya pull-to-refresh, sab isi flag se skeleton dikhayenge.
+                final bool showSkeleton = _isRefreshing || productListVm.isLoading;
 
-            return RefreshIndicator(
-              color: ColorConstant.primaryColor,
-              onRefresh: () => _handleRefresh(filterProvider, productListVm),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ---------------- APP BAR ----------------
-                    showSkeleton
-                        ? const _HomeAppBarSkeleton()
-                        : HomeAppBar(
-                      location: addressProvider.selectedAddress,
-                      onNotificationTap: () {
-                        Navigator.pushNamed(context, RouteName.notifications);
-                      },
-                      onLocationTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SelectAddressScreen(),
-                          ),
-                        );
-
-                        if (result != null && result is AddressModel) {
-                          addressProvider.updateAddress(result);
-                        }
-                      },
-                    ),
-                    // ---------------- SEARCH BAR ----------------
-                    showSkeleton
-                        ? const _HomeSearchBarSkeleton()
-                        : const HomeSearchBar(),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.012),
-
-                    // ---------------- SKELETON (cold start + refresh, dono ke liye same) ----------------
-                    if (showSkeleton)
-                      const _HomeContentSkeleton()
-
-                    // ---------------- ERROR (sirf tab jab loading khatam ho gaya ho aur data bhi na aaya ho) ----------------
-                    else if (productListVm.status == ProductListStatus.error &&
-                        apiProducts.isEmpty)
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.04,
-                        ),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(Icons.wifi_off_rounded,
-                                  size: 42, color: ColorConstant.placeholderColor),
-                              const SizedBox(height: 10),
-                              TextContext(
-                                text: productListVm.errorMessage ??
-                                    'home.failed_to_load_products'.tr(),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: ColorConstant.labelTextColor,
+                return RefreshIndicator(
+                  color: ColorConstant.primaryColor,
+                  onRefresh: () => _handleRefresh(filterProvider, productListVm),
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ---------------- APP BAR ----------------
+                        showSkeleton
+                            ? const _HomeAppBarSkeleton()
+                            : HomeAppBar(
+                          location: addressProvider.selectedAddress,
+                          onNotificationTap: () {
+                            Navigator.pushNamed(context, RouteName.notifications);
+                          },
+                          onLocationTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SelectAddressScreen(),
                               ),
-                              const SizedBox(height: 10),
-                              TextButton(
-                                onPressed: () => productListVm.fetchProducts(forceRefresh: true),
-                                child: TextContext(
-                                  text: 'home.retry'.tr(),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorConstant.primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+
+                            if (result != null && result is AddressModel) {
+                              addressProvider.updateAddress(result);
+                            }
+                          },
                         ),
-                      )
+                        // ---------------- SEARCH BAR ----------------
+                        showSkeleton
+                            ? const _HomeSearchBarSkeleton()
+                            : const HomeSearchBar(),
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.012),
 
-                    // ---------------- ACTUAL CONTENT ----------------
-                    else ...[
-                        // ---------------- TOP CATEGORY ICONS ----------------
-                        const CategoryIconsSection(),
-                        // ---------------- HERO BANNER ----------------
-                        const HeroBannerSection(),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.008),
-                        // ---------------- QUICK CATEGORY GRID ----------------
-                        const QuickCategoryGrid(),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                        // ---------------- SKELETON (cold start + refresh, dono ke liye same) ----------------
+                        if (showSkeleton)
+                          const _HomeContentSkeleton()
 
-                        // ---------------- FLASH DEALS ----------------
-                        if (apiProducts.isNotEmpty)
-                          FlashDealsSection(
-                            products: apiProducts.take(3).toList(),
-                            onProductTap: (product) => _openProductDetail(product.id!),
-                            onSeeAllTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FlashDealsScreen(products: apiProducts),
-                                ),
-                              );
-                            },
-                          ),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                        // ---------------- LOYALTY BANNER ----------------
-                        const LoyaltyBannerSection(),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.008),
-                        // ---------------- TOP PICKS ----------------
-                        if (apiProducts.length > 3)
-                          TopPicksSection(
-                            products: apiProducts.skip(3).take(3).toList(),
-                            onProductTap: (product) => _openProductDetail(product.id!),
-                            onSeeAllTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TopPicksScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-                        // ---------------- SHOP BY BRAND ----------------
-                        ShopByBrandSection(brands: HomeScreen._brands),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                        // ---------------- FILTER BAR ----------------
-                        const FilterBarSection(),
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                        // ---------------- FILTERED RESULTS ----------------
-                        if (filterProvider.state.isFilterApplied) ...[
+                        // ---------------- ERROR (sirf tab jab loading khatam ho gaya ho aur data bhi na aaya ho) ----------------
+                        else if (productListVm.status == ProductListStatus.error &&
+                            apiProducts.isEmpty)
                           Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: MediaQuery.of(context).size.width * 0.05),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextContext(
-                                  text: 'home.results'.tr(
-                                    args: [
-                                      filteredProducts.length.toString(),
-                                    ],
-                                  ),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: ColorConstant.headlineTextColor,
-                                ),
-                                TextButton(
-                                  onPressed: filterProvider.clearAllFilters,
-                                  child: TextContext(
-                                    text: 'home.clear_filters'.tr(),
+                              vertical: MediaQuery.of(context).size.height * 0.04,
+                            ),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  Icon(Icons.wifi_off_rounded,
+                                      size: 42, color: ColorConstant.placeholderColor),
+                                  const SizedBox(height: 10),
+                                  TextContext(
+                                    text: productListVm.errorMessage ??
+                                        'home.failed_to_load_products'.tr(),
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
-                                    color: ColorConstant.primaryColor,
+                                    color: ColorConstant.labelTextColor,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 10),
+                                  TextButton(
+                                    onPressed: () => productListVm.fetchProducts(forceRefresh: true),
+                                    child: TextContext(
+                                      text: 'home.retry'.tr(),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorConstant.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          if (filteredProducts.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: MediaQuery.of(context).size.width * 0.05),
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: filteredProducts.length,
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: MediaQuery.of(context).size.height * 0.02,
-                                  crossAxisSpacing: MediaQuery.of(context).size.width * 0.04,
-                                  childAspectRatio: (MediaQuery.of(context).size.width * 0.45) /
-                                      (MediaQuery.of(context).size.height * 0.29),
-                                ),
-                                itemBuilder: (context, index) {
-                                  final product = filteredProducts[index];
-                                  return ProductCard(
-                                    product: product,
-                                    width: MediaQuery.of(context).size.width * 0.45,
-                                    variant: ProductCardVariant.pick,
-                                    onTap: () => _openProductDetail(product.id!),
+                          )
+
+                        // ---------------- ACTUAL CONTENT ----------------
+                        else ...[
+                            // ---------------- TOP CATEGORY ICONS ----------------
+                            const CategoryIconsSection(),
+                            // ---------------- HERO BANNER ----------------
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.014),
+                            const HeroBannerSection(),
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                            // ---------------- QUICK CATEGORY GRID ----------------
+
+                            // ---------------- FLASH DEALS ----------------
+                            if (apiProducts.isNotEmpty)
+                              FlashDealsSection(
+                                products: apiProducts.take(3).toList(),
+                                onProductTap: (product) => _openProductDetail(product.id!),
+                                onSeeAllTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FlashDealsScreen(products: apiProducts),
+                                    ),
                                   );
                                 },
                               ),
-                            )
-                          else
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: MediaQuery.of(context).size.height * 0.1,
-                              ),
-                              child: Center(
-                                child: Column(
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                            const QuickCategoryGrid(),
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.001),
+                            // // ---------------- LOYALTY BANNER ----------------
+                            // const LoyaltyBannerSection(),
+                            // SizedBox(height: MediaQuery.of(context).size.height * 0.008),
+                            // ---------------- TOP PICKS ----------------
+                            TopPicksSection(
+                              onProductTap: (product) => _openProductDetail(product.id),
+                              onSeeAllTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TopPicksScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            // // ---------------- SHOP BY BRAND ----------------
+                            // ShopByBrandSection(brands: HomeScreen._brands),
+                            // SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                            // ---------------- FILTER BAR ----------------
+                            const FilterBarSection(),
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                            // ---------------- FILTERED RESULTS ----------------
+                            if (filterProvider.state.isFilterApplied) ...[
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: MediaQuery.of(context).size.width * 0.05),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(
-                                      Icons.search_off_rounded,
-                                      size: 60,
-                                      color: ColorConstant.placeholderColor,
-                                    ),
-                                    const SizedBox(height: 16),
                                     TextContext(
-                                      text: 'home.no_products_found'.tr(),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: ColorConstant.bodyTextColor,
-                                    ),
-                                    TextContext(
-                                      text: 'home.try_adjusting_filters'.tr(),
+                                      text: 'home.results'.tr(
+                                        args: [
+                                          filteredProducts.length.toString(),
+                                        ],
+                                      ),
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: ColorConstant.placeholderColor,
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorConstant.headlineTextColor,
+                                    ),
+                                    TextButton(
+                                      onPressed: filterProvider.clearAllFilters,
+                                      child: TextContext(
+                                        text: 'home.clear_filters'.tr(),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorConstant.primaryColor,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                        ],
-                        // ---------------- TRENDING NOW (real data, shown always) ----------------
-                        if (!filterProvider.state.isFilterApplied && apiProducts.isNotEmpty)
-                          TrendingNowSection(
-                            products: apiProducts,
-                            onProductTap: (product) => _openProductDetail(product.id!),
-                          ),
-                        if (!filterProvider.state.isFilterApplied && apiProducts.isEmpty)
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: MediaQuery.of(context).size.height * 0.06,
-                            ),
-                            child: Center(
-                              child: TextContext(
-                                text: 'home.no_products_available'.tr(),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: ColorConstant.labelTextColor,
+                              if (filteredProducts.isNotEmpty)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: MediaQuery.of(context).size.width * 0.05),
+                                  child: MasonryGridView.count(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: MediaQuery.of(context).size.height * 0.02,
+                                    crossAxisSpacing: MediaQuery.of(context).size.width * 0.04,
+                                    itemCount: filteredProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final product = filteredProducts[index];
+                                      return ProductCard(
+                                        product: product,
+                                        width: MediaQuery.of(context).size.width * 0.45,
+                                        variant: ProductCardVariant.pick,
+                                        onTap: () => _openProductDetail(product.id!),
+                                      );
+                                    },
+                                  ),
+                                )
+                              else
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: MediaQuery.of(context).size.height * 0.1,
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.search_off_rounded,
+                                          size: 60,
+                                          color: ColorConstant.placeholderColor,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        TextContext(
+                                          text: 'home.no_products_found'.tr(),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: ColorConstant.bodyTextColor,
+                                        ),
+                                        TextContext(
+                                          text: 'home.try_adjusting_filters'.tr(),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: ColorConstant.placeholderColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                            // ---------------- TRENDING NOW (real data, shown always) ----------------
+                            if (!filterProvider.state.isFilterApplied && apiProducts.isNotEmpty)
+                              TrendingNowSection(
+                                products: apiProducts,
+                                onProductTap: (product) => _openProductDetail(product.id!),
                               ),
-                            ),
-                          ),
+                            if (!filterProvider.state.isFilterApplied && apiProducts.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: MediaQuery.of(context).size.height * 0.06,
+                                ),
+                                child: Center(
+                                  child: TextContext(
+                                    text: 'home.no_products_available'.tr(),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    color: ColorConstant.labelTextColor,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                       ],
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                  ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // ---------------- SCROLL-TO-TOP FLOATING BUTTON ----------------
+            // AnimatedSlide + AnimatedOpacity se smooth fade/slide-in hota
+            // hai, abrupt pop-up nahi lagta. IgnorePointer se jab button
+            // hidden hai tab accidental tap bhi block ho jaata hai.
+            Positioned(
+              right: MediaQuery.of(context).size.width * 0.05,
+              bottom: MediaQuery.of(context).size.height * 0.03,
+              child: IgnorePointer(
+                ignoring: !_showScrollToTop,
+                child: AnimatedSlide(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                  offset: _showScrollToTop ? Offset.zero : const Offset(0, 0.5),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: _showScrollToTop ? 1 : 0,
+                    child: GestureDetector(
+                      onTap: _scrollToTop,
+                      child: Container(
+                        height: 46,
+                        width: 46,
+                        decoration: BoxDecoration(
+                          color: ColorConstant.primaryColor,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: ColorConstant.primaryColor.withOpacity(.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.keyboard_arrow_up_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

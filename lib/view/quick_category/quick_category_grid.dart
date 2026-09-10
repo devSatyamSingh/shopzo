@@ -105,9 +105,9 @@ class _QuickCategoryGridState extends State<QuickCategoryGrid> {
             itemCount: gridItemCount,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 4,
-              childAspectRatio: 0.82,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 9,
+              childAspectRatio: 0.90,
             ),
             itemBuilder: (context, index) {
               // ---- last cell: toggle tile ----

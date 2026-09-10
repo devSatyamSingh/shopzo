@@ -7,11 +7,11 @@ import '../model/top_product_model.dart';
 class TopProductRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();
 
-  Future<ApiResponse<List<TopProductModel>>> getBestSellers({int limit = 20}) async {
+  Future<ApiResponse<List<TopProductModel>>> getBestSellers({int limit = 1000}) async {
     return _fetch('${ApiUrl.bestSellers}?limit=$limit', 'Failed to load best sellers.');
   }
 
-  Future<ApiResponse<List<TopProductModel>>> getTrending({int limit = 10}) async {
+  Future<ApiResponse<List<TopProductModel>>> getTrending({int limit = 1000}) async {
     return _fetch('${ApiUrl.trendingProducts}?limit=$limit', 'Failed to load top picks.');
   }
 

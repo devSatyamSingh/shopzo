@@ -55,14 +55,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           children: [
             _buildHeader(context, size),
-            SizedBox(height: size.height * 0.016),
+            SizedBox(height: size.height * 0.02),
             _buildFilterTabs(size),
-            SizedBox(height: size.height * 0.018),
+            SizedBox(height: size.height * 0.02),
             Expanded(
               child: Consumer<OrderViewModel>(
                 builder: (context, vm, _) {
                   if (vm.isLoading && !vm.hasLoadedOnce) {
-                    return const Center(child: CircularProgressIndicator(color: ColorConstant.primaryColor));
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: ColorConstant.primaryColor,
+                        strokeWidth: 2.6,
+                      ),
+                    );
                   }
 
                   if (vm.errorMessage != null && vm.orders.isEmpty) {
@@ -104,32 +109,58 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildHeader(BuildContext context, Size size) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(size.width * 0.03, size.height * 0.012, size.width * 0.025, 0),
+      padding: EdgeInsets.fromLTRB(size.width * 0.02, size.height * 0.014, size.width * 0.03, 0),
       child: Row(
         children: [
           InkWell(
             onTap: () => Navigator.of(context).maybePop(),
-            borderRadius: BorderRadius.circular(10),
-            child: const Padding(
-              padding: EdgeInsets.all(6),
-              child: Icon(Icons.arrow_back_rounded, color: ColorConstant.primaryDark, size: 22),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: ColorConstant.whiteColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorConstant.blackColor.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.arrow_back_rounded, color: ColorConstant.primaryDark, size: 20),
             ),
           ),
-           Expanded(
-            child: TextContext(
-              text: 'orders.orders'.tr(),
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: ColorConstant.primaryDark,
-              textAlign: TextAlign.center,
+          Expanded(
+            child: Column(
+              children: [
+                TextContext(
+                  text: 'orders.orders'.tr(),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: ColorConstant.primaryDark,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
           InkWell(
             onTap: () => Navigator.pushNamed(context, RouteName.myReturns),
-            borderRadius: BorderRadius.circular(10),
-            child: const Padding(
-              padding: EdgeInsets.all(6),
-              child: Icon(Icons.assignment_return_outlined, color: ColorConstant.primaryDark, size: 22),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: ColorConstant.whiteColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorConstant.blackColor.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.assignment_return_outlined, color: ColorConstant.primaryDark, size: 19),
             ),
           ),
         ],
@@ -139,7 +170,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildFilterTabs(Size size) {
     return SizedBox(
-      height: 40,
+      height: 42,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: size.width * 0.045),
@@ -149,13 +180,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
           final bool isSelected = index == _selectedFilter;
           return GestureDetector(
             onTap: () => setState(() => _selectedFilter = index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: isSelected ? ColorConstant.primaryColor : ColorConstant.whiteColor,
                 borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor),
+                border: Border.all(
+                  color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                  width: 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                  BoxShadow(
+                    color: ColorConstant.primaryColor.withOpacity(0.28),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+                    : [],
               ),
               child: Text(
                 _filters[index],
@@ -175,18 +220,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget buildOrderCard(BuildContext context, Size size, OrderModel order) {
     final config = _statusConfig(order.status);
-    final double thumbSize = (size.width * 0.19).clamp(58.0, 84.0);
+    final double thumbSize = (size.width * 0.2).clamp(60.0, 88.0);
     final extraCount = order.itemCount > 1 ? order.itemCount - 1 : null;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       onTap: () => Navigator.pushNamed(context, RouteName.orderDetail, arguments: order.id),
       child: Container(
         padding: EdgeInsets.all(size.width * 0.04),
         decoration: BoxDecoration(
           color: ColorConstant.whiteColor,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: ColorConstant.blackColor.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: ColorConstant.borderColor.withOpacity(0.5), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: ColorConstant.blackColor.withOpacity(0.045),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -194,23 +246,33 @@ class _OrdersScreenState extends State<OrdersScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(height: 8, width: 8, decoration: BoxDecoration(color: config.color, shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Text(config.label,
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, fontFamily: "Poppins", color: config.color)),
-                  ],
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: config.color.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(height: 6, width: 6, decoration: BoxDecoration(color: config.color, shape: BoxShape.circle)),
+                      const SizedBox(width: 6),
+                      Text(
+                        config.label,
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, fontFamily: "Poppins", color: config.color),
+                      ),
+                    ],
+                  ),
                 ),
                 TextContext(
                   text: order.createdAt != null ? _formatDate(order.createdAt!) : '',
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w400,
                   color: ColorConstant.labelTextColor,
                 ),
               ],
             ),
-            SizedBox(height: size.height * 0.014),
+            SizedBox(height: size.height * 0.016),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -219,29 +281,51 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     Container(
                       height: thumbSize,
                       width: thumbSize,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), color: ColorConstant.fieldFillColor),
-                      child: order.firstItemImage != null
-                          ? Image.network(
-                        order.firstItemImage!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.image_not_supported_outlined, color: ColorConstant.placeholderColor),
-                        loadingBuilder: (context, child, progress) =>
-                        progress == null ? child : const Center(child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))),
-                      )
-                          : const Icon(Icons.image_outlined, color: ColorConstant.placeholderColor),
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: ColorConstant.borderColor.withOpacity(0.6), width: 1),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(13),
+                        child: order.firstItemImage != null
+                            ? Image.network(
+                          order.firstItemImage!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: ColorConstant.fieldFillColor,
+                            child: const Icon(Icons.image_not_supported_outlined, color: ColorConstant.placeholderColor),
+                          ),
+                          loadingBuilder: (context, child, progress) => progress == null
+                              ? child
+                              : Container(
+                            color: ColorConstant.fieldFillColor,
+                            child: const Center(
+                              child: SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: ColorConstant.primaryColor),
+                              ),
+                            ),
+                          ),
+                        )
+                            : Container(
+                          color: ColorConstant.fieldFillColor,
+                          child: const Icon(Icons.image_outlined, color: ColorConstant.placeholderColor),
+                        ),
+                      ),
                     ),
                     if (extraCount != null)
                       Positioned.fill(
                         child: Container(
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(14)),
+                          margin: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(13)),
                           alignment: Alignment.center,
-                          child: Text('orders.more_items'.tr(
-                            args: [extraCount.toString()],
+                          child: Text(
+                            'orders.more_items'.tr(args: [extraCount.toString()]),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w600, fontFamily: "Poppins"),
                           ),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w600, fontFamily: "Poppins")),
                         ),
                       ),
                   ],
@@ -254,26 +338,39 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: TextContext(text: "Order #${order.orderNumber}", fontSize: 15, fontWeight: FontWeight.w500, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            child: TextContext(
+                              text: "Order #${order.orderNumber}",
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           const Icon(Icons.chevron_right_rounded, color: ColorConstant.placeholderColor, size: 20),
                         ],
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       TextContext(
-                        text: '${order.itemCount} ${order.itemCount > 1
-                            ? 'orders.items_count_plural'.tr()
-                            : 'orders.items_count'.tr()} • ₹${order.total.toStringAsFixed(0)}',
-                        fontSize: 12.5,
+                        text: '${order.itemCount} ${order.itemCount > 1 ? 'orders.items_count_plural'.tr() : 'orders.items_count'.tr()}',
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                         color: ColorConstant.labelTextColor,
+                      ),
+                      const SizedBox(height: 4),
+                      TextContext(
+                        text: '₹${order.total.toStringAsFixed(0)}',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: ColorConstant.primaryColor,
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: size.height * 0.016),
+            SizedBox(height: size.height * 0.014),
+            Divider(height: 1, color: ColorConstant.borderColor.withOpacity(0.6)),
+            SizedBox(height: size.height * 0.014),
             Align(alignment: Alignment.centerRight, child: _buildActionButton(context, order)),
           ],
         ),
@@ -323,7 +420,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       case OrderStatus.completed:
         return _StatusConfig(label: 'orders.status.delivered'.tr(), color: ColorConstant.successColor);
       case OrderStatus.cancelled:
-        return _StatusConfig( label: 'orders.status.cancelled'.tr(), color: ColorConstant.errorColor);
+        return _StatusConfig(label: 'orders.status.cancelled'.tr(), color: ColorConstant.errorColor);
       case OrderStatus.refunded:
         return _StatusConfig(label: 'orders.status.refunded'.tr(), color: ColorConstant.errorColor);
       case OrderStatus.unknown:
@@ -332,7 +429,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   String _formatDate(DateTime d) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return "${d.day} ${months[d.month - 1]} ${d.year}";
   }
 
@@ -342,14 +439,35 @@ class _OrdersScreenState extends State<OrdersScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            height: 64, width: 64,
-            decoration: const BoxDecoration(color: ColorConstant.primaryLight, shape: BoxShape.circle),
+            height: 88,
+            width: 88,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [ColorConstant.primaryColor.withOpacity(0.15), ColorConstant.primaryColor.withOpacity(0.05)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
-            child: const Icon(Icons.shopping_basket_outlined, color: ColorConstant.primaryColor, size: 28),
+            child: const Icon(Icons.shopping_basket_outlined, color: ColorConstant.primaryColor, size: 34),
           ),
-          SizedBox(height: size.height * 0.018),
-          TextContext(text: 'orders.messages.no_orders'.tr(), fontSize: 14, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor),
-          SizedBox(height: size.height * 0.02),
+          SizedBox(height: size.height * 0.022),
+          TextContext(
+            text: 'orders.messages.no_orders'.tr(),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: ColorConstant.headlineTextColor,
+          ),
+          SizedBox(height: size.height * 0.006),
+          TextContext(
+            text: 'orders.messages.no_orders_subtitle'.tr(),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w400,
+            color: ColorConstant.labelTextColor,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: size.height * 0.024),
           CustomButton(
             text: 'orders.actions.start_shopping'.tr(),
             width: size.width * 0.55,
@@ -370,11 +488,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, color: ColorConstant.errorColor, size: 40),
-            SizedBox(height: size.height * 0.012),
-            TextContext(text: message, fontSize: 13, fontWeight: FontWeight.w500, color: ColorConstant.labelTextColor, textAlign: TextAlign.center),
+            Container(
+              height: 72,
+              width: 72,
+              decoration: BoxDecoration(color: ColorConstant.errorColor.withOpacity(0.1), shape: BoxShape.circle),
+              alignment: Alignment.center,
+              child: const Icon(Icons.error_outline_rounded, color: ColorConstant.errorColor, size: 32),
+            ),
+            SizedBox(height: size.height * 0.018),
+            TextContext(
+              text: message,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: ColorConstant.labelTextColor,
+              textAlign: TextAlign.center,
+            ),
             SizedBox(height: size.height * 0.02),
-            CustomButton(text: 'orders.actions.retry'.tr(), width: 140, height: 44, onTap: onRetry),
+            CustomButton(
+              text: 'orders.actions.retry'.tr(),
+              width: 140,
+              height: 44,
+              borderRadius: BorderRadius.circular(30),
+              onTap: onRetry,
+            ),
           ],
         ),
       ),

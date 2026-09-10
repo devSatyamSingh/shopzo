@@ -1,0 +1,688 @@
+{
+  "common": {
+    "or": "یا"
+  },
+  "auth": {
+    "welcome_back": "خوش آمدید",
+    "login_subtitle": "اپنے موبائل نمبر اور پاس ورڈ سے لاگ ان کریں۔",
+    "mobile_number": "موبائل نمبر",
+    "mobile_hint": "اپنا موبائل نمبر درج کریں",
+    "password": "پاس ورڈ",
+    "password_hint": "اپنا پاس ورڈ درج کریں",
+    "forgot_password": "پاس ورڈ بھول گئے؟",
+    "log_in": "لاگ ان",
+    "new_to_shopzo": "شاپزو پر نئے ہیں؟",
+    "create_account_subtitle": "شروع کرنے کے لیے اکاؤنٹ بنائیں",
+    "terms_prefix": "جاری رکھ کر، آپ شاپزو کی ",
+    "terms_of_service": "شرائطِ سروس",
+    "terms_middle": " اور ",
+    "privacy_policy": "پرائیویسی پالیسی",
+    "terms_suffix": " سے اتفاق کرتے ہیں۔",
+    "invalid_mobile": "براہ کرم درست موبائل نمبر درج کریں",
+    "empty_password": "براہ کرم اپنا پاس ورڈ درج کریں",
+    "login_success": "لاگ ان کامیاب",
+    "login_failed": "لاگ ان ناکام۔ براہ کرم دوبارہ کوشش کریں۔"
+  },
+  "onboarding": {
+    "skip": "چھوڑ دیں",
+    "next": "اگلا",
+    "get_started": "شروع کریں",
+    "title1": "حیرت انگیز مصنوعات دریافت کریں",
+    "desc1": "اعلیٰ درجہ کے فروخت کنندگان کی ہزاروں مصنوعات اپنی انگلیوں پر دریافت کریں۔",
+    "title2": "محفوظ اور آسان ادائیگیاں",
+    "desc2": "آپ کی حفاظت ہماری ترجیح ہے۔ بے فکر خریداری کے لیے متعدد محفوظ ادائیگی کے اختیارات سے لطف اندوز ہوں۔",
+    "title3": "تیز اور قابل اعتماد ڈیلیوری",
+    "desc3": "اپنے آرڈرز کو حقیقی وقت میں ٹریک کریں اور انہیں تیزی سے اپنے دروازے پر پہنچائیں۔"
+  },
+  "settings": {
+    "language": "زبان",
+    "language_subtitle": "ایپ کی زبان تبدیل کریں",
+    "select_language": "زبان منتخب کریں"
+  },
+  "profile": {
+    "guest_user": "مہمان صارف",
+    "member_since": "رکنیت از {}",
+
+    "orders": "آرڈرز",
+    "orders_subtitle": "اپنے پیکجز ٹریک کریں",
+
+    "wishlist": "خواہشات",
+    "wishlist_subtitle": "آپ کی پسندیدہ اشیاء",
+
+    "coupons": "کوپنز",
+    "coupons_subtitle": "خصوصی پیشکشیں",
+
+    "help_center": "ہیلپ سینٹر",
+    "help_center_subtitle": "کسٹمر سپورٹ",
+
+    "account_settings": "اکاؤنٹ سیٹنگز",
+
+    "profile_information": "پروفائل کی معلومات",
+    "profile_information_subtitle": "نام، ای میل، فون",
+
+    "saved_addresses": "محفوظ شدہ پتے",
+    "saved_addresses_subtitle": "ڈیلیوری مقامات کا انتظام کریں",
+
+    "payment_methods": "ادائیگی کے طریقے",
+    "payment_methods_subtitle": "محفوظ کارڈز اور UPI",
+
+    "more": "مزید",
+
+    "about_shopzo": "شاپزو کے بارے میں",
+    "terms_of_service": "شرائطِ سروس",
+    "privacy_policy": "پرائیویسی پالیسی",
+    "return_policy": "واپسی کی پالیسی",
+
+    "log_out": "لاگ آؤٹ",
+    "logout_message": "کیا آپ واقعی اپنے شاپزو اکاؤنٹ سے لاگ آؤٹ کرنا چاہتے ہیں؟",
+    "cancel": "منسوخ کریں"
+  },
+  "bottom_nav": {
+    "home": "ہوم",
+    "categories": "زمرے",
+    "cart": "کارٹ",
+    "orders": "آرڈرز",
+    "profile": "پروفائل"
+  },
+  "coupons": {
+    "title": "کوپنز",
+    "all_coupons": "تمام کوپنز",
+    "copy_instruction": "کوڈ کاپی کرنے کے لیے کسی بھی کوپن پر ٹیپ کریں، پھر چیک آؤٹ پر لاگو کریں",
+    "retry": "دوبارہ کوشش کریں",
+    "no_coupons": "اس وقت کوئی کوپن دستیاب نہیں",
+    "expired": "میعاد ختم",
+    "tap_to_copy": "کاپی کرنے کے لیے ٹیپ کریں",
+    "add_more": "اس پیشکش کو ان لاک کرنے کے لیے مزید ₹{} شامل کریں",
+    "code_copied": "کوڈ '{}' کاپی ہو گیا — لاگو کرنے کے لیے چیک آؤٹ پر پیسٹ کریں"
+  },
+  "address": {
+    "finding_location": "آپ کا مقام تلاش کیا جا رہا ہے...",
+    "location_permission_denied": "مقام کی اجازت مسترد کر دی گئی",
+    "search_or_move_map": "اپنا پتہ سیٹ کرنے کے لیے تلاش کریں یا نقشہ ہلائیں",
+    "unknown_location": "نامعلوم مقام",
+    "could_not_fetch_address": "اس مقام کا پتہ حاصل نہیں ہو سکا",
+    "could_not_fetch_address_short": "پتہ حاصل نہیں ہو سکا",
+    "could_not_detect_location": "آپ کا مقام تلاش نہیں ہو سکا۔ براہ کرم دستی طور پر تلاش کریں۔",
+    "turn_on_gps": "جاری رکھنے کے لیے براہ کرم ڈیوائس لوکیشن (GPS) آن کریں۔",
+    "permission_required": "آپ کا پتہ تلاش کرنے کے لیے مقام کی اجازت درکار ہے۔",
+    "permission_permanently_denied": "مقام کی اجازت مستقل طور پر مسترد کر دی گئی ہے۔ ایپ سیٹنگز سے اسے فعال کریں۔",
+    "location_not_found": "مقام نہیں ملا۔",
+
+    "edit_address": "پتہ میں ترمیم کریں",
+    "confirm_location": "اپنے مقام کی تصدیق کریں",
+
+    "house_flat_block": "مکان/فلیٹ/بلاک نمبر",
+    "house_flat_hint": "مثلاً فلیٹ 402، بلاک B",
+
+    "apartment_building": "اپارٹمنٹ/عمارت کا نام",
+    "apartment_building_hint": "مثلاً سنشائن اپارٹمنٹس",
+
+    "landmark": "لینڈ مارک (اختیاری)",
+    "landmark_hint": "مثلاً میٹرو اسٹیشن کے قریب",
+
+    "city": "شہر",
+    "pincode": "پن کوڈ",
+    "state": "ریاست",
+
+    "save_address_as": "پتہ بطور محفوظ کریں",
+    "home": "گھر",
+    "work": "کام",
+    "other": "دیگر",
+
+    "receiver_name": "وصول کنندہ کا نام",
+    "receiver_name_hint": "مثلاً جان ڈو",
+
+    "receiver_phone": "وصول کنندہ کا فون نمبر",
+    "mobile_number": "موبائل نمبر",
+
+    "set_as_default": "بطور ڈیفالٹ پتہ سیٹ کریں",
+    "default_address_subtitle": "تمام مستقبل کے آرڈرز کے لیے یہ استعمال کریں",
+
+    "update_address": "پتہ اپ ڈیٹ کریں",
+    "save_address": "پتہ محفوظ کریں",
+
+    "fill_required": "براہ کرم تمام مطلوبہ فیلڈز پر کریں۔",
+    "address_updated": "پتہ اپ ڈیٹ ہو گیا",
+    "address_saved": "پتہ محفوظ ہو گیا",
+    "save_failed": "پتہ محفوظ کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+    "search_area_hint": "علاقہ، گلی کا نام تلاش کریں..."
+  },
+  "select_address": {
+    "title": "پتہ منتخب کریں",
+
+    "use_current_location": "موجودہ مقام استعمال کریں",
+    "detecting_location": "آپ کا مقام تلاش کیا جا رہا ہے...",
+    "detect_location_subtitle": "اپنا مقام خودکار طور پر تلاش کریں",
+    "detecting_location_subtitle": "براہ کرم انتظار کریں جب تک ہم آپ کا مقام تلاش کریں",
+
+    "saved_addresses": "محفوظ شدہ پتے",
+    "addresses_count": "{} پتے",
+    "no_saved_addresses": "ابھی تک کوئی محفوظ پتہ نہیں",
+
+    "add_new_address": "نیا پتہ شامل کریں",
+    "deliver_here": "یہاں ڈیلیور کریں",
+
+    "billing_address": "بلنگ پتہ",
+    "shipping_address": "شپنگ پتہ",
+    "default": "ڈیفالٹ",
+
+    "edit": "ترمیم",
+    "delete": "حذف کریں",
+    "cancel": "منسوخ کریں",
+
+    "delete_address": "پتہ حذف کریں",
+    "delete_confirmation": "کیا آپ واقعی یہ پتہ حذف کرنا چاہتے ہیں؟",
+
+    "address_deleted": "پتہ حذف ہو گیا",
+    "delete_failed": "پتہ حذف کرنے میں ناکام",
+
+    "something_went_wrong": "کچھ غلط ہو گیا",
+    "retry": "دوبارہ کوشش کریں",
+
+    "could_not_fetch_location": "آپ کے مقام کا پتہ حاصل نہیں ہو سکا۔",
+    "could_not_detect_location": "آپ کا مقام تلاش نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔",
+    "turn_on_gps": "جاری رکھنے کے لیے براہ کرم ڈیوائس لوکیشن (GPS) آن کریں۔",
+    "permission_required": "آپ کا پتہ تلاش کرنے کے لیے مقام کی اجازت درکار ہے۔",
+    "permission_permanently_denied": "مقام کی اجازت مستقل طور پر مسترد کر دی گئی ہے۔ ایپ سیٹنگز سے اسے فعال کریں۔",
+
+    "current_location": "موجودہ مقام",
+    "location_added": "موجودہ مقام کامیابی سے شامل ہو گیا!"
+  },
+  "profiles": {
+    "edit_profile": "پروفائل میں ترمیم کریں",
+    "profile_information": "پروفائل کی معلومات",
+
+    "personal_details": "ذاتی تفصیلات",
+
+    "full_name": "پورا نام",
+    "full_name_hint": "اپنا پورا نام درج کریں",
+
+    "email_address": "ای میل ایڈریس",
+    "email_hint": "اپنا ای میل درج کریں",
+
+    "phone_number": "فون نمبر",
+    "phone_hint": "اپنا موبائل نمبر درج کریں",
+
+    "date_of_birth": "تاریخ پیدائش",
+    "date_hint": "DD/MM/YYYY",
+
+    "gender": "جنس",
+    "select_gender": "جنس منتخب کریں",
+
+    "male": "مرد",
+    "female": "عورت",
+    "other": "دیگر",
+
+    "member_since": "رکنیت از {}",
+    "your_profile": "آپ کا پروفائل",
+    "not_set": "سیٹ نہیں",
+
+    "save_changes": "تبدیلیاں محفوظ کریں",
+
+    "profile_updated": "آپ کا پروفائل اپ ڈیٹ ہو گیا ہے",
+    "update_failed": "پروفائل اپ ڈیٹ کرنے میں ناکام",
+    "member_since_label": "رکنیت از",
+
+    "failed_load_profile": "پروفائل لوڈ کرنے میں ناکام",
+    "retry": "دوبارہ کوشش کریں"
+  },
+  "home": {
+    "deliver_to": "ڈیلیور کریں",
+    "trending_now": "ابھی ٹرینڈنگ",
+    "search_placeholder": "مصنوعات، برانڈز اور مزید تلاش کریں",
+
+    "loyalty_title_line1": "خصوصی لائلٹی انعامات",
+    "loyalty_title_line2": "₹500 تک کیش بیک",
+    "loyalty_subtitle": "₹1,999 سے زیادہ کی تمام UPI لین دین پر",
+
+    "retry": "دوبارہ کوشش کریں",
+
+    "failed_to_load_products": "مصنوعات لوڈ کرنے میں ناکام",
+
+    "results": "نتائج ({})",
+    "clear_filters": "فلٹرز صاف کریں",
+
+    "no_products_found": "کوئی مصنوعات نہیں ملیں",
+    "try_adjusting_filters": "اپنے فلٹرز کو ایڈجسٹ کرنے کی کوشش کریں",
+    "no_products_available": "اس وقت کوئی مصنوعات دستیاب نہیں",
+
+    "category_load_error": "زمرے لوڈ نہیں ہو سکے — دوبارہ کوشش کرنے کے لیے ٹیپ کریں"
+  },
+
+  "filters": {
+    "sort": "ترتیب دیں",
+    "price": "قیمت",
+    "filters": "فلٹرز",
+    "filters_count": "فلٹرز ({})",
+
+    "sort_by": "ترتیب دیں بذریعہ",
+    "price_low_high": "قیمت: کم → زیادہ",
+    "price_high_low": "قیمت: زیادہ → کم",
+    "rating": "ریٹنگ",
+    "newest": "نیا ترین",
+
+    "price_range": "قیمت کی حد",
+    "reset": "ری سیٹ",
+
+    "cancel": "منسوخ کریں",
+    "apply": "لاگو کریں",
+
+    "categories": "زمرے",
+    "clear_all": "سب صاف کریں",
+
+    "gender": "جنس",
+    "men": "مرد",
+    "women": "خواتین",
+    "unisex": "یونیسیکس"
+  },
+
+  "wishlist": {
+    "update_failed": "خواہشات کی فہرست اپ ڈیٹ کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+    "added": "خواہشات کی فہرست میں شامل ہو گیا",
+    "removed": "خواہشات کی فہرست سے ہٹا دیا گیا",
+    "my_wishlist": "میری خواہشات",
+    "item": "{} آئٹم",
+    "items": "{} آئٹمز",
+
+    "removed_success": "خواہشات کی فہرست سے ہٹا دیا گیا",
+    "remove_failed": "آئٹم ہٹانے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+
+    "moved_to_cart": "{} کارٹ میں منتقل ہو گیا",
+    "move_to_cart_failed": "آئٹم کارٹ میں منتقل کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+
+    "out_of_stock": "اسٹاک سے باہر",
+    "notify_me": "مجھے مطلع کریں",
+    "adding": "شامل کیا جا رہا ہے...",
+    "add_to_cart": "کارٹ میں شامل کریں",
+
+    "load_failed": "خواہشات کی فہرست لوڈ کرنے میں ناکام",
+    "retry": "دوبارہ کوشش کریں",
+
+    "empty_title": "آپ کی خواہشات کی فہرست خالی ہے",
+    "empty_message": "اپنی پسندیدہ اشیاء محفوظ کریں اور انہیں کسی بھی وقت یہاں تلاش کریں",
+    "browse_products": "مصنوعات براؤز کریں",
+
+    "looking_for_more": "مزید تلاش کر رہے ہیں؟",
+    "explore_trending": "آپ کے لیے تیار کردہ ٹرینڈنگ انتخاب دریافت کریں"
+  },
+  "flash_deals": {
+    "title": "فلیش ڈیلز",
+    "time_left": "باقی وقت:",
+    "items": "{} آئٹمز",
+    "no_deals": "کوئی فلیش ڈیل دستیاب نہیں",
+    "check_back": "زبردست پیشکشوں کے لیے بعد میں دوبارہ چیک کریں!",
+    "see_all": "سب دیکھیں"
+  },
+
+  "top_picks": {
+    "title": "آپ کے لیے بہترین انتخاب",
+    "badge": "بہترین انتخاب",
+    "no_picks": "اس وقت کوئی بہترین انتخاب نہیں",
+    "something_wrong": "کچھ غلط ہو گیا",
+    "retry": "دوبارہ کوشش کریں"
+  },
+
+  "brands": {
+    "all_brands": "تمام برانڈز",
+    "search": "برانڈز تلاش کریں",
+    "no_brands_found": "کوئی برانڈ نہیں ملا",
+    "view_all": "سب دیکھیں",
+    "shop_by_brand": "برانڈ کے لحاظ سے خریداری کریں",
+    "products": "{} مصنوعات"
+  },
+
+  "quick_categories": {
+    "category_load_error": "زمرے لوڈ نہیں ہو سکے — دوبارہ کوشش کرنے کے لیے ٹیپ کریں",
+    "more": "مزید",
+    "hide": "چھپائیں"
+  },
+
+  "product": {
+    "out_of_stock": "اسٹاک سے باہر"
+  },
+  "product_detail": {
+    "failed_to_load": "مصنوعات لوڈ کرنے میں ناکام",
+    "similar_products": "آپ کو یہ بھی پسند آ سکتے ہیں",
+    "retry": "دوبارہ کوشش کریں",
+
+    "delivery_details": "ڈیلیوری کی تفصیلات",
+    "enter_pincode": "پن کوڈ درج کریں",
+    "check": "چیک کریں",
+
+    "out_of_stock": "اسٹاک سے باہر",
+    "only_left": "صرف {} باقی ہیں!",
+
+    "product_details": "مصنوعات کی تفصیلات",
+    "features": "خصوصیات",
+    "delivery_returns": "ڈیلیوری اور واپسی",
+    "warranty_info": "وارنٹی کی معلومات",
+
+    "no_description": "اس مصنوعات کے لیے کوئی تفصیل دستیاب نہیں۔",
+    "no_additional_details": "کوئی اضافی تفصیلات دستیاب نہیں۔",
+    "delivery_return_details": "اس مصنوعات کے لیے دستیاب ہونے پر ڈیلیوری اور واپسی کی تفصیلات یہاں دکھائی جائیں گی۔",
+    "warranty_details": "اس مصنوعات کے لیے دستیاب ہونے پر وارنٹی کی تفصیلات یہاں دکھائی جائیں گی۔",
+
+    "customer_reviews": "کسٹمر کے جائزے",
+    "no_reviews": "اس مصنوعات کے لیے ابھی تک کوئی جائزہ نہیں۔",
+    "review_count": "{} جائزہ",
+    "reviews_count": "{} جائزے",
+    "rating_count": "{} ریٹنگ",
+    "ratings_count": "{} ریٹنگز",
+
+    "just_now": "ابھی",
+    "time_week": "{} ہفتہ پہلے",
+    "time_weeks": "{} ہفتے پہلے",
+    "time_day": "{} دن پہلے",
+    "time_days": "{} دن پہلے",
+    "time_hour": "{} گھنٹہ پہلے",
+    "time_hours": "{} گھنٹے پہلے",
+
+    "failed_wishlist": "خواہشات کی فہرست اپ ڈیٹ کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+    "added_wishlist": "خواہشات کی فہرست میں شامل ہو گیا",
+    "removed_wishlist": "خواہشات کی فہرست سے ہٹا دیا گیا",
+
+    "adding": "شامل کیا جا رہا ہے...",
+    "go_to_cart": "کارٹ پر جائیں",
+    "add_to_cart": "کارٹ میں شامل کریں",
+    "please_wait": "براہ کرم انتظار کریں...",
+    "buy_now": "ابھی خریدیں",
+
+    "out_of_stock_now": "یہ آئٹم اس وقت اسٹاک سے باہر ہے",
+    "select_options": "براہ کرم پہلے تمام اختیارات منتخب کریں",
+    "something_wrong": "کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔"
+  },
+  "category": {
+    "all_categories": "تمام زمرے",
+    "search_categories_products": "زمرے یا مصنوعات تلاش کریں",
+
+    "trending_summer": "ٹرینڈنگ: سمر\nکلیکشن",
+    "explore": "دریافت کریں",
+
+    "new_arrivals": "نئی آمد",
+    "best_sellers": "بہترین فروخت کنندگان",
+    "best_sellers_subtitle": "ہماری سب سے مقبول مصنوعات خریدیں",
+    "deals": "ڈیلز",
+    "top_brands": "اعلیٰ برانڈز",
+
+    "failed_load_categories": "زمرے لوڈ کرنے میں ناکام",
+    "retry": "دوبارہ کوشش کریں",
+    "no_categories_found": "کوئی زمرہ نہیں ملا",
+
+    "something_wrong": "کچھ غلط ہو گیا",
+
+    "no_subcategories": "کوئی ذیلی زمرہ نہیں ملا",
+    "items": "{} آئٹمز",
+
+    "out_of_stock": "اسٹاک سے باہر",
+    "only_left": "صرف {} باقی",
+
+    "product_count": "{} مصنوعات",
+
+    "popular_this_week": "اس ہفتے مقبول",
+    "see_all": "سب دیکھیں"
+  },
+
+  "category_products": {
+    "failed_load": "کچھ غلط ہو گیا",
+    "retry": "دوبارہ کوشش کریں",
+    "no_products": "اس زمرے میں ابھی تک کوئی مصنوعات نہیں",
+
+    "out_of_stock": "اسٹاک سے باہر",
+    "only_left": "صرف {} باقی"
+  },
+  "cart": {
+    "my_cart": "میرا کارٹ",
+    "item": "{} آئٹم",
+    "items": "{} آئٹمز",
+
+    "select_all": "سب منتخب کریں ({} / {})",
+
+    "your_cart_empty": "آپ کا کارٹ خالی ہے",
+    "empty_cart_message": "لگتا ہے آپ نے ابھی تک کچھ شامل نہیں کیا",
+    "start_shopping": "خریداری شروع کریں",
+
+    "couldnt_load_cart": "آپ کا کارٹ لوڈ نہیں ہو سکا",
+    "something_wrong_retry": "کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔",
+    "retry": "دوبارہ کوشش کریں",
+
+    "currently_unavailable": "فی الحال دستیاب نہیں",
+    "out_of_stock": "اسٹاک سے باہر",
+    "remove": "ہٹائیں",
+
+    "only_in_stock": "صرف {} اسٹاک میں",
+    "only_left_in_stock": "صرف {} اسٹاک میں باقی — جلد آرڈر کریں",
+    "only_available": "صرف {} دستیاب۔ جاری رکھنے کے لیے مقدار کم کریں۔",
+    "out_of_stock_remove": "یہ آئٹم اسٹاک سے باہر ہے۔ جاری رکھنے کے لیے براہ کرم اسے ہٹائیں۔",
+
+    "coupon_removed": "کوپن ہٹا دیا گیا — آپ کے کارٹ کا انتخاب تبدیل ہو گیا",
+
+    "have_coupon": "کوپن کوڈ ہے؟",
+    "enter_code": "کوڈ درج کریں",
+    "apply": "لاگو کریں",
+    "please_enter_coupon": "براہ کرم کوپن کوڈ درج کریں",
+    "coupon_applied": "کوپن لاگو ہو گیا",
+    "invalid_coupon": "غلط کوپن",
+    "select_item_coupon": "کوپن لاگو کرنے کے لیے کم از کم ایک آئٹم منتخب کریں",
+    "view_all_coupons": "تمام کوپنز دیکھیں",
+    "applied": "لاگو ہو گیا",
+    "you_saved": "آپ نے {} بچائے",
+
+    "bill_details": "بل کی تفصیلات",
+    "item_total": "آئٹم کل ({} آئٹم)",
+    "items_total": "آئٹم کل ({} آئٹمز)",
+    "coupon_discount": "کوپن رعایت",
+    "delivery_fee": "ڈیلیوری فیس",
+    "platform_fee": "پلیٹ فارم فیس",
+    "free": "مفت",
+    "to_pay": "ادا کرنا ہے",
+
+    "selected": "{} آئٹم منتخب",
+    "selected_plural": "{} آئٹمز منتخب",
+
+    "select_items": "آئٹمز منتخب کریں",
+    "review_cart": "کارٹ کا جائزہ لیں",
+    "proceed_checkout": "چیک آؤٹ پر جائیں",
+
+    "select_at_least_one": "جاری رکھنے کے لیے کم از کم ایک آئٹم منتخب کریں",
+    "remove_unavailable": "جاری رکھنے کے لیے براہ کرم دستیاب نہ ہونے والے / اسٹاک سے باہر آئٹمز ہٹائیں",
+
+    "remove_item_title": "آئٹم ہٹائیں؟",
+    "remove_item_message": "\"{}\" اپنے کارٹ سے ہٹائیں؟",
+    "clear_cart_title": "کارٹ صاف کریں؟",
+    "clear_cart_message": "یہ آپ کے کارٹ سے تمام آئٹمز ہٹا دے گا۔",
+    "clear": "صاف کریں"
+  },
+  "checkout": {
+    "checkout": "چیک آؤٹ",
+
+    "steps": {
+      "address": "پتہ",
+      "summary": "خلاصہ",
+      "payment": "ادائیگی"
+    },
+
+    "delivery": {
+      "home_delivery": "گھر کی ڈیلیوری",
+      "store_pickup": "اسٹور سے پک اپ",
+      "estimated_delivery": "متوقع ڈیلیوری",
+      "within_days": "3-5 کاروباری دنوں کے اندر"
+    },
+
+    "address": {
+      "saved_addresses": "محفوظ شدہ پتے",
+      "address_count": "{} پتے",
+      "no_saved": "ابھی تک کوئی محفوظ پتہ نہیں۔ جاری رکھنے کے لیے ایک شامل کریں۔",
+      "add_new": "نیا پتہ شامل کریں",
+      "billing": "بلنگ پتہ",
+      "shipping": "شپنگ پتہ",
+      "default": "ڈیفالٹ",
+      "change": "تبدیل کریں",
+      "deliver_to": "ڈیلیور کریں:"
+    },
+
+    "order": {
+      "order_items": "آرڈر آئٹمز ({})",
+      "no_items": "چیک آؤٹ کے لیے کوئی آئٹم نہیں",
+      "out_of_stock": "اسٹاک سے باہر",
+      "stock_warning": "کچھ آئٹمز اسٹاک سے باہر ہیں۔ براہ کرم واپس جائیں اور اپنا کارٹ اپ ڈیٹ کریں۔",
+      "quantity": "مقدار: {}"
+    },
+
+    "coupon": {
+      "have_code": "کوپن کوڈ ہے؟",
+      "enter_code": "کوپن کوڈ درج کریں",
+      "apply": "لاگو کریں",
+      "remove": "ہٹائیں",
+      "applied": "{} لاگو ہو گیا",
+      "saved": "آپ نے {} بچائے",
+      "please_enter": "براہ کرم کوپن کوڈ درج کریں",
+      "invalid": "غلط کوپن",
+      "success": "کوپن لاگو ہو گیا"
+    },
+
+    "bill": {
+      "bill_details": "بل کی تفصیلات",
+      "item_total": "آئٹم کل",
+      "tax": "ٹیکس",
+      "delivery_fee": "ڈیلیوری فیس",
+      "free": "مفت",
+      "coupon_discount": "کوپن رعایت",
+      "platform_fee": "پلیٹ فارم فیس",
+      "to_pay": "ادا کرنا ہے"
+    },
+
+    "payment": {
+      "amount_to_pay": "ادا کرنے کی رقم",
+      "payment_method": "ادائیگی کا طریقہ",
+      "cash_on_delivery": "کیش آن ڈیلیوری",
+      "upi": "UPI",
+      "credit_debit_card": "کریڈٹ / ڈیبٹ کارڈ",
+      "net_banking": "نیٹ بینکنگ",
+      "coming_soon": "جلد آ رہا ہے",
+      "secure_payments": "100% محفوظ ادائیگیاں",
+      "placing_order": "آرڈر دیا جا رہا ہے...",
+      "pay": "{} ادا کریں",
+      "payment_coming_soon": "{} جلد آ رہا ہے — براہ کرم فی الحال کیش آن ڈیلیوری استعمال کریں"
+    },
+
+    "actions": {
+      "retry": "دوبارہ کوشش کریں",
+      "continue_summary": "خلاصے پر جائیں",
+      "continue_payment": "ادائیگی پر جائیں",
+      "go_to_cart": "کارٹ پر جائیں"
+    },
+
+    "errors": {
+      "something_wrong": "کچھ غلط ہو گیا",
+      "failed_place_order": "آرڈر دینے میں ناکام"
+    }
+  },
+  "orders": {
+    "orders": "آرڈرز",
+    "order_details": "آرڈر کی تفصیلات",
+    "order": "آرڈر",
+    "placed_on": "کو دیا گیا",
+    "order_status": "آرڈر کی حیثیت",
+    "order_items": "آرڈر آئٹمز",
+    "deliver_to": "ڈیلیور کریں",
+
+    "filters": {
+      "all": "سب",
+      "processing": "پروسیسنگ",
+      "shipped": "بھیج دیا گیا",
+      "delivered": "ڈیلیور ہو گیا"
+    },
+
+    "status": {
+      "pending": "زیر التواء",
+      "processing": "پروسیسنگ",
+      "delivered": "ڈیلیور ہو گیا",
+      "cancelled": "منسوخ",
+      "refunded": "رقم واپس"
+    },
+
+    "timeline": {
+      "order_placed": "آرڈر دیا گیا",
+      "processing": "پروسیسنگ",
+      "delivered": "ڈیلیور ہو گیا",
+      "cancelled": "منسوخ",
+      "refund_initiated": "رقم کی واپسی شروع",
+      "refunded": "رقم واپس"
+    },
+
+    "quantity": "مقدار: {}",
+    "items_count": "آئٹم",
+    "items_count_plural": "آئٹمز",
+    "more_items": "+{} مزید",
+
+    "payment": {
+      "paid_via": "بذریعہ {} ادا کیا",
+      "subtotal": "ذیلی کل",
+      "tax": "ٹیکس",
+      "discount": "رعایت",
+      "total_paid": "کل ادا شدہ"
+    },
+
+    "actions": {
+      "view_details": "تفصیلات دیکھیں",
+      "track_cancel": "ٹریک / منسوخ کریں",
+      "cancel_order": "آرڈر منسوخ کریں",
+      "keep_order": "آرڈر رکھیں",
+      "confirm_cancel": "منسوخی کی تصدیق کریں",
+      "cancelling": "منسوخ کیا جا رہا ہے...",
+      "retry": "دوبارہ کوشش کریں",
+      "start_shopping": "خریداری شروع کریں"
+    },
+
+    "messages": {
+      "no_orders": "ابھی تک کوئی آرڈر نہیں",
+      "something_wrong": "کچھ غلط ہو گیا",
+      "order_cancelled": "یہ آرڈر منسوخ کر دیا گیا ہے۔",
+      "cancel_success": "آرڈر کامیابی سے منسوخ ہو گیا",
+      "cancel_failed": "آرڈر منسوخ کرنے میں ناکام",
+      "cancel_reason": "منسوخی کی وجہ",
+      "cancel_reason_required": "براہ کرم بتائیں کہ آپ کیوں منسوخ کر رہے ہیں",
+      "cancel_reason_hint": "مثلاً غلطی سے آرڈر کیا، بہتر قیمت ملی..."
+    },
+
+    "review": {
+      "rate_review": "ریٹنگ اور جائزہ",
+      "return_exchange": "واپسی / تبادلہ"
+    }
+  },
+  "reviews": {
+    "rate_product": "آپ اس مصنوعات کو کیا ریٹنگ دیں گے؟",
+    "write_review": "اپنا جائزہ لکھیں",
+    "share_experience": "اپنا تجربہ شیئر کریں...",
+    "add_photos": "تصاویر شامل کریں",
+    "submitting": "جمع کرایا جا رہا ہے...",
+    "submit": "جائزہ جمع کرائیں",
+    "reviews": "جائزے ({})",
+    "no_reviews": "ابھی تک کوئی جائزہ نہیں۔ پہلے جائزہ لینے والے بنیں!",
+    "rating_required": "جمع کرانے سے پہلے براہ کرم مصنوعات کو ریٹ کریں",
+    "submitted_title": "جائزہ جمع ہو گیا!",
+    "submitted_message": "منظوری کے بعد یہ نظر آئے گا۔",
+    "pending_message": "آپ کا جائزہ جمع کر دیا گیا ہے اور منظوری کا انتظار ہے۔ منظور ہونے کے بعد یہ یہاں ظاہر ہوگا۔",
+    "already_reviewed": "آپ اس مصنوعات کا جائزہ لے چکے ہیں۔",
+    "failed": "جائزہ جمع کرانے میں ناکام"
+  },
+  "help_support": {
+    "app_bar_title": "مدد اور معاونت",
+    "common_issues": "عام مسائل",
+    "orders_tracking": "آرڈرز اور ٹریکنگ",
+    "payments_refunds": "ادائیگیاں اور رقم کی واپسی",
+    "returns_exchanges": "واپسی اور تبادلہ",
+    "account_security": "اکاؤنٹ کی حفاظت",
+    "search_hint": "مدد، FAQs، یا موضوعات تلاش کریں",
+    "still_need_help": "اب بھی مدد کی ضرورت ہے؟",
+    "support_description": "اپنا مسئلہ بیان کریں اور ہماری ٹیم 24 گھنٹوں کے اندر آپ سے رابطہ کرے گی۔",
+    "issue_title_hint": "مسئلے کا عنوان",
+    "problem_hint": "اپنا مسئلہ یہاں لکھیں...",
+    "send_now": "ابھی بھیجیں",
+    "sending": "بھیجا جا رہا ہے...",
+    "quick_contact": "فوری رابطہ",
+    "call": "کال",
+    "chat": "چیٹ",
+    "email": "ای میل"
+  }
+}

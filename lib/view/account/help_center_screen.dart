@@ -110,17 +110,16 @@ class _HelpCenterViewState extends State<_HelpCenterView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextContext(
-                text: 'help_support.common_issues'.tr(),
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: ColorConstant.headlineTextColor,
-              ),
-              SizedBox(height: size.height * 0.02),
-              _IssuesGrid(issues: _issues, onTap: _onIssueTap),
-
-              SizedBox(height: size.height * 0.03),
-
+              // TextContext(
+              //   text: 'help_support.common_issues'.tr(),
+              //   fontSize: 17,
+              //   fontWeight: FontWeight.w600,
+              //   color: ColorConstant.headlineTextColor,
+              // ),
+              // SizedBox(height: size.height * 0.02),
+              // _IssuesGrid(issues: _issues, onTap: _onIssueTap),
+              //
+              // SizedBox(height: size.height * 0.03),
               _SupportFormCard(
                 titleController: _titleController,
                 descriptionController: _descriptionController,

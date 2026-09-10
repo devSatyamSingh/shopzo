@@ -129,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       RouteName.onboarding,
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -150,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context, profileVm, _) {
         final apiProfile = profileVm.profile;
         final cachedCustomer =
-            AppStorage.getCustomer(); // fallback jab tak API load ho rahi ho
+        AppStorage.getCustomer(); // fallback jab tak API load ho rahi ho
 
         final memberSince = ProfileScreen._formatMemberSince(
           apiProfile?.createdAt?.toIso8601String() ?? cachedCustomer?['createdAt']?.toString(),
@@ -159,16 +159,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final name = (apiProfile?.name.isNotEmpty ?? false)
             ? apiProfile!.name
             : (cachedCustomer?['name']?.toString().isNotEmpty == true
-                  ? cachedCustomer!['name'].toString()
+            ? cachedCustomer!['name'].toString()
             : 'profile.guest_user'.tr());
 
         final email = (apiProfile?.email.isNotEmpty ?? false)
             ? apiProfile!.email
             : (cachedCustomer?['email']?.toString().isNotEmpty == true
-                  ? cachedCustomer!['email'].toString()
-                  : (apiProfile?.phone ??
-                        cachedCustomer?['phone']?.toString() ??
-                        ''));
+            ? cachedCustomer!['email'].toString()
+            : (apiProfile?.phone ??
+            cachedCustomer?['phone']?.toString() ??
+            ''));
 
         return Scaffold(
           backgroundColor: ColorConstant.scaffoldBgColor,
@@ -435,9 +435,12 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
+              // NOTE (RTL): PositionedDirectional instead of Positioned so
+              // the edit badge mirrors to the correct corner automatically
+              // when the app is running in an RTL locale (e.g. Urdu).
+              PositionedDirectional(
                 bottom: -2,
-                right: -2,
+                end: -2,
                 child: GestureDetector(
                   onTap: onEditAvatar,
                   child: Container(
@@ -645,11 +648,11 @@ class _SettingsTile extends StatelessWidget {
           border: data.isLast
               ? null
               : Border(
-                  bottom: BorderSide(
-                    color: ColorConstant.dividerColor,
-                    width: 1,
-                  ),
-                ),
+            bottom: BorderSide(
+              color: ColorConstant.dividerColor,
+              width: 1,
+            ),
+          ),
         ),
         child: Row(
           children: [
@@ -680,9 +683,12 @@ class _SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
+            // NOTE (RTL): matchTextDirection mirrors the chevron so it
+            // points toward "forward" (left in RTL / right in LTR) instead
+            // of always pointing visually right.
             Icon(
               data.isExternal
-                  ? Icons.open_in_new_rounded
+                   ? Icons.open_in_new_rounded
                   : Icons.chevron_right_rounded,
               size: data.isExternal ? 17 : 22,
               color: ColorConstant.placeholderColor,
