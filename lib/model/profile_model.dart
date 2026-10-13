@@ -33,13 +33,20 @@ class ProfileModel {
     }
   }
 
+  static DateTime? _parseDate(dynamic v) {
+    final d = DateTime.tryParse(v?.toString() ?? '');
+    if (d == null) return null;
+    // sirf date part rakho, timezone shift se bachne ke liye
+    return DateTime(d.year, d.month, d.day);
+  }
+
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
-      dob: DateTime.tryParse(json['dob']?.toString() ?? ''),
+      dob: _parseDate(json['dob']),
       gender: json['gender']?.toString(),
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
     );

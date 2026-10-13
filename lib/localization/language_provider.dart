@@ -6,7 +6,6 @@ import 'language_model.dart';
 
 class LanguageProvider extends ChangeNotifier {
   Locale _locale = Locale(AppStorage.getLanguageCode());
-
   Locale get locale => _locale;
 
   Future<void> changeLanguage(BuildContext context, Locale newLocale) async {

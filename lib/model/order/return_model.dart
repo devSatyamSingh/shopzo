@@ -32,6 +32,26 @@ List<String> _parseImagesField(dynamic raw) {
   return [];
 }
 
+
+// ---------------- REFUND DESTINATION ----------------
+enum ReturnRefundTo { wallet, upi }
+
+extension ReturnRefundToX on ReturnRefundTo {
+  String get apiValue => this == ReturnRefundTo.wallet ? 'WALLET' : 'UPI';
+  String get label => this == ReturnRefundTo.wallet ? 'Wallet' : 'UPI';
+
+  static ReturnRefundTo? fromApi(String? raw) {
+    switch ((raw ?? '').trim().toUpperCase()) {
+      case 'WALLET':
+        return ReturnRefundTo.wallet;
+      case 'UPI':
+        return ReturnRefundTo.upi;
+      default:
+        return null;
+    }
+  }
+}
+
 // ---------------- RETURN TYPE (Return ya Exchange) ----------------
 enum ReturnRequestType { returnOnly, exchange }
 
@@ -256,6 +276,9 @@ class ReturnModel {
   final ReturnOrderItemModel? orderItem; // create response me nahi aata, list/detail me aata hai
   final ReturnLineVariant? exchangeVariant; // sirf detail me
   final dynamic refund; // abhi raw rakha hai, refund model banana ho to alag se
+  final ReturnRefundTo? refundTo;
+  final String? payoutMethodId;
+  final String? exchangeProductId;
 
   const ReturnModel({
     required this.id,
@@ -276,11 +299,13 @@ class ReturnModel {
     this.orderItem,
     this.exchangeVariant,
     this.refund,
+    this.refundTo,
+    this.payoutMethodId,
+    this.exchangeProductId
   });
 
   bool get isExchange => type == ReturnRequestType.exchange;
 
-  // Jab tak REQUESTED (pending) hai, tabhi cancel allowed — baaki backend khud 400 bhejta hai
   bool get canCancel => status == ReturnStatus.requested;
 
   factory ReturnModel.fromJson(Map<String, dynamic> json) {
@@ -301,6 +326,9 @@ class ReturnModel {
       approvedById: json['approvedById']?.toString(),
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
+      refundTo: ReturnRefundToX.fromApi(json['refundTo']?.toString()),
+      payoutMethodId: json['payoutMethodId']?.toString(),
+      exchangeProductId: json['exchangeProductId']?.toString(),
       orderItem: json['orderItem'] != null
           ? ReturnOrderItemModel.fromJson(json['orderItem'] as Map<String, dynamic>)
           : null,

@@ -60,6 +60,9 @@
     "profile_information": "Profile Information",
     "profile_information_subtitle": "Name, Email, Phone",
 
+    "wallet": "My Wallet",
+    "wallet_subtitle": "Balance & transactions",
+
     "saved_addresses": "Saved Addresses",
     "saved_addresses_subtitle": "Manage delivery locations",
 

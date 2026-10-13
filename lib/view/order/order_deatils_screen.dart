@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/order/return_form_bottomsheet.dart';
 import 'package:shopzo/view/order/review_rating_screen.dart';
+import '../../localization/language_provider.dart';
 import '../../model/order/order_model.dart';
 import '../../model/order/return_model.dart';
 import '../../res/button_context.dart';
@@ -33,6 +34,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     return const _OrderDetailView();
   }
 }

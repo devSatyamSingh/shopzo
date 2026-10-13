@@ -3,6 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/address/add_address_screen.dart';
+import '../../localization/language_provider.dart';
 import '../../model/address/address_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -208,6 +209,8 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

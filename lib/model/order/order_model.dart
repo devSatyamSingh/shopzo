@@ -157,6 +157,7 @@ class OrderItemModel {
   final String? variantId;
   final int quantity;
   final double price;
+  final int returnedQty;
   final double taxRate;
   final double taxAmount;
   final double cgstAmount;
@@ -184,6 +185,7 @@ class OrderItemModel {
     this.productNameFlat,
     this.variantNameFlat,
     this.imageFlat,
+    this.returnedQty = 0,
     this.product,
     this.variant,
   });
@@ -217,6 +219,7 @@ class OrderItemModel {
       subtotal: num_(json['subtotal']),
       productNameFlat: json['productName']?.toString(),
       variantNameFlat: json['variantName']?.toString(),
+      returnedQty: (json['returnedQty'] as num?)?.toInt() ?? 0,
       imageFlat: (rawImage != null && rawImage.isNotEmpty) ? _resolveImageUrl(rawImage) : null,
       product: json['product'] != null
           ? OrderLineProduct.fromJson(json['product'] as Map<String, dynamic>)

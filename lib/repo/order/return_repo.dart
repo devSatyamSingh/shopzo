@@ -13,21 +13,30 @@ class ReturnRepository {
     required String orderItemId,
     required ReturnRequestType type,
     required String reason,
-    required String reasonNote,
+    String? reasonNote,
     required int quantity,
+    required ReturnRefundTo refundTo,
+    String? payoutMethodId,
+    String? exchangeProductId,
     String? exchangeVariantId,
     List<File> images = const [],
   }) async {
     try {
+      final isExchange = type == ReturnRequestType.exchange;
       final fields = <String, String>{
         'orderItemId': orderItemId,
         'type': type.apiValue,
         'reason': reason,
-        'reasonNote': reasonNote,
+        if (reasonNote != null && reasonNote.trim().isNotEmpty) 'reasonNote': reasonNote.trim(),
         'quantity': quantity.toString(),
-        if (type == ReturnRequestType.exchange &&
-            exchangeVariantId != null &&
-            exchangeVariantId.isNotEmpty)
+        'refundTo': refundTo.apiValue,
+        if (refundTo == ReturnRefundTo.upi &&
+            payoutMethodId != null &&
+            payoutMethodId.isNotEmpty)
+          'payoutMethodId': payoutMethodId,
+        if (isExchange && exchangeProductId != null && exchangeProductId.isNotEmpty)
+          'exchangeProductId': exchangeProductId,
+        if (isExchange && exchangeVariantId != null && exchangeVariantId.isNotEmpty)
           'exchangeVariantId': exchangeVariantId,
       };
 
@@ -38,21 +47,19 @@ class ReturnRepository {
         method: 'POST',
       );
 
+      final backendMsg = (response is Map ? response['message']?.toString() : null);
       final dataMap = _extractSingle(response);
       if (dataMap == null) {
-        final backendMsg = (response is Map ? response['message']?.toString() : null);
         return ApiResponse.error(backendMsg ?? 'Something went wrong. Please try again.');
       }
-      final backendMsg = (response is Map ? response['message']?.toString() : null);
       return ApiResponse.completed(ReturnModel.fromJson(dataMap), message: backendMsg);
     } on AppException catch (e) {
       return ApiResponse.error(e.message.isNotEmpty ? e.message : 'Return request failed.');
-    } catch (e) {
+    } catch (_) {
       return ApiResponse.error('Return request failed. Please try again.');
     }
   }
 
-  /// GET /api/v1/website/returns
   Future<ApiResponse<List<ReturnModel>>> getAllReturns() async {
     try {
       final response = await _apiServices.getGetApiResponse(ApiUrl.returns);
@@ -68,7 +75,6 @@ class ReturnRepository {
     }
   }
 
-  /// GET /api/v1/website/returns/:id
   Future<ApiResponse<ReturnModel>> getReturnById(String id) async {
     try {
       final response = await _apiServices.getGetApiResponse(ApiUrl.returnById(id));
@@ -100,7 +106,6 @@ class ReturnRepository {
     }
   }
 
-  // Backend kabhi "data": {...} bhejta hai, kabhi "data": [{...}] — dono safely handle karne ke liye
   Map<String, dynamic>? _extractSingle(dynamic response) {
     final data = (response is Map ? response['data'] : null);
     if (data is Map<String, dynamic>) return data;

@@ -116,6 +116,7 @@ class ApiUrl {
   static String get returns => '$baseUrl/v1/website/returns';
   static String returnById(String id) => '$baseUrl/v1/website/returns/$id';
   static String cancelReturn(String id) => '$baseUrl/v1/website/returns/$id/cancel';
+  static const String payoutMethods = '$baseUrl/v1/payout-methods';
 
   // ---- Wishlist ----
   static const String wishlist = '$baseUrl/v1/website/wishlist';
@@ -150,4 +151,9 @@ class ApiUrl {
 
   // Slug-based product detail — sirf relatedProducts nikalne ke liye use ho raha hai
   static String websiteProductBySlug(String slug) => '$baseUrl/v1/websiteProducts/$slug';
+
+  static String payoutMethodById(String id) => '$baseUrl/v1/payout-methods/$id';
+  static const String wallet = '$baseUrl/v1/website/wallet';
+  static String walletTransactions({int page = 1, int limit = 20}) =>
+      '$baseUrl/v1/website/wallet/transactions?page=$page&limit=$limit';
 }

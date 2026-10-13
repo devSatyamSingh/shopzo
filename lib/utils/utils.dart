@@ -9,8 +9,7 @@ class AppUtils {
   AppUtils._();
 
 
-  static final GlobalKey<ScaffoldMessengerState> messengerKey =
-  GlobalKey<ScaffoldMessengerState>();
+  static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

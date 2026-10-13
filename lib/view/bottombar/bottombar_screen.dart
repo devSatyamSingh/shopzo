@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -96,6 +98,8 @@ class _AnimatedNotchBottomNavBarState extends State<AnimatedNotchBottomNavBar>
     final circleSize = size.width * 0.120;
     final itemCount = AnimatedNotchBottomNavBar.items.length;
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    context.watch<LanguageProvider>();
+
 
     return SafeArea(
       top: false,

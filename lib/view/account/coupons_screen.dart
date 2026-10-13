@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../model/coupons/coupon_model.dart';
@@ -61,6 +62,8 @@ class _CouponsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final vm = context.watch<CouponViewModel>();
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

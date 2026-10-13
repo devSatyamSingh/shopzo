@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/account/support_tickets_screen.dart';
+import '../../localization/language_provider.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -87,6 +88,8 @@ class _HelpCenterViewState extends State<_HelpCenterView> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final sending = context.watch<SupportViewModel>().isSubmitting;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

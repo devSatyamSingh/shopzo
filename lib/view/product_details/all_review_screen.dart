@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../model/product/product_detail_model.dart';
@@ -20,9 +22,7 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    // Data toh already product model me maujood hai, lekin skeleton ka
-    // chhota sa moment UX ko polished banata hai — abrupt "sab kuch ek
-    // saath dikh gaya" feel nahi aati.
+
     Future.delayed(const Duration(milliseconds: 450), () {
       if (mounted) setState(() => _isLoading = false);
     });
@@ -83,7 +83,10 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     final reviews = widget.product.reviews;
+
     final total = reviews.length;
 
     final Map<int, int> counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};

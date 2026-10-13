@@ -1,8 +1,11 @@
 // lib/view/home/home_appbar.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import 'package:easy_localization/easy_localization.dart';
+
+import '../../localization/language_provider.dart';
 
 class HomeAppBar extends StatelessWidget {
   final String location;
@@ -21,6 +24,8 @@ class HomeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -64,55 +69,52 @@ class HomeAppBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(Icons.keyboard_arrow_down_rounded,
-                      size: 18, color: ColorConstant.headlineTextColor),
+                  Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: ColorConstant.headlineTextColor),
                 ],
               ),
             ),
           ),
-
           SizedBox(width: size.width * 0.03),
-
-          // ---------------- NOTIFICATION BELL ----------------
-          GestureDetector(
-            onTap: onNotificationTap,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  height: 42,
-                  width: 42,
-                  decoration: BoxDecoration(
-                    color: ColorConstant.primaryLight,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    color: ColorConstant.headlineTextColor,
-                    size: 22,
-                  ),
-                ),
-                if (hasNotification)
-                  Positioned(
-                    top: 2,
-                    right: 3,
-                    child: Container(
-                      height: 9,
-                      width: 9,
-                      decoration: BoxDecoration(
-                        color: ColorConstant.orangeColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: ColorConstant.whiteColor,
-                          width: 1.6,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          // // ---------------- NOTIFICATION BELL ----------------
+          // GestureDetector(
+          //   onTap: onNotificationTap,
+          //   child: Stack(
+          //     clipBehavior: Clip.none,
+          //     children: [
+          //       Container(
+          //         height: 42,
+          //         width: 42,
+          //         decoration: BoxDecoration(
+          //           color: ColorConstant.primaryLight,
+          //           shape: BoxShape.circle,
+          //         ),
+          //         alignment: Alignment.center,
+          //         child: Icon(
+          //           Icons.notifications_none_rounded,
+          //           color: ColorConstant.headlineTextColor,
+          //           size: 22,
+          //         ),
+          //       ),
+          //       if (hasNotification)
+          //         Positioned(
+          //           top: 2,
+          //           right: 3,
+          //           child: Container(
+          //             height: 9,
+          //             width: 9,
+          //             decoration: BoxDecoration(
+          //               color: ColorConstant.orangeColor,
+          //               shape: BoxShape.circle,
+          //               border: Border.all(
+          //                 color: ColorConstant.whiteColor,
+          //                 width: 1.6,
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

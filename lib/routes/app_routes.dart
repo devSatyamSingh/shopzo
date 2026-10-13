@@ -33,6 +33,7 @@ import '../view/order/review_rating_screen.dart';
 import '../view/payment/add_payment_screen.dart';
 import '../view/payment/payment_methods_screen.dart';
 import '../view/cms/privacy_policy_screen.dart';
+import '../view/payment/wallet_screen.dart';
 import '../view/product_details/product_details_screen.dart';
 import '../view/profile/edit_profile_screen.dart';
 import '../view/profile/profile_information_screen.dart';
@@ -204,6 +205,12 @@ class AppRoutes {
           const AddPaymentMethodScreen(),
           settings,
           transitionType: TransitionType.slideUp,
+        );
+      case RouteName.wallet:                       // <-- add
+        return _getPageRoute(
+          const WalletScreen(),
+          settings,
+          transitionType: TransitionType.slideFromRight,
         );
 
     // ---- Orders ----

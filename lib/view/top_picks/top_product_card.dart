@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/top_product_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -25,6 +27,8 @@ class TopProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double imgHeight = width * 1.0;
+    context.watch<LanguageProvider>();
+
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),

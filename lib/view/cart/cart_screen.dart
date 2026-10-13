@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -94,6 +95,8 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     return ChangeNotifierProvider<CouponViewModel>(
       create: (_) => CouponViewModel(),
       child: Builder(builder: (context) => _buildScaffold(context)),

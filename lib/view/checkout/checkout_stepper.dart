@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,6 +27,8 @@ class CheckoutStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Column(
       children: [

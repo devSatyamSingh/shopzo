@@ -6,6 +6,7 @@ import 'package:shopzo/model/top_product_model.dart';
 import 'package:shopzo/view/top_picks/top_picks_card.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../localization/language_provider.dart';
 import '../../viewmodel/top_pick_viewmodel.dart';
 import 'top_picks_screen.dart';
 
@@ -48,20 +49,16 @@ class _TopPicksSectionState extends State<TopPicksSection> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
 
     return Consumer<TopPicksViewModel>(
       builder: (context, vm, _) {
-        // Backend me abhi data hi nahi hai, ya load ho raha hai, ya error
-        // aaya — teeno case me poora section hide kar dete hain taaki
-        // Home screen pe khaali/broken jagah na dikhe. (Agar tum chaaho
-        // toh empty-state card bhi dikha sakte ho — neeche note dekho)
         if (vm.isLoading && vm.products.isEmpty) {
           return const SizedBox.shrink();
         }
         if (vm.products.isEmpty) {
           return const SizedBox.shrink();
         }
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -88,15 +85,16 @@ class _TopPicksSectionState extends State<TopPicksSection> {
                 ],
               ),
             ),
-
             SizedBox(height: size.height * 0.015),
-
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
+              padding: EdgeInsets.only(
+                left: size.width * 0.04,
+                right: size.width * 0.04,
+                bottom: 12,
+              ),
               child: Row(
                 children: [
-                  // Home pe max 6 hi dikhate hain, poori list "See All" pe
                   for (int i = 0; i < vm.products.length.clamp(0, 6); i++) ...[
                     if (i != 0) SizedBox(width: size.width * 0.03),
                     TopPickCard(

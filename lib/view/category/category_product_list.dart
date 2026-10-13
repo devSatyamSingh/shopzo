@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/product_by_category/category_product_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -40,6 +41,8 @@ class _CategoryProductListScreenState
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     return _CategoryProductListView(
       categoryName: widget.categoryName,
     );

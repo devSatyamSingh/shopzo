@@ -38,7 +38,8 @@ class ProfileRepository {
         'name': name.trim(),
         'phone': phone.trim(),
         'email': email.trim(),
-        if (dob != null) 'dob': dob.toIso8601String(),
+        if (dob != null)
+          'dob': DateTime.utc(dob.year, dob.month, dob.day).toIso8601String(),
         if (gender != null && gender.trim().isNotEmpty) 'gender': gender.trim().toUpperCase(),
       };
 

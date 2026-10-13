@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/order/order_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
@@ -48,6 +49,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

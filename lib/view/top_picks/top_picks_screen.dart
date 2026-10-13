@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopzo/view/top_picks/top_product_card.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../viewmodel/top_pick_viewmodel.dart';
@@ -25,6 +26,8 @@ class _TopPicksScreenState extends State<TopPicksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     final size = MediaQuery.of(context).size;
     final cardWidth = (size.width - size.width * 0.05 * 2 - size.width * 0.04) / 2;
 

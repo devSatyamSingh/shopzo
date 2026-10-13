@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
 import '../../../routes/route_name.dart';
+import '../../localization/language_provider.dart';
 import 'shop_by_brand_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -52,6 +54,8 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final brands = _filteredBrands;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

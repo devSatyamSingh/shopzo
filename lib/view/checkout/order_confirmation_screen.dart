@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/order/order_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
@@ -22,6 +24,8 @@ class OrderConfirmationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final address = order.address;
+    context.watch<LanguageProvider>();
+
 
     return PopScope(
       canPop: false, // order place hone ke baad back se checkout pe wapas na jaaye

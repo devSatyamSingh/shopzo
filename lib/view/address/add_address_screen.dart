@@ -3,6 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/address/address_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
@@ -296,6 +297,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final mapHeight = size.height * 0.34;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,

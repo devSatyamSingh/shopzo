@@ -1,6 +1,7 @@
 // lib/view/home/filter/filter_bar_section.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../filter_model.dart';
@@ -14,6 +15,8 @@ class FilterBarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Consumer<FilterProvider>(
       builder: (context, filterProvider, child) {

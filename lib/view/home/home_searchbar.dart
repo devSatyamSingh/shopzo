@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopzo/view/home/search_screen.dart';
 import '../../../res/color_constant.dart';
+import '../../localization/language_provider.dart';
 import '../../routes/route_name.dart';
 
 class HomeSearchBar extends StatelessWidget {
@@ -13,6 +15,8 @@ class HomeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),

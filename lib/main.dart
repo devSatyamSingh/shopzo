@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 import 'package:provider/provider.dart';
 import 'package:shopzo/utils/app_storage.dart';
 import 'package:shopzo/utils/connectivty_wrapper.dart';
@@ -118,7 +119,9 @@ class MyApp extends StatelessWidget {
         initialRoute: RouteName.splash,
         onGenerateRoute: AppRoutes.generateRoute,
         builder: (context, child) {
-          return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
+          return Directionality(
+              textDirection: ui.TextDirection.ltr,
+              child: ConnectivityWrapper(child: child ?? const SizedBox.shrink()));
         },
       ),
     );

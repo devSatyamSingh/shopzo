@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
@@ -54,6 +55,8 @@ class _CategoryIconsSectionState extends State<CategoryIconsSection> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final circleSize = size.width * 0.13;
+    context.watch<LanguageProvider>();
+
 
     return Padding(
       padding: EdgeInsets.symmetric(

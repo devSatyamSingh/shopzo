@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../model/order/return_model.dart';
+import '../../model/payout_method_model.dart';
 import '../../repo/order/return_repo.dart';
-import '../../repo/product/product_repo.dart'; // apna exact path/class use karna
+import '../../repo/payout_method_repo.dart';
+import '../../repo/product/product_repo.dart';
 
-enum CreateReturnStatus { idle, loadingVariants, submitting, success, error }
+enum CreateReturnStatus { idle, submitting, success, error }
 
 class SimpleVariantOption {
   final String id;
@@ -15,12 +17,20 @@ class SimpleVariantOption {
 class CreateReturnViewModel extends ChangeNotifier {
   final ReturnRepository _returnRepo = ReturnRepository();
   final ProductRepository _productRepo = ProductRepository();
+  final PayoutMethodRepository _payoutRepo = PayoutMethodRepository();
 
   CreateReturnStatus _status = CreateReturnStatus.idle;
   CreateReturnStatus get status => _status;
   bool get isSubmitting => _status == CreateReturnStatus.submitting;
-  bool get isLoadingVariants => _status == CreateReturnStatus.loadingVariants;
   bool get isSuccess => _status == CreateReturnStatus.success;
+
+  bool _loadingVariants = false;
+  bool get isLoadingVariants => _loadingVariants;
+  bool _variantsLoaded = false;
+
+  bool _loadingPayouts = false;
+  bool get isLoadingPayouts => _loadingPayouts;
+  bool _payoutsLoaded = false;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -34,37 +44,71 @@ class CreateReturnViewModel extends ChangeNotifier {
   String reasonNote = '';
   int quantity = 1;
   String? selectedExchangeVariantId;
+  ReturnRefundTo? refundTo; // koi default nahi
+  String? selectedPayoutMethodId;
   final List<File> images = [];
 
   List<SimpleVariantOption> exchangeVariants = [];
+  List<PayoutMethodModel> payoutMethods = [];
 
   static const List<String> reasonOptions = [
     'Size issue',
-    'Damaged / Defective product',
+    'Damaged product',
     'Wrong item delivered',
     'Quality not as expected',
     'Item no longer needed',
     'Others',
   ];
 
+  // ---------------- type ----------------
   void setRequestType(ReturnRequestType type,
       {required String productId, String? currentVariantId}) {
     requestType = type;
     selectedExchangeVariantId = null;
+    _errorMessage = null;
     notifyListeners();
-    if (type == ReturnRequestType.exchange && exchangeVariants.isEmpty) {
+    if (type == ReturnRequestType.exchange && !_variantsLoaded) {
       fetchExchangeVariants(productId, currentVariantId: currentVariantId);
     }
   }
 
+  // ---------------- refund destination ----------------
+  void setRefundTo(ReturnRefundTo v) {
+    refundTo = v;
+    selectedPayoutMethodId = null;
+    _errorMessage = null;
+    notifyListeners();
+    if (v == ReturnRefundTo.upi) fetchPayoutMethods();
+  }
+
+  void setPayoutMethod(String? id) {
+    selectedPayoutMethodId = id;
+    notifyListeners();
+  }
+
+  Future<void> fetchPayoutMethods({bool force = false}) async {
+    if (_payoutsLoaded && !force) return;
+    _loadingPayouts = true;
+    notifyListeners();
+    final res = await _payoutRepo.getPayoutMethods();
+    if (res.isCompleted) {
+      payoutMethods = res.data ?? [];
+      _payoutsLoaded = true;
+      // sirf ek UPI saved hai to auto-select
+      if (payoutMethods.length == 1) selectedPayoutMethodId = payoutMethods.first.id;
+    }
+    _loadingPayouts = false;
+    notifyListeners();
+  }
+
+  // ---------------- simple setters ----------------
   void setReason(String? v) {
     reason = v;
     notifyListeners();
   }
 
   void setReasonNote(String v) {
-    reasonNote = v;
-    notifyListeners();
+    reasonNote = v; // optional field, rebuild ki zarurat nahi
   }
 
   void setQuantity(int v, {required int max}) {
@@ -80,6 +124,7 @@ class CreateReturnViewModel extends ChangeNotifier {
   }
 
   void addImage(File file) {
+    if (images.length >= 3) return;
     images.add(file);
     notifyListeners();
   }
@@ -90,7 +135,7 @@ class CreateReturnViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchExchangeVariants(String productId, {String? currentVariantId}) async {
-    _status = CreateReturnStatus.loadingVariants;
+    _loadingVariants = true;
     notifyListeners();
     try {
       final result = await _productRepo.getProductById(productId);
@@ -101,62 +146,67 @@ class CreateReturnViewModel extends ChangeNotifier {
             .where((v) => v.id.toString() != currentVariantId)
             .map((v) => SimpleVariantOption(id: v.id.toString(), name: v.name.toString()))
             .toList();
+        _variantsLoaded = true;
       }
     } catch (_) {
-      // variants fetch fail hone par bhi exchange allowed rahega
-      // (product ka koi variant hi na ho, ya fetch fail ho jaye — dono cases me
-      // exchange same-product replacement ke roop me process ho sakta hai)
+      // fetch fail ho ya variants na ho: exchange sirf exchangeProductId ke saath jayega
     }
-    _status = CreateReturnStatus.idle;
+    _loadingVariants = false;
     notifyListeners();
   }
 
-  // Backend ab variant-less product ke liye bhi exchange allow karta hai —
-  // isliye exchangeVariants.isEmpty ke basis par ab kabhi block nahi karte.
-  bool get canSubmit {
-    if (isLoadingVariants) return false;
-    return true;
+  bool get canSubmit => !_loadingVariants && !_loadingPayouts;
+
+  bool _fail(String msg) {
+    _errorMessage = msg;
+    _status = CreateReturnStatus.error;
+    notifyListeners();
+    return false;
   }
 
   bool validate() {
     if (reason == null || reason!.trim().isEmpty) {
-      _errorMessage = 'Reason select karein';
-      _status = CreateReturnStatus.error;
-      notifyListeners();
-      return false;
+      return _fail('Please select a reason');
     }
-    if (reasonNote.trim().isEmpty) {
-      _errorMessage = 'Thoda detail me batayein';
-      _status = CreateReturnStatus.error;
-      notifyListeners();
-      return false;
+
+    if (refundTo == null) {
+      return _fail('Where would you like your refund? Please select Wallet or UPI');
     }
-    // Variant sirf tab required hai jab actually alternate variants available hain.
-    // Variant-less product ke exchange me ye step skip ho jata hai.
+
+    if (refundTo == ReturnRefundTo.upi &&
+        (selectedPayoutMethodId == null || selectedPayoutMethodId!.isEmpty)) {
+      return _fail('Please select a UPI payment method');
+    }
+
+    // Variant is required only when the product has alternate variants
     if (requestType == ReturnRequestType.exchange &&
         exchangeVariants.isNotEmpty &&
-        (selectedExchangeVariantId == null || selectedExchangeVariantId!.isEmpty)) {
-      _errorMessage = 'Exchange ke liye variant select karein';
-      _status = CreateReturnStatus.error;
-      notifyListeners();
-      return false;
+        (selectedExchangeVariantId == null ||
+            selectedExchangeVariantId!.isEmpty)) {
+      return _fail('Please select a variant for the exchange');
     }
+
     return true;
   }
 
-  Future<bool> submit({required String orderItemId}) async {
+  Future<bool> submit({required String orderItemId, required String productId}) async {
     if (!validate()) return false;
     _status = CreateReturnStatus.submitting;
     _errorMessage = null;
     notifyListeners();
 
+    final isExchange = requestType == ReturnRequestType.exchange;
+
     final response = await _returnRepo.createReturnRequest(
       orderItemId: orderItemId,
       type: requestType,
       reason: reason!.trim(),
-      reasonNote: reasonNote.trim(),
+      reasonNote: reasonNote,
       quantity: quantity,
-      exchangeVariantId: requestType == ReturnRequestType.exchange
+      refundTo: refundTo!,
+      payoutMethodId: refundTo == ReturnRefundTo.upi ? selectedPayoutMethodId : null,
+      exchangeProductId: isExchange ? productId : null,
+      exchangeVariantId: isExchange && exchangeVariants.isNotEmpty
           ? selectedExchangeVariantId
           : null,
       images: images,
@@ -167,12 +217,10 @@ class CreateReturnViewModel extends ChangeNotifier {
       _status = CreateReturnStatus.success;
       notifyListeners();
       return true;
-    } else {
-      // Sirf backend ka message — koi frontend hardcoded fallback nahi.
-      _errorMessage = response.message;
-      _status = CreateReturnStatus.error;
-      notifyListeners();
-      return false;
     }
+    _errorMessage = response.message;
+    _status = CreateReturnStatus.error;
+    notifyListeners();
+    return false;
   }
 }

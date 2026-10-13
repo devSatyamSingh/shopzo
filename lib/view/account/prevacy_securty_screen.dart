@@ -1,6 +1,8 @@
 // privacy_security_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 
@@ -14,6 +16,8 @@ class PrivacySecurityScreen extends StatefulWidget {
 class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
       appBar: _buildAppBar(context),

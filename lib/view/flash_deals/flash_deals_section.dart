@@ -1,10 +1,12 @@
 // lib/view/home/flash_deals_section.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/model/product/product_model.dart';
 import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
+import '../../localization/language_provider.dart';
 import 'flash_deals_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -70,6 +72,7 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
     final hours = _remaining.inHours;
     final minutes = _remaining.inMinutes % 60;
     final seconds = _remaining.inSeconds % 60;
+    context.watch<LanguageProvider>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,10 +136,14 @@ class _FlashDealsSectionState extends State<FlashDealsSection> {
             size.width * 0.4,
             variant: ProductCardVariant.deal,
             hasRating: false,
-          ),
+          ) + 12,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+            padding: EdgeInsets.only(
+              left: size.width * 0.05,
+              right: size.width * 0.05,
+              bottom: 12,
+            ),
             itemCount: widget.products.length,
             separatorBuilder: (_, __) => SizedBox(width: size.width * 0.03),
             itemBuilder: (context, index) {

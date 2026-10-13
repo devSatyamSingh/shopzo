@@ -58,5 +58,6 @@ class RouteName {
   static const String subCategory = '/sub-category';
   // route_name.dart
   static const String mySupportTickets = '/my-support-tickets';
+  static const String wallet = '/wallet';
 
 }

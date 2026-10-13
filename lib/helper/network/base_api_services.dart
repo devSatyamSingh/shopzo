@@ -15,6 +15,7 @@ abstract class BaseApiServices {
       String url,
       Map<String, dynamic> fields, {
         Map<String, File>? files,
+        Map<String, List<File>>? multiFiles,
         String method = 'POST',
       });
 }

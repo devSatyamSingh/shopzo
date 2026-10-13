@@ -1,10 +1,12 @@
 // lib/view/home/flash_deals_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopzo/view/home/product_card.dart';
 import 'package:shopzo/model/product/product_model.dart';
 import '../../../../res/color_constant.dart';
 import '../../../../res/text_context.dart';
+import '../../localization/language_provider.dart';
 import '../../routes/route_name.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -54,6 +56,8 @@ class _FlashDealsScreenState extends State<FlashDealsScreen> {
     final hours = _remaining.inHours;
     final minutes = _remaining.inMinutes % 60;
     final seconds = _remaining.inSeconds % 60;
+    context.watch<LanguageProvider>();
+
     final cardWidth = (size.width - size.width * 0.05 * 2 - size.width * 0.04) / 2;
 
     return Scaffold(

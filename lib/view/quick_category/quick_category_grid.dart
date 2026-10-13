@@ -4,6 +4,7 @@ import '../../../res/color_constant.dart';
 import '../../../res/text_context.dart';
 import '../../../routes/route_name.dart';
 import '../../../utils/skelton_box.dart';
+import '../../localization/language_provider.dart';
 import '../../model/category/category_model.dart';
 import '../../viewmodel/category_subcategory/category_viewmodel.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -57,6 +58,8 @@ class _QuickCategoryGridState extends State<QuickCategoryGrid> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Padding(
       padding: EdgeInsets.symmetric(

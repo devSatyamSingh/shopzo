@@ -6,6 +6,7 @@ import '../../../res/date_picker.dart';
 import '../../../res/dropdown_context.dart';
 import '../../../res/text_context.dart';
 import '../../../res/textfiled_context.dart';
+import '../../localization/language_provider.dart';
 import '../../utils/utils.dart';
 import '../../viewmodel/profile_viewmodel.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -94,6 +95,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
 
     return Scaffold(
       backgroundColor: ColorConstant.whiteColor,

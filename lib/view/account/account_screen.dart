@@ -16,7 +16,7 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   static const String _avatarUrl = 'assets/images/pro12.jpg';
-  static const String _appVersion = 'Shopzo v2.4.1';
+  static const String _appVersion = 'Shopzo v1.0.0+1';
 
   static String _formatMemberSince(String? createdAt) {
     if (createdAt == null || createdAt.isEmpty) return 'Member since —';
@@ -106,6 +106,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.pushNamed(context, RouteName.returnRefund);
   }
 
+  void _onWalletTap(BuildContext context) {
+    Navigator.pushNamed(context, RouteName.wallet);
+  }
+
   Future<void> _onLogoutTap(BuildContext context) async {
     final confirmed = await DeletePopup.show(
       context,
@@ -149,13 +153,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<ProfileViewModel>(
       builder: (context, profileVm, _) {
         final apiProfile = profileVm.profile;
-        final cachedCustomer =
-        AppStorage.getCustomer(); // fallback jab tak API load ho rahi ho
-
+        final cachedCustomer = AppStorage.getCustomer();
         final memberSince = ProfileScreen._formatMemberSince(
           apiProfile?.createdAt?.toIso8601String() ?? cachedCustomer?['createdAt']?.toString(),
         );
-
         final name = (apiProfile?.name.isNotEmpty ?? false)
             ? apiProfile!.name
             : (cachedCustomer?['name']?.toString().isNotEmpty == true
@@ -264,7 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         subtitle: 'profile.payment_methods_subtitle'.tr(),
                         onTap: () => _onPaymentMethodsTap(context),
                       ),
-
+                      _SettingsTileData(                                   // <-- naya
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'profile.wallet'.tr(),
+                        subtitle: 'profile.wallet_subtitle'.tr(),
+                        onTap: () => _onWalletTap(context),
+                      ),
                       _SettingsTileData(
                         icon: Icons.language_rounded,
                         title: 'settings.language'.tr(),
@@ -288,7 +294,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   SizedBox(height: size.height * 0.03),
-
                   // ---------------- MORE ----------------
                   _SectionLabel(
                     text: 'profile.more'.tr(),
@@ -301,7 +306,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () => _onAboutTap(context),
                         isExternal: true,
                       ),
-
                       _SettingsTileData(
                         title: 'profile.terms_of_service'.tr(),
                         onTap: () => _onTermsTap(context),
@@ -438,31 +442,31 @@ class _ProfileHeader extends StatelessWidget {
               // NOTE (RTL): PositionedDirectional instead of Positioned so
               // the edit badge mirrors to the correct corner automatically
               // when the app is running in an RTL locale (e.g. Urdu).
-              PositionedDirectional(
-                bottom: -2,
-                end: -2,
-                child: GestureDetector(
-                  onTap: onEditAvatar,
-                  child: Container(
-                    height: avatarSize * 0.3,
-                    width: avatarSize * 0.3,
-                    decoration: BoxDecoration(
-                      color: ColorConstant.primaryColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: ColorConstant.whiteColor,
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.edit_rounded,
-                      size: avatarSize * 0.15,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              // PositionedDirectional(
+              //   bottom: -2,
+              //   end: -2,
+              //   child: GestureDetector(
+              //     onTap: onEditAvatar,
+              //     child: Container(
+              //       height: avatarSize * 0.3,
+              //       width: avatarSize * 0.3,
+              //       decoration: BoxDecoration(
+              //         color: ColorConstant.primaryColor,
+              //         shape: BoxShape.circle,
+              //         border: Border.all(
+              //           color: ColorConstant.whiteColor,
+              //           width: 2,
+              //         ),
+              //       ),
+              //       alignment: Alignment.center,
+              //       child: Icon(
+              //         Icons.edit_rounded,
+              //         size: avatarSize * 0.15,
+              //         color: Colors.white,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           SizedBox(height: size.height * 0.01),
@@ -683,9 +687,6 @@ class _SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
-            // NOTE (RTL): matchTextDirection mirrors the chevron so it
-            // points toward "forward" (left in RTL / right in LTR) instead
-            // of always pointing visually right.
             Icon(
               data.isExternal
                    ? Icons.open_in_new_rounded

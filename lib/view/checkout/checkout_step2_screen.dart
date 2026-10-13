@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../model/order_summary/order_preview_model.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
@@ -67,6 +68,8 @@ class _CheckoutSummaryScreenState extends State<CheckoutSummaryScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final vm = context.watch<CheckoutViewModel>();
+    context.watch<LanguageProvider>();
+
 
     if (vm.items.isEmpty) {
       return Scaffold(

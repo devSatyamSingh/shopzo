@@ -1,202 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../model/payout_method_model.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
 import '../../routes/route_name.dart';
 import '../../utils/utils.dart';
-import 'add_payment_screen.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../../viewmodel/payout_method_viewmodel.dart';
 
-
-class UpiIdModel {
-  final IconData icon;
-  final String value;
-  final String? label;
-  final bool isVerified;
-  final bool isDefault;
-
-  const UpiIdModel({
-    required this.icon,
-    required this.value,
-    this.label,
-    this.isVerified = false,
-    this.isDefault = false,
-  });
-}
-
-class SavedCardModel {
-  final String bankName;
-  final String cardTier;
-  final String last4;
-  final String holderName;
-  final String expiry;
-  final List<Color> gradient;
-
-  const SavedCardModel({
-    required this.bankName,
-    required this.cardTier,
-    required this.last4,
-    required this.holderName,
-    required this.expiry,
-    required this.gradient,
-  });
-}
-
-class OtherMethodData {
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBgColor;
-  final String title;
-  final String subtitle;
-
-  const OtherMethodData({
-    required this.icon,
-    required this.iconColor,
-    required this.iconBgColor,
-    required this.title,
-    required this.subtitle,
-  });
-}
-
-class PaymentMethodsScreen extends StatefulWidget {
+class PaymentMethodsScreen extends StatelessWidget {
   const PaymentMethodsScreen({super.key});
 
-  static const List<UpiIdModel> _upiIds = [
-    UpiIdModel(
-      icon: Icons.account_balance_wallet_rounded,
-      value: 'alex.johnson@okaxis',
-      isVerified: true,
-      isDefault: true,
-    ),
-    UpiIdModel(
-      icon: Icons.payments_rounded,
-      value: '9876543210@ybl',
-      label: 'PhonePe UPI',
-    ),
-  ];
-
-  static const List<SavedCardModel> _cards = [
-    SavedCardModel(
-      bankName: 'HDFC Bank',
-      cardTier: 'PREMIUM CREDIT',
-      last4: '4821',
-      holderName: 'ALEX JOHNSON',
-      expiry: '12/28',
-      gradient: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-    ),
-    SavedCardModel(
-      bankName: 'SBI Bank',
-      cardTier: 'PRIVILEGE DEBIT',
-      last4: '2109',
-      holderName: 'ALEX JOHNSON',
-      expiry: '09/27',
-      gradient: [Color(0xFF1F2937), Color(0xFF374151)],
-    ),
-  ];
-
-  static const List<OtherMethodData> _otherMethods = [
-    OtherMethodData(
-      icon: Icons.account_balance_rounded,
-      iconColor: Color(0xFFEA580C),
-      iconBgColor: Color(0xFFFFF1E6),
-      title: 'Net Banking',
-      subtitle: 'HDFC, ICICI, SBI & more',
-    ),
-    OtherMethodData(
-      icon: Icons.account_balance_wallet_outlined,
-      iconColor: Color(0xFF2563EB),
-      iconBgColor: Color(0xFFE8EEFF),
-      title: 'Wallets',
-      subtitle: 'Amazon Pay, Paytm, MobiKwik',
-    ),
-    OtherMethodData(
-      icon: Icons.currency_rupee_rounded,
-      iconColor: Color(0xFF16A34A),
-      iconBgColor: Color(0xFFE7F7EC),
-      title: 'Cash on Delivery',
-      subtitle: 'Manage COD preferences',
-    ),
-  ];
-
   @override
-  State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => PayoutMethodViewModel()..fetch(),
+      child: const _PaymentMethodsView(),
+    );
+  }
 }
 
-class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
-  void _onAddNews(BuildContext context) {
-    Navigator.pushNamed(context, RouteName.addPaymentMethod);
-  }
+class _PaymentMethodsView extends StatelessWidget {
+  const _PaymentMethodsView();
 
-// AB:
-  void _onAddNew(BuildContext context) {
-    var options = {
-      'key': 'rzp_test_TMrR6ooJaZ04CA', // apni Test Key ID
-      'amount': 500, // ₹5 test amount, paise mein
-      'name': 'Shopzo',
-      'description': 'Add Payment Method - Test',
-      'prefill': {
-        'contact': '9161440593',
-        'email': 'satyam@gmail.com',
-      },
-      'method': {'upi': true, 'card': true, 'netbanking': true, 'wallet': true},
-      'theme': {'color': '#4F46E5'},
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      AppUtils.error(context, 'Checkout open nahi ho paaya.');
-      debugPrint('Razorpay open error: $e');
+  Future<void> _openAdd(BuildContext context) async {
+    final added = await Navigator.pushNamed(context, RouteName.addPaymentMethod);
+    if (added == true && context.mounted) {
+      context.read<PayoutMethodViewModel>().fetch(showLoader: false);
     }
   }
 
-  void _onUpiOptionsTap(UpiIdModel upi) {
-    // 👉 show bottom sheet: set default / remove
-  }
-
-  void _onManageOtherTap(OtherMethodData method) {
-    // 👉 navigate to the relevant settings screen
-  }
-
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    AppUtils.success(
+  Future<void> _confirmDelete(BuildContext context, PayoutMethodModel m) async {
+    final vm = context.read<PayoutMethodViewModel>();
+    final ok = await AppUtils.showConfirmDialog(
       context,
-      'Payment ID: ${response.paymentId}',
-      title: 'Payment Successful',
+      title: 'Remove UPI?',
+      message: '${m.title} will be removed from your saved list.',
+      confirmText: 'Remove',
+      isDestructive: true,
     );
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    AppUtils.error(
-      context,
-      response.message ?? 'Payment fail ho gaya.',
-      title: 'Payment Failed',
-    );
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    AppUtils.info(context, 'Wallet: ${response.walletName}');
-  }
-
-  late Razorpay _razorpay;
-
-  @override
-  void initState() {
-    super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-  }
-
-  @override
-  void dispose() {
-    _razorpay.clear();
-    super.dispose();
+    if (!ok) return;
+    final done = await vm.delete(m.id);
+    if (!context.mounted) return;
+    if (done) {
+      AppUtils.success(context, vm.actionMessage ?? 'Payout method deleted');
+    } else {
+      AppUtils.error(context, vm.actionMessage ?? 'Could not delete');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final vm = context.watch<PayoutMethodViewModel>();
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -204,234 +59,122 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         backgroundColor: ColorConstant.whiteColor,
         title: const Text('Payment Methods'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () => _onAddNews(context),
-            icon: Icon(Icons.add_rounded, color: ColorConstant.primaryColor),
-          ),
-        ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ---------------- UPI IDs ----------------
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextContext(
-                          text: 'UPI IDs',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: ColorConstant.headlineTextColor,
-                        ),
-                        GestureDetector(
-                          onTap: () => _onAddNew(context),
-                          child: TextContext(
-                            text: 'Add New',
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w700,
-                            color: ColorConstant.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.015),
-                    ...PaymentMethodsScreen._upiIds.map((upi) => Padding(
-                      padding: EdgeInsets.only(bottom: size.height * 0.015),
-                      child: _UpiCard(
-                        upi: upi,
-                        onOptionsTap: () => _onUpiOptionsTap(upi),
-                      ),
-                    )),
-                  ],
-                ),
+        child: Builder(builder: (_) {
+          if (vm.isLoading && !vm.hasLoadedOnce) {
+            return Center(
+              child: CircularProgressIndicator(color: ColorConstant.primaryColor),
+            );
+          }
+
+          if (vm.errorMessage != null && !vm.hasLoadedOnce) {
+            return _ErrorState(
+              message: vm.errorMessage!,
+              onRetry: () => vm.fetch(),
+            );
+          }
+
+          return RefreshIndicator(
+            color: ColorConstant.primaryColor,
+            onRefresh: vm.refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.06,
+                vertical: size.height * 0.02,
               ),
-
-              SizedBox(height: size.height * 0.01),
-
-              // ---------------- SAVED CARDS ----------------
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                child: Row(
+              children: [
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextContext(
-                      text: 'Saved Cards',
+                      text: 'UPI IDs',
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                       color: ColorConstant.headlineTextColor,
                     ),
-                    TextContext(
-                      text: '${PaymentMethodsScreen._cards.length} Cards',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: ColorConstant.labelTextColor,
+                    GestureDetector(
+                      onTap: () => _openAdd(context),
+                      child: TextContext(
+                        text: 'Add New',
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: ColorConstant.primaryColor,
+                      ),
                     ),
                   ],
                 ),
-              ),
+                SizedBox(height: size.height * 0.015),
 
-              SizedBox(height: size.height * 0.015),
+                if (vm.isEmpty)
+                  _EmptyState(onAdd: () => _openAdd(context))
+                else
+                  ...vm.methods.map(
+                        (m) => Padding(
+                      padding: EdgeInsets.only(bottom: size.height * 0.015),
+                      child: _UpiCard(
+                        method: m,
+                        isDeleting: vm.deletingId == m.id,
+                        onDelete: () => _confirmDelete(context, m),
+                      ),
+                    ),
+                  ),
 
-              SizedBox(
-                height: size.height * 0.21,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                  itemCount: PaymentMethodsScreen._cards.length,
-                  separatorBuilder: (_, __) => SizedBox(width: size.width * 0.035),
-                  itemBuilder: (context, index) => _SavedCardTile(
-                    card: PaymentMethodsScreen._cards[index],
-                    width: size.width * 0.74,
+                SizedBox(height: size.height * 0.01),
+
+                // ---------------- INFO NOTE ----------------
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: ColorConstant.primaryLight,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.shield_rounded,
+                          size: 18, color: ColorConstant.primaryColor),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextContext(
+                          text:
+                          'For returns or exchanges, you can receive your refund in your Wallet or through a UPI ID saved here. Your full UPI ID is never displayed on the screen.',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          height: 1.45,
+                          color: ColorConstant.primaryColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-
-              SizedBox(height: size.height * 0.028),
-
-              // ---------------- MANAGE OTHER METHODS ----------------
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextContext(
-                      text: 'Manage Other Methods',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: ColorConstant.headlineTextColor,
-                    ),
-                    SizedBox(height: size.height * 0.015),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: ColorConstant.whiteColor,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ColorConstant.blackColor.withOpacity(.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: List.generate(PaymentMethodsScreen._otherMethods.length, (index) {
-                          final method = PaymentMethodsScreen._otherMethods[index];
-                          final isLast = index == PaymentMethodsScreen._otherMethods.length - 1;
-                          return InkWell(
-                            onTap: () => _onManageOtherTap(method),
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                              decoration: BoxDecoration(
-                                border: isLast
-                                    ? null
-                                    : Border(
-                                  bottom: BorderSide(
-                                      color: ColorConstant.dividerColor, width: 1),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 38,
-                                    width: 38,
-                                    decoration: BoxDecoration(
-                                      color: method.iconBgColor,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Icon(method.icon, size: 18, color: method.iconColor),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextContext(
-                                          text: method.title,
-                                          fontSize: 14.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorConstant.headlineTextColor,
-                                        ),
-                                        TextContext(
-                                          text: method.subtitle,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: ColorConstant.labelTextColor,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(Icons.chevron_right_rounded,
-                                      size: 20, color: ColorConstant.placeholderColor),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-
-                    SizedBox(height: size.height * 0.02),
-
-                    // ---------------- SECURITY NOTE ----------------
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: ColorConstant.primaryLight,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.shield_rounded, size: 18, color: ColorConstant.primaryColor),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextContext(
-                              text:
-                              'Shopzo uses industry-standard encryption to protect your payment details. We do not store your full card details or CVV.',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              height: 1.45,
-                              color: ColorConstant.primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: size.height * 0.02),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
 }
 
-/// ---------------- UPI ID CARD ----------------
+/// ---------------- UPI CARD ----------------
 class _UpiCard extends StatelessWidget {
-  final UpiIdModel upi;
-  final VoidCallback onOptionsTap;
+  final PayoutMethodModel method;
+  final bool isDeleting;
+  final VoidCallback onDelete;
 
-  const _UpiCard({required this.upi, required this.onOptionsTap});
+  const _UpiCard({
+    required this.method,
+    required this.isDeleting,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final hasLabel = (method.label ?? '').trim().isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -455,7 +198,8 @@ class _UpiCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(upi.icon, size: 18, color: ColorConstant.headlineTextColor),
+            child: Icon(Icons.account_balance_wallet_rounded,
+                size: 18, color: ColorConstant.headlineTextColor),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -464,45 +208,49 @@ class _UpiCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextContext(
-                  text: upi.value,
+                  text: method.title,
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
                   color: ColorConstant.headlineTextColor,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
-                if (upi.isVerified || upi.isDefault)
-                  Row(
-                    children: [
-                      if (upi.isVerified) _Pill(text: 'VERIFIED', color: ColorConstant.successColor),
-                      if (upi.isVerified && upi.isDefault) const SizedBox(width: 6),
-                      if (upi.isDefault) _Pill(text: 'DEFAULT', color: ColorConstant.primaryColor),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    _Pill(text: method.type, color: ColorConstant.primaryColor),
+                    if (hasLabel && (method.upiMasked ?? '').isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: TextContext(
+                          text: method.upiMasked!,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: ColorConstant.labelTextColor,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
-                  )
-                else if (upi.label != null)
-                  TextContext(
-                    text: upi.label!,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: ColorConstant.labelTextColor,
-                  ),
+                  ],
+                ),
               ],
             ),
           ),
-          if (upi.isDefault)
-            Container(
-              height: 26,
-              width: 26,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: ColorConstant.headlineTextColor, width: 1.4),
+          if (isDeleting)
+            SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: ColorConstant.errorColor,
               ),
-              alignment: Alignment.center,
-              child: Icon(Icons.check_rounded, size: 15, color: ColorConstant.headlineTextColor),
             )
           else
             GestureDetector(
-              onTap: onOptionsTap,
-              child: Icon(Icons.more_vert_rounded, color: ColorConstant.labelTextColor),
+              onTap: onDelete,
+              child: Icon(Icons.delete_outline_rounded,
+                  color: ColorConstant.errorColor, size: 22),
             ),
         ],
       ),
@@ -536,147 +284,71 @@ class _Pill extends StatelessWidget {
   }
 }
 
-/// ---------------- SAVED CARD TILE ----------------
-class _SavedCardTile extends StatelessWidget {
-  final SavedCardModel card;
-  final double width;
-
-  const _SavedCardTile({required this.card, required this.width});
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onAdd;
+  const _EmptyState({required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: card.gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: card.gradient.first.withOpacity(.3),
-            blurRadius: 14,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: ColorConstant.whiteColor,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      card.cardTier,
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(.75),
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      card.bankName,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.credit_card_rounded, color: Colors.white, size: 22),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '••••  ••••  ••••  ',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 15,
-                  letterSpacing: 2,
-                  color: Colors.white.withOpacity(.85),
-                ),
-              ),
-              Text(
-                card.last4,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
+          Icon(Icons.account_balance_wallet_outlined,
+              size: 44, color: ColorConstant.placeholderColor),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'CARD HOLDER',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 8.5,
-                      color: Colors.white.withOpacity(.65),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  Text(
-                    card.holderName,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'EXPIRES',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 8.5,
-                      color: Colors.white.withOpacity(.65),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  Text(
-                    card.expiry,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          TextContext(
+            text: 'No UPI ID saved',
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: ColorConstant.headlineTextColor,
           ),
+          const SizedBox(height: 6),
+          TextContext(
+            text: 'Please add your UPI ID to receive your refund.',
+            fontSize: 12.5,
+            color: ColorConstant.labelTextColor,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          TextButton(onPressed: onAdd, child: const Text('Add UPI ID')),
         ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded,
+                size: 44, color: ColorConstant.errorColor),
+            const SizedBox(height: 12),
+            TextContext(
+              text: message,
+              fontSize: 13.5,
+              color: ColorConstant.labelTextColor,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            TextButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
       ),
     );
   }

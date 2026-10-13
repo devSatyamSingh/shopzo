@@ -14,7 +14,7 @@ class ApiResponse<T> {
   factory ApiResponse.loading() => ApiResponse._(status: Status.loading);
 
   factory ApiResponse.completed(T data, {String? message}) =>
-      ApiResponse._(status: Status.completed, data: data);
+      ApiResponse._(status: Status.completed, data: data, message: message);
 
   factory ApiResponse.error(String message) =>
       ApiResponse._(status: Status.error, message: message);

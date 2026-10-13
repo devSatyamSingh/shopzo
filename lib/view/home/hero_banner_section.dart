@@ -24,11 +24,11 @@ class _HeroBannerSectionState extends State<HeroBannerSection> {
   void _startAutoScroll(int count) {
     _timer?.cancel();
     if (count <= 1) return;
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
       final next = (_currentPage + 1) % count;
       if (_controller.hasClients) {
-        _controller.animateToPage(next, duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+        _controller.animateToPage(next, duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
       }
     });
   }

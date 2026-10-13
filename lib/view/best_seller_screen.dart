@@ -4,6 +4,7 @@ import 'package:shopzo/view/product_details/product_details_screen.dart';
 import 'package:shopzo/view/top_picks/top_product_card.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
+import '../localization/language_provider.dart';
 import '../viewmodel/best_seller_viewmodel.dart';
 
 
@@ -26,6 +27,8 @@ class _BestSellerScreenState extends State<BestSellerScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    context.watch<LanguageProvider>();
+
     final cardWidth = (size.width - size.width * 0.05 * 2 - size.width * 0.04) / 2;
 
     return Scaffold(

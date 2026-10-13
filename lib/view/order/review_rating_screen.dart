@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../localization/language_provider.dart';
 import '../../res/button_context.dart';
 import '../../res/color_constant.dart';
 import '../../res/text_context.dart';
@@ -91,6 +92,8 @@ class _ReviewSheetContentState extends State<_ReviewSheetContent> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<LanguageProvider>();
+
     final currentCustomerId = AppStorage.getCustomer()?['id']?.toString();
     return Consumer<ReviewViewModel>(
       builder: (context, vm, _) {
