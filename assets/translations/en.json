@@ -565,7 +565,13 @@
       "secure_payments": "100% Secure Payments",
       "placing_order": "Placing order...",
       "pay": "Pay {}",
-      "payment_coming_soon": "{} coming soon — please use Cash on Delivery for now"
+      "payment_coming_soon": "{} coming soon — please use Cash on Delivery for now",
+      "wallet": "Wallet",
+      "wallet_balance": "Available balance: {amount}",
+      "wallet_low": "Low balance",
+      "wallet_insufficient": "Your wallet balance is not enough. You need {amount} more, or choose another payment method.",
+      "wallet_after_label": "Wallet balance after payment",
+      "wallet_full_note": "The full order amount will be paid from your wallet."
     },
 
     "actions": {
@@ -687,5 +693,45 @@
     "call": "Call",
     "chat": "Chat",
     "email": "Email"
+  },
+
+  "return_form": {
+    "qty_available": "Qty available: {qty}",
+    "what_to_do": "What do you want to do?",
+    "return": "Return",
+    "exchange": "Exchange",
+    "select_new_variant": "Select new variant",
+    "choose_variant": "Choose variant",
+    "no_variants_note": "There are no other variants available for this product, so it will be exchanged for the same product.",
+    "reason": "Reason",
+    "select_reason": "Select a reason",
+    "reason_size_issue": "Size issue",
+    "reason_damaged": "Damaged product",
+    "reason_wrong_item": "Wrong item delivered",
+    "reason_quality": "Quality not as expected",
+    "reason_not_needed": "Item no longer needed",
+    "reason_others": "Others",
+    "tell_us_more": "Tell us more (optional)",
+    "note_hint": "e.g. The box was already opened...",
+    "quantity": "Quantity",
+    "refund_to": "Refund to",
+    "wallet": "Wallet",
+    "upi": "UPI",
+    "wallet_note": "Your refund will be added to your Shopzo Wallet balance. You can view your balance on the 'My Wallet' screen.",
+    "no_upi_note": "No UPI ID is saved. Please add a UPI ID first to receive your refund.",
+    "add_upi_id": "Add UPI ID",
+    "select_upi": "Select UPI",
+    "add_new_upi": "+ Add new UPI",
+    "add_photos": "Add photos (optional)",
+    "submitting": "Submitting...",
+    "submit_exchange": "Submit Exchange Request",
+    "submit_return": "Submit Return Request",
+    "submitted_status": "Request submitted — status: {status}",
+    "submitted": "Request submitted successfully",
+    "something_wrong": "Something went wrong",
+    "err_reason": "Please select a reason",
+    "err_refund_to": "Please select where you want the refund (Wallet or UPI)",
+    "err_upi": "Please select a UPI ID",
+    "err_variant": "Please select a variant for the exchange"
   }
 }

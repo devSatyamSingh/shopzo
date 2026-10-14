@@ -55,13 +55,13 @@
     "help_center": "ہیلپ سینٹر",
     "help_center_subtitle": "کسٹمر سپورٹ",
 
-    "wallet": "میرا والیٹ",
-    "wallet_subtitle": "بیلنس اور لین دین",
-
     "account_settings": "اکاؤنٹ سیٹنگز",
 
     "profile_information": "پروفائل کی معلومات",
     "profile_information_subtitle": "نام، ای میل، فون",
+
+    "wallet": "میرا والیٹ",
+    "wallet_subtitle": "بیلنس اور لین دین",
 
     "saved_addresses": "محفوظ شدہ پتے",
     "saved_addresses_subtitle": "ڈیلیوری مقامات کا انتظام کریں",
@@ -565,7 +565,13 @@
       "secure_payments": "100% محفوظ ادائیگیاں",
       "placing_order": "آرڈر دیا جا رہا ہے...",
       "pay": "{} ادا کریں",
-      "payment_coming_soon": "{} جلد آ رہا ہے — براہ کرم فی الحال کیش آن ڈیلیوری استعمال کریں"
+      "payment_coming_soon": "{} جلد آ رہا ہے — براہ کرم فی الحال کیش آن ڈیلیوری استعمال کریں",
+      "wallet": "والیٹ",
+      "wallet_balance": "دستیاب بیلنس: {amount}",
+      "wallet_low": "کم بیلنس",
+      "wallet_insufficient": "آپ کے والیٹ میں کافی بیلنس نہیں ہے۔ مزید {amount} درکار ہیں، یا کوئی اور ادائیگی کا طریقہ منتخب کریں۔",
+      "wallet_after_label": "ادائیگی کے بعد والیٹ بیلنس",
+      "wallet_full_note": "پورے آرڈر کی رقم آپ کے والیٹ سے ادا کی جائے گی۔"
     },
 
     "actions": {
@@ -687,5 +693,45 @@
     "call": "کال",
     "chat": "چیٹ",
     "email": "ای میل"
+  },
+
+  "return_form": {
+    "qty_available": "دستیاب مقدار: {qty}",
+    "what_to_do": "آپ کیا کرنا چاہتے ہیں؟",
+    "return": "ریٹرن",
+    "exchange": "ایکسچینج",
+    "select_new_variant": "نیا ویریئنٹ منتخب کریں",
+    "choose_variant": "ویریئنٹ منتخب کریں",
+    "no_variants_note": "اس پروڈکٹ کا کوئی اور ویریئنٹ دستیاب نہیں، اس لیے یہی پروڈکٹ ایکسچینج ہوگی۔",
+    "reason": "وجہ",
+    "select_reason": "وجہ منتخب کریں",
+    "reason_size_issue": "سائز کا مسئلہ",
+    "reason_damaged": "خراب پروڈکٹ",
+    "reason_wrong_item": "غلط آئٹم ڈیلیور ہوا",
+    "reason_quality": "معیار توقع کے مطابق نہیں",
+    "reason_not_needed": "آئٹم کی اب ضرورت نہیں",
+    "reason_others": "دیگر",
+    "tell_us_more": "مزید بتائیں (اختیاری)",
+    "note_hint": "مثلاً: ڈبہ کھلا ہوا ملا...",
+    "quantity": "مقدار",
+    "refund_to": "ریفنڈ کہاں چاہیے",
+    "wallet": "والیٹ",
+    "upi": "UPI",
+    "wallet_note": "آپ کا ریفنڈ آپ کے Shopzo والیٹ بیلنس میں شامل ہو جائے گا۔ بیلنس 'میرا والیٹ' اسکرین پر دیکھیں۔",
+    "no_upi_note": "کوئی UPI ID محفوظ نہیں ہے۔ ریفنڈ حاصل کرنے کے لیے پہلے UPI ID شامل کریں۔",
+    "add_upi_id": "UPI ID شامل کریں",
+    "select_upi": "UPI منتخب کریں",
+    "add_new_upi": "+ نیا UPI شامل کریں",
+    "add_photos": "تصاویر شامل کریں (اختیاری)",
+    "submitting": "جمع کیا جا رہا ہے...",
+    "submit_exchange": "ایکسچینج کی درخواست جمع کریں",
+    "submit_return": "ریٹرن کی درخواست جمع کریں",
+    "submitted_status": "درخواست جمع ہو گئی — اسٹیٹس: {status}",
+    "submitted": "درخواست کامیابی سے جمع ہو گئی",
+    "something_wrong": "کچھ غلط ہو گیا",
+    "err_reason": "براہ کرم وجہ منتخب کریں",
+    "err_refund_to": "ریفنڈ کہاں چاہیے منتخب کریں (والیٹ یا UPI)",
+    "err_upi": "براہ کرم UPI منتخب کریں",
+    "err_variant": "ایکسچینج کے لیے ویریئنٹ منتخب کریں"
   }
 }

@@ -55,9 +55,16 @@ class CheckoutViewModel extends ChangeNotifier {
   String? get couponCode => _couponCode;
 
   // abhi sirf COD supported hai backend pe
+// COD ya WALLET (backend dono accept karta hai)
   String _paymentMethod = 'COD';
   String get paymentMethod => _paymentMethod;
+  bool get isWalletPayment => _paymentMethod == 'WALLET';
+
+  double get walletBalance => _preview?.walletBalance ?? 0;
+  bool get walletSufficient => _preview?.walletSufficient ?? false;
+  double get walletRemaining => walletBalance - total;
   void setPaymentMethod(String method) {
+    if (method == 'WALLET' && !walletSufficient) return;
     _paymentMethod = method;
     notifyListeners();
   }
@@ -143,6 +150,9 @@ class CheckoutViewModel extends ChangeNotifier {
     if (result.isCompleted && result.data != null) {
       _preview = result.data;
       _previewStatus = PreviewStatus.loaded;
+      if (_paymentMethod == 'WALLET' && !_preview!.walletSufficient) {
+        _paymentMethod = 'COD';
+      }
     } else {
       _previewStatus = PreviewStatus.error;
       _previewError = result.message ?? 'Failed to calculate order summary';
@@ -160,6 +170,13 @@ class CheckoutViewModel extends ChangeNotifier {
     if (_selectedAddress == null) {
       _placeOrderStatus = PlaceOrderStatus.error;
       _placeOrderError = 'Please select a delivery address';
+      notifyListeners();
+      return false;
+    }
+
+    if (_paymentMethod == 'WALLET' && !walletSufficient) {
+      _placeOrderStatus = PlaceOrderStatus.error;
+      _placeOrderError = 'Insufficient wallet balance';
       notifyListeners();
       return false;
     }

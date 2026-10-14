@@ -187,33 +187,45 @@
     "turn_on_gps": "पुढे जाण्यासाठी डिव्हाइसचे स्थान (GPS) सुरू करा.",
     "permission_required": "तुमचा पत्ता शोधण्यासाठी स्थानाची परवानगी आवश्यक आहे.",
     "permission_permanently_denied": "स्थानाची परवानगी कायमची नाकारली आहे. ती अॅप सेटिंग्जमधून सुरू करा.",
+
     "current_location": "सध्याचे स्थान",
     "location_added": "सध्याचे स्थान यशस्वीरित्या जोडले गेले!"
   },
   "profiles": {
     "edit_profile": "प्रोफाइल संपादित करा",
     "profile_information": "प्रोफाइल माहिती",
+
     "personal_details": "वैयक्तिक माहिती",
+
     "full_name": "पूर्ण नाव",
     "full_name_hint": "तुमचे पूर्ण नाव प्रविष्ट करा",
+
     "email_address": "ईमेल पत्ता",
     "email_hint": "तुमचा ईमेल प्रविष्ट करा",
+
     "phone_number": "फोन नंबर",
     "phone_hint": "तुमचा मोबाईल नंबर प्रविष्ट करा",
+
     "date_of_birth": "जन्मतारीख",
     "date_hint": "DD/MM/YYYY",
+
     "gender": "लिंग",
     "select_gender": "लिंग निवडा",
+
     "male": "पुरुष",
     "female": "महिला",
     "other": "इतर",
+
     "member_since": "{} पासून सदस्य",
     "your_profile": "तुमची प्रोफाइल",
     "not_set": "सेट केलेले नाही",
+
     "save_changes": "बदल सेव्ह करा",
-    "member_since_label": "सदस्य झाल्याची तारीख",
+
     "profile_updated": "तुमची प्रोफाइल अपडेट झाली आहे",
     "update_failed": "प्रोफाइल अपडेट करता आली नाही",
+    "member_since_label": "सदस्य झाल्याची तारीख",
+
     "failed_load_profile": "प्रोफाइल लोड करता आली नाही",
     "retry": "पुन्हा प्रयत्न करा"
   },
@@ -221,16 +233,22 @@
     "deliver_to": "येथे डिलिव्हर करा",
     "trending_now": "सध्या ट्रेंडिंगमध्ये",
     "search_placeholder": "उत्पादने, ब्रँड आणि इतर गोष्टी शोधा",
+
     "loyalty_title_line1": "विशेष लॉयल्टी रिवॉर्ड्स",
     "loyalty_title_line2": "₹500 पर्यंत कॅशबॅक",
     "loyalty_subtitle": "₹1,999 पेक्षा जास्त सर्व UPI व्यवहारांवर",
+
     "retry": "पुन्हा प्रयत्न करा",
+
     "failed_to_load_products": "उत्पादने लोड करता आली नाहीत",
+
     "results": "निकाल ({})",
     "clear_filters": "फिल्टर साफ करा",
+
     "no_products_found": "कोणतेही उत्पादन सापडले नाही",
     "try_adjusting_filters": "तुमचे फिल्टर बदलून पहा",
     "no_products_available": "सध्या कोणतेही उत्पादन उपलब्ध नाही",
+
     "category_load_error": "कॅटेगरी लोड करता आल्या नाहीत — पुन्हा प्रयत्न करण्यासाठी टॅप करा"
   },
 
@@ -239,22 +257,28 @@
     "price": "किंमत",
     "filters": "फिल्टर",
     "filters_count": "फिल्टर ({})",
+
     "sort_by": "क्रमवारी लावा",
     "price_low_high": "किंमत: कमी ते जास्त",
     "price_high_low": "किंमत: जास्त ते कमी",
     "rating": "रेटिंग",
     "newest": "नवीनतम",
+
     "price_range": "किंमत श्रेणी",
     "reset": "रीसेट",
+
     "cancel": "रद्द करा",
     "apply": "लागू करा",
+
     "categories": "कॅटेगरी",
     "clear_all": "सर्व साफ करा",
+
     "gender": "लिंग",
     "men": "पुरुष",
     "women": "महिला",
     "unisex": "युनिसेक्स"
   },
+
   "wishlist": {
     "update_failed": "विशलिस्ट अपडेट करता आली नाही. कृपया पुन्हा प्रयत्न करा.",
     "added": "विशलिस्टमध्ये जोडले",
@@ -292,6 +316,7 @@
     "check_back": "उत्तम ऑफर्ससाठी नंतर पुन्हा पहा!",
     "see_all": "सर्व पहा"
   },
+
   "top_picks": {
     "title": "तुमच्यासाठी टॉप पिक्स",
     "badge": "टॉप पिक",
@@ -299,6 +324,7 @@
     "something_wrong": "काहीतरी चूक झाली",
     "retry": "पुन्हा प्रयत्न करा"
   },
+
   "brands": {
     "all_brands": "सर्व ब्रँड",
     "search": "ब्रँड शोधा",
@@ -307,11 +333,13 @@
     "shop_by_brand": "ब्रँडनुसार खरेदी करा",
     "products": "{} उत्पादने"
   },
+
   "quick_categories": {
     "category_load_error": "कॅटेगरी लोड करता आल्या नाहीत — पुन्हा प्रयत्न करण्यासाठी टॅप करा",
     "more": "अधिक पहा",
     "hide": "लपवा"
   },
+
   "product": {
     "out_of_stock": "स्टॉकमध्ये उपलब्ध नाही"
   },
@@ -537,7 +565,13 @@
       "secure_payments": "100% सुरक्षित पेमेंट",
       "placing_order": "ऑर्डर दिली जात आहे...",
       "pay": "{} भरा",
-      "payment_coming_soon": "{} लवकरच उपलब्ध होईल — सध्या कॅश ऑन डिलिव्हरी वापरा"
+      "payment_coming_soon": "{} लवकरच उपलब्ध होईल — सध्या कॅश ऑन डिलिव्हरी वापरा",
+      "wallet": "वॉलेट",
+      "wallet_balance": "उपलब्ध शिल्लक: {amount}",
+      "wallet_low": "कमी शिल्लक",
+      "wallet_insufficient": "तुमच्या वॉलेटमध्ये पुरेशी शिल्लक नाही. आणखी {amount} हवे आहेत, किंवा दुसरी पेमेंट पद्धत निवडा.",
+      "wallet_after_label": "पेमेंटनंतर वॉलेट शिल्लक",
+      "wallet_full_note": "संपूर्ण ऑर्डर रक्कम तुमच्या वॉलेटमधून भरली जाईल."
     },
 
     "actions": {
@@ -659,5 +693,45 @@
     "call": "कॉल करा",
     "chat": "चॅट करा",
     "email": "ईमेल"
+  },
+
+  "return_form": {
+    "qty_available": "उपलब्ध प्रमाण: {qty}",
+    "what_to_do": "तुम्हाला काय करायचे आहे?",
+    "return": "रिटर्न",
+    "exchange": "एक्सचेंज",
+    "select_new_variant": "नवीन व्हेरिएंट निवडा",
+    "choose_variant": "व्हेरिएंट निवडा",
+    "no_variants_note": "या उत्पादनाचा दुसरा कोणताही व्हेरिएंट उपलब्ध नाही, त्यामुळे तेच उत्पादन एक्सचेंज केले जाईल.",
+    "reason": "कारण",
+    "select_reason": "कारण निवडा",
+    "reason_size_issue": "साइझची समस्या",
+    "reason_damaged": "खराब झालेले उत्पादन",
+    "reason_wrong_item": "चुकीची वस्तू डिलिव्हर झाली",
+    "reason_quality": "दर्जा अपेक्षेप्रमाणे नाही",
+    "reason_not_needed": "वस्तूची आता गरज नाही",
+    "reason_others": "इतर",
+    "tell_us_more": "अधिक सांगा (पर्यायी)",
+    "note_hint": "उदा. बॉक्स उघडलेला मिळाला...",
+    "quantity": "प्रमाण",
+    "refund_to": "रिफंड कुठे हवा",
+    "wallet": "वॉलेट",
+    "upi": "UPI",
+    "wallet_note": "तुमचा रिफंड तुमच्या Shopzo वॉलेट बॅलन्समध्ये जमा होईल. बॅलन्स 'माझे वॉलेट' स्क्रीनवर पहा.",
+    "no_upi_note": "कोणताही UPI ID सेव्ह नाही. रिफंड मिळवण्यासाठी आधी UPI ID जोडा.",
+    "add_upi_id": "UPI ID जोडा",
+    "select_upi": "UPI निवडा",
+    "add_new_upi": "+ नवीन UPI जोडा",
+    "add_photos": "फोटो जोडा (पर्यायी)",
+    "submitting": "सबमिट होत आहे...",
+    "submit_exchange": "एक्सचेंज विनंती सबमिट करा",
+    "submit_return": "रिटर्न विनंती सबमिट करा",
+    "submitted_status": "विनंती सबमिट झाली — स्टेटस: {status}",
+    "submitted": "विनंती यशस्वीरित्या सबमिट झाली",
+    "something_wrong": "काहीतरी चूक झाली",
+    "err_reason": "कृपया कारण निवडा",
+    "err_refund_to": "रिफंड कुठे हवा ते निवडा (वॉलेट किंवा UPI)",
+    "err_upi": "कृपया UPI निवडा",
+    "err_variant": "एक्सचेंजसाठी व्हेरिएंट निवडा"
   }
 }

@@ -82,6 +82,8 @@ class OrderPreviewModel {
   final double total;
   final String? couponApplied;
   final String? couponError;
+  final double walletBalance;     // <-- add
+  final bool walletSufficient;   // <-- add
 
   const OrderPreviewModel({
     required this.items,
@@ -91,6 +93,8 @@ class OrderPreviewModel {
     required this.total,
     this.couponApplied,
     this.couponError,
+    this.walletBalance = 0,         // <-- add
+    this.walletSufficient = false,  // <-- add
   });
 
   bool get hasCouponApplied => couponApplied != null && couponApplied!.isNotEmpty;
@@ -108,6 +112,7 @@ class OrderPreviewModel {
       total: num_(json['total']),
       couponApplied: json['couponApplied']?.toString(),
       couponError: json['couponError']?.toString(),
-    );
+      walletBalance: num_(json['walletBalance']),
+      walletSufficient: json['walletSufficient'] == true,    );
   }
 }

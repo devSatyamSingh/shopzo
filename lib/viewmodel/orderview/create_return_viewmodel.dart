@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../model/order/return_model.dart';
 import '../../model/payout_method_model.dart';
@@ -166,29 +167,23 @@ class CreateReturnViewModel extends ChangeNotifier {
 
   bool validate() {
     if (reason == null || reason!.trim().isEmpty) {
-      return _fail('Please select a reason');
+      return _fail('return_form.err_reason'.tr());
     }
 
-    if (refundTo == null) {
-      return _fail('Where would you like your refund? Please select Wallet or UPI');
-    }
+    if (refundTo == null) return _fail('return_form.err_refund_to'.tr());
 
     if (refundTo == ReturnRefundTo.upi &&
         (selectedPayoutMethodId == null || selectedPayoutMethodId!.isEmpty)) {
-      return _fail('Please select a UPI payment method');
+      return _fail('return_form.err_upi'.tr());
     }
 
-    // Variant is required only when the product has alternate variants
     if (requestType == ReturnRequestType.exchange &&
         exchangeVariants.isNotEmpty &&
-        (selectedExchangeVariantId == null ||
-            selectedExchangeVariantId!.isEmpty)) {
-      return _fail('Please select a variant for the exchange');
+        (selectedExchangeVariantId == null || selectedExchangeVariantId!.isEmpty)) {
+      return _fail('return_form.err_variant'.tr());
     }
-
     return true;
   }
-
   Future<bool> submit({required String orderItemId, required String productId}) async {
     if (!validate()) return false;
     _status = CreateReturnStatus.submitting;

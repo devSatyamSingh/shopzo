@@ -15,9 +15,15 @@ import 'package:easy_localization/easy_localization.dart';
 class PaymentOptionData {
   final IconData icon;
   final String title;
+  final String method; // backend ko jane wali value
   final bool isLive;
 
-  const PaymentOptionData({required this.icon, required this.title, this.isLive = false});
+  const PaymentOptionData({
+    required this.icon,
+    required this.title,
+    required this.method,
+    this.isLive = false,
+  });
 }
 
 class CheckoutPaymentScreen extends StatefulWidget {
@@ -28,48 +34,85 @@ class CheckoutPaymentScreen extends StatefulWidget {
 }
 
 class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
+  // Wallet ka card alag se upar banta hai (_WalletCard), baaki yahan se
   static const List<PaymentOptionData> _options = [
-    PaymentOptionData(icon: Icons.payments_rounded, title: 'Cash on Delivery', isLive: true),
-    PaymentOptionData(icon: Icons.account_balance_wallet_rounded, title: 'UPI'),
-    PaymentOptionData(icon: Icons.credit_card_rounded, title: 'Credit / Debit Card'),
-    PaymentOptionData(icon: Icons.account_balance_rounded, title: 'Net Banking'),
+    PaymentOptionData(
+      icon: Icons.payments_rounded,
+      title: 'Cash on Delivery',
+      method: 'COD',
+      isLive: true,
+    ),
+    PaymentOptionData(
+      icon: Icons.account_balance_wallet_rounded,
+      title: 'UPI',
+      method: 'UPI',
+    ),
+    PaymentOptionData(
+      icon: Icons.credit_card_rounded,
+      title: 'Credit / Debit Card',
+      method: 'CARD',
+    ),
+    PaymentOptionData(
+      icon: Icons.account_balance_rounded,
+      title: 'Net Banking',
+      method: 'NETBANKING',
+    ),
   ];
 
-  int _selectedIndex = 0; // COD default selected
+  @override
+  void initState() {
+    super.initState();
+    // Latest wallet balance lane ke liye preview dobara fetch karo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<CheckoutViewModel>();
+      if (vm.items.isNotEmpty && !vm.isPreviewLoading) vm.fetchPreview();
+    });
+  }
 
   String _getPaymentTitle(String title) {
     switch (title) {
       case 'Cash on Delivery':
         return 'checkout.payment.cash_on_delivery'.tr();
-
       case 'UPI':
         return 'checkout.payment.upi'.tr();
-
       case 'Credit / Debit Card':
         return 'checkout.payment.credit_debit_card'.tr();
-
       case 'Net Banking':
         return 'checkout.payment.net_banking'.tr();
-
       default:
         return title;
     }
   }
 
-  Future<void> _onPayNow(CheckoutViewModel checkoutVm) async {
-    final selected = _options[_selectedIndex];
-    if (!selected.isLive) {
+  void _onOptionTap(CheckoutViewModel vm, PaymentOptionData option) {
+    if (!option.isLive) {
       AppUtils.warning(
         context,
         'checkout.payment.payment_coming_soon'.tr(
-          args: [_getPaymentTitle(selected.title)],
+          args: [_getPaymentTitle(option.title)],
         ),
       );
       return;
     }
+    vm.setPaymentMethod(option.method);
+  }
 
+  void _onWalletTap(CheckoutViewModel vm) {
+    if (!vm.walletSufficient) {
+      final shortfall = (vm.total - vm.walletBalance).clamp(0, double.infinity);
+      AppUtils.warning(
+        context,
+        'checkout.payment.wallet_insufficient'.tr(
+          namedArgs: {'amount': AppUtils.formatCurrency(shortfall)},
+        ),
+      );
+      return;
+    }
+    vm.setPaymentMethod('WALLET');
+  }
 
-    checkoutVm.setPaymentMethod('COD');
+  Future<void> _onPayNow(CheckoutViewModel checkoutVm) async {
+    // COD ya WALLET — jo vm me selected hai wahi backend ko jayega
     final success = await checkoutVm.placeOrder();
     if (!mounted) return;
 
@@ -98,7 +141,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
     if (checkoutVm.items.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Checkout'), centerTitle: true),
+        appBar: AppBar(title: Text('checkout.checkout'.tr()), centerTitle: true),
         body: Center(
           child: TextContext(
             text: 'checkout.order.no_items'.tr(),
@@ -110,6 +153,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
     }
 
     final double amountToPay = checkoutVm.total;
+    final String selectedMethod = checkoutVm.paymentMethod;
 
     return Scaffold(
       backgroundColor: ColorConstant.scaffoldBgColor,
@@ -163,8 +207,8 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                             AppUtils.formatCurrency(amountToPay),
                             style: const TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 19,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
@@ -182,15 +226,29 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                     ),
                     SizedBox(height: size.height * 0.012),
 
-                    // ---------------- PAYMENT OPTIONS ----------------
+                    // ---------------- WALLET CARD ----------------
+                    Padding(
+                      padding: EdgeInsets.only(bottom: size.height * 0.012),
+                      child: _WalletCard(
+                        isSelected: selectedMethod == 'WALLET',
+                        isLoading: checkoutVm.isPreviewLoading && !checkoutVm.hasPreviewLoadedOnce,
+                        sufficient: checkoutVm.walletSufficient,
+                        balance: checkoutVm.walletBalance,
+                        total: amountToPay,
+                        remaining: checkoutVm.walletRemaining,
+                        onTap: () => _onWalletTap(checkoutVm),
+                      ),
+                    ),
+
+                    // ---------------- OTHER PAYMENT OPTIONS ----------------
                     ...List.generate(_options.length, (index) {
                       final option = _options[index];
-                      final isSelected = index == _selectedIndex;
+                      final isSelected = option.isLive && selectedMethod == option.method;
                       return Padding(
                         padding: EdgeInsets.only(bottom: size.height * 0.012),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(14),
-                          onTap: option.isLive ? () => setState(() => _selectedIndex = index) : null,
+                          onTap: () => _onOptionTap(checkoutVm, option),
                           child: Opacity(
                             opacity: option.isLive ? 1 : 0.5,
                             child: Container(
@@ -198,7 +256,9 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                                 color: ColorConstant.whiteColor,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                                  color: isSelected
+                                      ? ColorConstant.primaryColor
+                                      : ColorConstant.borderColor,
                                   width: isSelected ? 1.6 : 1,
                                 ),
                               ),
@@ -224,9 +284,13 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                                     )
                                   else
                                     Icon(
-                                      isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                                      isSelected
+                                          ? Icons.radio_button_checked_rounded
+                                          : Icons.radio_button_off_rounded,
                                       size: 20,
-                                      color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                                      color: isSelected
+                                          ? ColorConstant.primaryColor
+                                          : ColorConstant.borderColor,
                                     ),
                                 ],
                               ),
@@ -262,14 +326,15 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
             // ---------------- BOTTOM PAY BUTTON ----------------
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.06, vertical: size.height * 0.015),
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.06,
+                vertical: size.height * 0.015,
+              ),
               child: CustomButton(
                 text: checkoutVm.isPlacingOrder
                     ? 'checkout.payment.placing_order'.tr()
                     : 'checkout.payment.pay'.tr(
-                  args: [
-                    AppUtils.formatCurrency(amountToPay),
-                  ],
+                  args: [AppUtils.formatCurrency(amountToPay)],
                 ),
                 onTap: checkoutVm.isPlacingOrder ? null : () => _onPayNow(checkoutVm),
                 loading: checkoutVm.isPlacingOrder,
@@ -281,6 +346,196 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// ---------------- WALLET PAYMENT CARD ----------------
+class _WalletCard extends StatelessWidget {
+  final bool isSelected;
+  final bool isLoading;
+  final bool sufficient;
+  final double balance;
+  final double total;
+  final double remaining;
+  final VoidCallback onTap;
+
+  const _WalletCard({
+    required this.isSelected,
+    required this.isLoading,
+    required this.sufficient,
+    required this.balance,
+    required this.total,
+    required this.remaining,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shortfall = (total - balance).clamp(0, double.infinity).toDouble();
+    final Color accent = sufficient ? ColorConstant.primaryColor : ColorConstant.placeholderColor;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: isLoading ? null : onTap,
+      child: Opacity(
+        opacity: sufficient || isLoading ? 1 : 0.65,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: ColorConstant.whiteColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+              width: isSelected ? 1.6 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.account_balance_wallet_rounded, size: 20, color: accent),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextContext(
+                          text: 'checkout.payment.wallet'.tr(),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          color: ColorConstant.headlineTextColor,
+                        ),
+                        const SizedBox(height: 2),
+                        if (isLoading)
+                          const SizedBox(
+                            height: 12,
+                            width: 12,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.6,
+                              color: ColorConstant.primaryColor,
+                            ),
+                          )
+                        else
+                          TextContext(
+                            text: 'checkout.payment.wallet_balance'.tr(
+                              namedArgs: {'amount': AppUtils.formatCurrency(balance)},
+                            ),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: ColorConstant.labelTextColor,
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (!isLoading && !sufficient)
+                    TextContext(
+                      text: 'checkout.payment.wallet_low'.tr(),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: ColorConstant.errorColor,
+                    )
+                  else
+                    Icon(
+                      isSelected
+                          ? Icons.radio_button_checked_rounded
+                          : Icons.radio_button_off_rounded,
+                      size: 20,
+                      color: isSelected ? ColorConstant.primaryColor : ColorConstant.borderColor,
+                    ),
+                ],
+              ),
+
+              // ---- Kam balance: kitna chahiye ----
+              if (!isLoading && !sufficient) ...[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: ColorConstant.errorColor.withOpacity(.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextContext(
+                    text: 'checkout.payment.wallet_insufficient'.tr(
+                      namedArgs: {'amount': AppUtils.formatCurrency(shortfall)},
+                    ),
+                    fontSize: 11.5,
+                    height: 1.4,
+                    color: ColorConstant.errorColor,
+                  ),
+                ),
+              ],
+
+              // ---- Selected: breakdown ----
+              if (isSelected && sufficient) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ColorConstant.primaryLight,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      _row('checkout.bill.to_pay'.tr(), '-${AppUtils.formatCurrency(total)}',
+                          ColorConstant.errorColor),
+                      const SizedBox(height: 6),
+                      _row(
+                        'checkout.payment.wallet_after_label'.tr(),
+                        AppUtils.formatCurrency(remaining),
+                        ColorConstant.successColor,
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextContext(
+                          text: 'checkout.payment.wallet_full_note'.tr(),
+                          fontSize: 11,
+                          height: 1.4,
+                          color: ColorConstant.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextContext(
+          text: label,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w500,
+          color: ColorConstant.labelTextColor,
+        ),
+        TextContext(
+          text: value,
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: valueColor,
+        ),
+      ],
     );
   }
 }

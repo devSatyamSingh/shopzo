@@ -175,8 +175,8 @@ class _WalletViewState extends State<_WalletView> {
                           AppUtils.formatCurrency(vm.balance),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 32,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),

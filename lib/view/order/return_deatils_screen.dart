@@ -439,17 +439,17 @@ class _ReturnDetailView extends StatelessWidget {
   _StatusConfig _statusConfig(ReturnStatus status) {
     switch (status) {
       case ReturnStatus.requested:
-        return const _StatusConfig(label: "Requested", description: "Aapka request review ke liye bheja gaya hai", color: ColorConstant.orangeColor, icon: Icons.hourglass_top_rounded);
+        return const _StatusConfig(label: "Requested", description: "Your request has been sent for review", color: ColorConstant.orangeColor, icon: Icons.hourglass_top_rounded);
       case ReturnStatus.approved:
-        return const _StatusConfig(label: "Approved", description: "Aapki request approve ho gayi hai", color: ColorConstant.infoColor, icon: Icons.check_circle_outline_rounded);
+        return const _StatusConfig(label: "Approved", description: "Your request has been approved", color: ColorConstant.infoColor, icon: Icons.check_circle_outline_rounded);
       case ReturnStatus.rejected:
-        return const _StatusConfig(label: "Rejected", description: "Aapki request reject kar di gayi hai", color: ColorConstant.errorColor, icon: Icons.cancel_outlined);
+        return const _StatusConfig(label: "Rejected", description: "Your request has been rejected", color: ColorConstant.errorColor, icon: Icons.cancel_outlined);
       case ReturnStatus.cancelled:
-        return const _StatusConfig(label: "Cancelled", description: "Ye request cancel kar di gayi hai", color: ColorConstant.errorColor, icon: Icons.close_rounded);
+        return const _StatusConfig(label: "Cancelled", description: "This request has been cancelled", color: ColorConstant.errorColor, icon: Icons.close_rounded);
       case ReturnStatus.completed:
-        return const _StatusConfig(label: "Completed", description: "Aapki request complete ho gayi hai", color: ColorConstant.successColor, icon: Icons.task_alt_rounded);
+        return const _StatusConfig(label: "Completed", description: "Your request has been completed", color: ColorConstant.successColor, icon: Icons.task_alt_rounded);
       case ReturnStatus.unknown:
-        return const _StatusConfig(label: "Processing", description: "Status update ho raha hai", color: ColorConstant.labelTextColor, icon: Icons.hourglass_empty_rounded);
+        return const _StatusConfig(label: "Processing", description: "Status is being updated", color: ColorConstant.labelTextColor, icon: Icons.hourglass_empty_rounded);
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,27 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
     super.dispose();
   }
 
+  /// Backend ko hamesha English value jati hai (reasonOptions),
+  /// yahan sirf screen par dikhne wala label translate hota hai.
+  String _reasonLabel(String r) {
+    switch (r) {
+      case 'Size issue':
+        return 'return_form.reason_size_issue'.tr();
+      case 'Damaged product':
+        return 'return_form.reason_damaged'.tr();
+      case 'Wrong item delivered':
+        return 'return_form.reason_wrong_item'.tr();
+      case 'Quality not as expected':
+        return 'return_form.reason_quality'.tr();
+      case 'Item no longer needed':
+        return 'return_form.reason_not_needed'.tr();
+      case 'Others':
+        return 'return_form.reason_others'.tr();
+      default:
+        return r;
+    }
+  }
+
   Future<void> _pickImage(CreateReturnViewModel vm) async {
     // Backend max 3 images leta hai
     if (vm.images.length >= 3) return;
@@ -73,11 +95,12 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
       AppUtils.success(
         context,
         vm.createdReturn?.statusRaw != null
-            ? "Request submitted — status: ${vm.createdReturn!.statusRaw}"
-            : "Request submitted successfully",
+            ? 'return_form.submitted_status'
+            .tr(namedArgs: {'status': vm.createdReturn!.statusRaw})
+            : 'return_form.submitted'.tr(),
       );
     } else {
-      AppUtils.error(context, vm.errorMessage ?? "Something went wrong");
+      AppUtils.error(context, vm.errorMessage ?? 'return_form.something_wrong'.tr());
     }
   }
 
@@ -85,8 +108,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
   Widget build(BuildContext context) {
     final item = widget.item;
 
-    final int remainingQty =
-    (item.quantity - item.returnedQty).clamp(1, item.quantity).toInt();
+    final int remainingQty = (item.quantity - item.returnedQty) < 1
+        ? 1
+        : (item.quantity - item.returnedQty);
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -160,7 +184,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                       ),
                                       const SizedBox(height: 3),
                                       TextContext(
-                                        text: "Qty available: $remainingQty",
+                                        text: 'return_form.qty_available'
+                                            .tr(namedArgs: {'qty': '$remainingQty'}),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         color: ColorConstant.labelTextColor,
@@ -173,8 +198,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                             const SizedBox(height: 20),
 
                             // ---------------- RETURN / EXCHANGE ----------------
-                            const TextContext(
-                              text: "What do you want to do?",
+                            TextContext(
+                              text: 'return_form.what_to_do'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -183,7 +208,7 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                               children: [
                                 Expanded(
                                   child: _TypePill(
-                                    label: "Return",
+                                    label: 'return_form.return'.tr(),
                                     icon: Icons.keyboard_return_rounded,
                                     isSelected: vm.requestType == ReturnRequestType.returnOnly,
                                     onTap: () => vm.setRequestType(
@@ -196,7 +221,7 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: _TypePill(
-                                    label: "Exchange",
+                                    label: 'return_form.exchange'.tr(),
                                     icon: Icons.swap_horiz_rounded,
                                     isSelected: vm.requestType == ReturnRequestType.exchange,
                                     onTap: () => vm.setRequestType(
@@ -218,8 +243,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 const _Loader(),
                               ] else if (vm.exchangeVariants.isNotEmpty) ...[
                                 const SizedBox(height: 18),
-                                const TextContext(
-                                  text: "Select new variant",
+                                TextContext(
+                                  text: 'return_form.select_new_variant'.tr(),
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -229,9 +254,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                     child: DropdownButton<String>(
                                       isExpanded: true,
                                       value: vm.selectedExchangeVariantId,
-                                      hint: const Text(
-                                        "Choose variant",
-                                        style: TextStyle(
+                                      hint: Text(
+                                        'return_form.choose_variant'.tr(),
+                                        style: const TextStyle(
                                           fontFamily: "Poppins",
                                           fontSize: 13.5,
                                           color: ColorConstant.placeholderColor,
@@ -255,17 +280,14 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 ),
                               ] else ...[
                                 const SizedBox(height: 12),
-                                const _InfoNote(
-                                  text:
-                                  "There are no other variants available for this product, so it will be exchanged for the same product.",
-                                ),
+                                _InfoNote(text: 'return_form.no_variants_note'.tr()),
                               ],
                             ],
 
                             // ---------------- REASON ----------------
                             const SizedBox(height: 18),
-                            const TextContext(
-                              text: "Reason",
+                            TextContext(
+                              text: 'return_form.reason'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -275,9 +297,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 child: DropdownButton<String>(
                                   isExpanded: true,
                                   value: vm.reason,
-                                  hint: const Text(
-                                    "Select a reason",
-                                    style: TextStyle(
+                                  hint: Text(
+                                    'return_form.select_reason'.tr(),
+                                    style: const TextStyle(
                                       fontFamily: "Poppins",
                                       fontSize: 13.5,
                                       color: ColorConstant.placeholderColor,
@@ -285,9 +307,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                   ),
                                   items: CreateReturnViewModel.reasonOptions
                                       .map((r) => DropdownMenuItem(
-                                    value: r,
+                                    value: r, // English value -> backend
                                     child: Text(
-                                      r,
+                                      _reasonLabel(r), // translated label
                                       style: const TextStyle(
                                         fontFamily: "Poppins",
                                         fontSize: 13.5,
@@ -302,8 +324,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
 
                             // ---------------- NOTE (optional) ----------------
                             const SizedBox(height: 18),
-                            const TextContext(
-                              text: "Tell us more (optional)",
+                            TextContext(
+                              text: 'return_form.tell_us_more'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -319,23 +341,23 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 maxLines: 4,
                                 onChanged: vm.setReasonNote,
                                 style: const TextStyle(fontFamily: "Poppins", fontSize: 13.5),
-                                decoration: const InputDecoration(
-                                  hintText: "e.g. Box khula hua mila...",
-                                  hintStyle: TextStyle(
+                                decoration: InputDecoration(
+                                  hintText: 'return_form.note_hint'.tr(),
+                                  hintStyle: const TextStyle(
                                     fontFamily: "Poppins",
                                     fontSize: 13,
                                     color: ColorConstant.placeholderColor,
                                   ),
                                   border: InputBorder.none,
-                                  contentPadding: EdgeInsets.all(14),
+                                  contentPadding: const EdgeInsets.all(14),
                                 ),
                               ),
                             ),
 
                             // ---------------- QUANTITY ----------------
                             const SizedBox(height: 18),
-                            const TextContext(
-                              text: "Quantity",
+                            TextContext(
+                              text: 'return_form.quantity'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -364,8 +386,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
 
                             // ---------------- REFUND TO ----------------
                             const SizedBox(height: 18),
-                            const TextContext(
-                              text: "Refund to",
+                            TextContext(
+                              text: 'return_form.refund_to'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -374,7 +396,7 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                               children: [
                                 Expanded(
                                   child: _TypePill(
-                                    label: "Wallet",
+                                    label: 'return_form.wallet'.tr(),
                                     icon: Icons.account_balance_wallet_outlined,
                                     isSelected: vm.refundTo == ReturnRefundTo.wallet,
                                     onTap: () => vm.setRefundTo(ReturnRefundTo.wallet),
@@ -383,7 +405,7 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: _TypePill(
-                                    label: "UPI",
+                                    label: 'return_form.upi'.tr(),
                                     icon: Icons.qr_code_2_rounded,
                                     isSelected: vm.refundTo == ReturnRefundTo.upi,
                                     onTap: () => vm.setRefundTo(ReturnRefundTo.upi),
@@ -395,10 +417,7 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                             // ---- Wallet: sirf info ----
                             if (vm.refundTo == ReturnRefundTo.wallet) ...[
                               const SizedBox(height: 10),
-                              const _InfoNote(
-                                text:
-                                "Your refund will be added to your Shopzo Wallet balance. You can view your balance on the 'My Wallet' screen.",
-                              ),
+                              _InfoNote(text: 'return_form.wallet_note'.tr()),
                             ],
 
                             // ---- UPI: list / add ----
@@ -416,17 +435,16 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                   ),
                                   child: Row(
                                     children: [
-                                      const Expanded(
+                                      Expanded(
                                         child: TextContext(
-                                          text:
-                                          "No UPI ID is saved. Please add a UPI ID first to receive your refund.",
+                                          text: 'return_form.no_upi_note'.tr(),
                                           fontSize: 12.5,
                                           color: ColorConstant.labelTextColor,
                                         ),
                                       ),
                                       TextButton(
                                         onPressed: () => _openAddUpi(vm),
-                                        child: const Text("Add UPI ID"),
+                                        child: Text('return_form.add_upi_id'.tr()),
                                       ),
                                     ],
                                   ),
@@ -437,9 +455,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                       child: DropdownButton<String>(
                                         isExpanded: true,
                                         value: vm.selectedPayoutMethodId,
-                                        hint: const Text(
-                                          "Select UPI",
-                                          style: TextStyle(
+                                        hint: Text(
+                                          'return_form.select_upi'.tr(),
+                                          style: const TextStyle(
                                             fontFamily: "Poppins",
                                             fontSize: 13.5,
                                             color: ColorConstant.placeholderColor,
@@ -463,10 +481,10 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                                     ),
                                   ),
                                   Align(
-                                    alignment: Alignment.centerRight,
+                                    alignment: AlignmentDirectional.centerEnd,
                                     child: TextButton(
                                       onPressed: () => _openAddUpi(vm),
-                                      child: const Text("+ Add new UPI"),
+                                      child: Text('return_form.add_new_upi'.tr()),
                                     ),
                                   ),
                                 ],
@@ -474,8 +492,8 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
 
                             // ---------------- PHOTOS ----------------
                             const SizedBox(height: 14),
-                            const TextContext(
-                              text: "Add photos (optional)",
+                            TextContext(
+                              text: 'return_form.add_photos'.tr(),
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -551,10 +569,10 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                       child: CustomButton(
                         text: vm.isSubmitting
-                            ? "Submitting..."
+                            ? 'return_form.submitting'.tr()
                             : (vm.requestType == ReturnRequestType.exchange
-                            ? "Submit Exchange Request"
-                            : "Submit Return Request"),
+                            ? 'return_form.submit_exchange'.tr()
+                            : 'return_form.submit_return'.tr()),
                         width: double.infinity,
                         height: 52,
                         onTap: (vm.isSubmitting || !vm.canSubmit)
@@ -611,9 +629,9 @@ class _ReturnFormSheetState extends State<_ReturnFormSheet> {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: Image.file(file, fit: BoxFit.cover),
         ),
-        Positioned(
+        PositionedDirectional(
           top: -4,
-          right: -4,
+          end: -4,
           child: InkWell(
             onTap: onRemove,
             child: Container(
